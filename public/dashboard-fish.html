@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+     <title>Wukong Slot - Sảnh Bắn Cá</title>
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/user.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<script>
+    if (!localStorage.getItem('username')) {
+        window.location.href = '/';
+    }
+</script>
+<body class="dashboard-page">
+    <div id="page-background"></div>
+    <div id="space-dust-overlay"></div>
+    <div id="background-effects"></div>
+    <div id="grid-overlay"></div>
+    <div class="video-overlay"></div>
+    <div class="shooting-stars">
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+    </div>
+
+    <header class="header fadeIn">
+        <div class="header-left">
+            <a href="/brand-selection.html" class="back-button-user" style="position: static; transform: none; text-decoration: none;">← Chọn Lại</a>
+        </div>
+        <div class="header-center">
+            <div id="welcome-message">Chào, ...!</div>
+            <div id="live-clock-container"></div>
+        </div>
+        <div class="header-right">
+            <div class="header-right-content">
+                <div id="coin-display">Token: ...</div>
+                <button class="logout-button">Đăng Xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content fadeIn" style="animation-delay: 0.2s;">
+        <h2 class="main-title" id="main-title-header">Đang tải...</h2>
+        <div class="grid-container" id="lobby-container"></div>
+    </main>
+    
+    <div class="terminal-notification fadeIn" style="animation-delay: 0.5s;">
+        <div class="terminal-bot-icon"><img src="/assets/images/bot-icon.png" alt="Bot Icon"></div>
+        <div class="terminal-content">
+            <div class="terminal-header">Terminal</div>
+            <div class="terminal-body"><span id="terminal-message"></span><span class="cursor"></span></div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.logout-button').addEventListener('click', () => { 
+            localStorage.clear(); 
+            sessionStorage.clear();
+            window.location.href = '/'; 
+        });
+
+        function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); const timeString = now.toLocaleTimeString('vi-VN'); const dateString = now.toLocaleDateString('vi-VN'); clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; }
+        
+        let terminalMessages = [];
+        let lastMessageIndex = -1;
+        let typingInterval;
+        function generateLobbyMessages(lobbies = []) { const messageTemplates = [ "Đang quét các luồng dữ liệu dưới đại dương...", "Phân tích tín hiệu sonar từ các sảnh bắn cá.", "Giám sát các đàn cá lớn và boss... Tỷ lệ xuất hiện tăng.", "Đang tìm kiếm các 'ngư trường' có tỷ lệ nhả xu cao...", "Hệ thống đã sẵn sàng. Hãy chọn một sảnh để săn mồi." ]; if (lobbies.length > 0) { const randomLobby = lobbies[Math.floor(Math.random() * lobbies.length)]; messageTemplates.push(`Phát hiện boss lớn tại sảnh ${randomLobby.name}!`); messageTemplates.push(`Hệ thống khuyến nghị truy cập sảnh ${randomLobby.name} ngay.`); } return messageTemplates; }
+        function typeMessage(element, message) { if (typingInterval) clearInterval(typingInterval); let i = 0; element.innerHTML = ''; typingInterval = setInterval(() => { if (i < message.length) { element.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); } }, 50); }
+        function showNextTerminalMessage() { const messageEl = document.getElementById('terminal-message'); if (!messageEl || terminalMessages.length === 0) return; let randomIndex; do { randomIndex = Math.floor(Math.random() * terminalMessages.length); } while (randomIndex === lastMessageIndex && terminalMessages.length > 1); lastMessageIndex = randomIndex; const messageToShow = terminalMessages[randomIndex]; typeMessage(messageEl, messageToShow); }
+        
+        window.onload = async () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            const brandName = sessionStorage.getItem('selectedBrand');
+            if (!brandName) {
+                alert("Lỗi: Vui lòng chọn một trang game.");
+                window.location.href = '/brand-selection.html';
+                return;
+            }
+            document.getElementById('main-title-header').textContent = `SẢNH BẮN CÁ CỦA ${brandName.toUpperCase()}`;
+
+            const username = localStorage.getItem('username');
+            if (!username) { window.location.href = '/'; return; }
+
+            const [userRes, lobbyRes] = await Promise.all([
+                fetch(`/api/user-info?username=${username}`),
+                fetch('/api/lobbies?category=banca')
+            ]);
+            const userData = await userRes.json();
+            const lobbyData = await lobbyRes.json();
+
+            if (userData.success) {
+                document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}!`;
+                const visualTokenCount = sessionStorage.getItem('wukongVisualTokenCount');
+                const activeAnalysis = sessionStorage.getItem('wukongActiveAnalysis');
+                if (activeAnalysis && visualTokenCount !== null) {
+                    document.getElementById('coin-display').textContent = `Token: ${visualTokenCount}`;
+                } else {
+                    const userCoinsByBrand = userData.userInfo.coins_by_brand || {};
+                    const coinsForCurrentBrand = userCoinsByBrand[brandName] || 0;
+                    document.getElementById('coin-display').textContent = `Token: ${coinsForCurrentBrand}`;
+                    sessionStorage.removeItem('wukongVisualTokenCount');
+                    sessionStorage.removeItem('wukongActiveAnalysis');
+                }
+            }
+
+            const lobbyContainer = document.getElementById('lobby-container');
+            lobbyContainer.innerHTML = '';
+            if (lobbyData.success && lobbyData.lobbies.length > 0) {
+                terminalMessages = generateLobbyMessages(lobbyData.lobbies);
+                showNextTerminalMessage();
+                setInterval(showNextTerminalMessage, 10000);
+
+                lobbyData.lobbies.forEach(lobby => {
+                    const card = document.createElement('a');
+                    // === THAY ĐỔI: Trỏ link về file games.html chung ===
+                    card.href = `/games.html?lobby_id=${lobby._id}&lobby_name=${encodeURIComponent(lobby.name)}`;
+                    card.className = 'game-card-enhanced dashboard-lobby-card';
+                    card.innerHTML = `
+                    <div class="game-card-inner-frame">
+                        <div class="card-image-wrapper">
+                            <img src="${lobby.logo_url}" alt="${lobby.name}" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="game-card-content">
+                        <button class="action-button" style="background: linear-gradient(45deg, #0077b6, #00b4d8); margin-top: auto;">
+                            ${lobby.name}
+                        </button>
+                    </div>`;
+                    lobbyContainer.appendChild(card);
+                });
+            } else {
+                lobbyContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #fff;">Admin chưa tạo sảnh Bắn Cá.</p>`
+            }
+        };
+    </script>
+    
+    <script>
+        const overlay = document.querySelector('.video-overlay');
+        if (overlay) {
+            window.addEventListener('mousemove', (e) => {
+                const { clientX, clientY } = e;
+                overlay.style.setProperty('--mouse-x', `${clientX}px`);
+                overlay.style.setProperty('--mouse-y', `${clientY}px`);
+            });
+        }
+    </script>
+    <script src="/js/global.js"></script>
+</body>
+</html>

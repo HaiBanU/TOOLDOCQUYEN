@@ -1,6 +1,6 @@
-// --- START OF FILE server.js (ĐÃ CẬP NHẬT CHI PHÍ TOKEN LÊN 10) ---
+// --- START OF FILE server.js (PHIÊN BẢN HOÀN CHỈNH) ---
 
-// === THÊM MỚI: Dòng này phải ở trên cùng để nạp biến môi trường ===
+// === Dòng này phải ở trên cùng để nạp biến môi trường ===
 require('dotenv').config();
 
 // --- PHẦN 1: KHAI BÁO VÀ THIẾT LẬP ---
@@ -10,15 +10,11 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const multer = require('multer');
-const fs = require('fs'); // Module File System để xử lý file
+const fs = require('fs');
 
 const app = express();
-// Render tự động cung cấp biến PORT, nếu không có thì dùng 3000
 const port = process.env.PORT || 3000;
-
-// Đường dẫn này PHẢI TRÙNG KHỚP với Mount Path bạn đã cấu hình trên Render.
 const UPLOADS_DIR = '/var/data/uploads'; 
-
 let lobbyRatesCache = {};
 const ONE_HOUR_IN_MS = 60 * 60 * 1000;
 
@@ -27,11 +23,8 @@ const gameBrands = [ { name: 'AU88', logo: 'au88.png' }, { name: 'MB66', logo: '
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Phục vụ các file tĩnh (ảnh đã upload) từ thư mục uploads
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Cấu hình Multer để lưu file vào ổ đĩa cục bộ
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if (!fs.existsSync(UPLOADS_DIR)){ fs.mkdirSync(UPLOADS_DIR, { recursive: true }); }
@@ -49,20 +42,37 @@ mongoose.connect(process.env.MONGODB_URI)
         console.log('Connected to the MongoDB database.'); 
         createSuperAdmin();
         migrateOrphanedSubAdmins();
+        migrateLobbyCategories(); // Gọi hàm di chuyển dữ liệu sảnh
     })
     .catch(err => console.error('Could not connect to MongoDB...', err));
 
-// --- CÁC SCHEMA (KHÔNG THAY ĐỔI) ---
+// --- CÁC SCHEMA ---
 const userSchema = new mongoose.Schema({ username: { type: String, required: true, unique: true, trim: true }, password: { type: String, required: true }, coins: { type: Number, default: 0 }, is_admin: { type: Boolean, default: false }, is_super_admin: { type: Boolean, default: false }, managed_by_admin_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], assigned_brand: { type: String, default: null }, coins_by_brand: { type: Map, of: Number, default: {} }, created_by_super_admin_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null } }, { timestamps: true });
-const lobbySchema = new mongoose.Schema({ name: String, logo_url: String, position: { type: Number, default: 0 } });
+const lobbySchema = new mongoose.Schema({ name: String, logo_url: String, position: { type: Number, default: 0 }, category: { type: String, enum: ['nohu', 'banca'], default: 'nohu' } });
 const gameSchema = new mongoose.Schema({ lobby_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Lobby', required: true }, name: String, image_url: String });
 const User = mongoose.model('User', userSchema);
 const Lobby = mongoose.model('Lobby', lobbySchema);
 const Game = mongoose.model('Game', gameSchema);
 
-// --- CÁC HÀM KHỞI TẠO ADMIN (KHÔNG THAY ĐỔI) ---
+// --- CÁC HÀM KHỞI TẠO & DI CHUYỂN DỮ LIỆU ---
 async function createSuperAdmin() { const superAdmins = [ { username: 'longho', password: '173204' }, { username: 'vylaobum4', password: '0354089235' } ]; try { for (const admin of superAdmins) { const existingAdmin = await User.findOne({ username: admin.username }); if (!existingAdmin) { const hashedPassword = await bcrypt.hash(admin.password, 10); await new User({ username: admin.username, password: hashedPassword, is_admin: true, is_super_admin: true }).save(); console.log(`Super Admin account created: user='${admin.username}'`); } } } catch (error) { console.error(`Error creating Super Admin:`, error.message); } }
 async function migrateOrphanedSubAdmins() { try { const originalSuperAdmin = await User.findOne({ username: 'longho', is_super_admin: true }); if (!originalSuperAdmin) { console.log("Migration script: Original Super Admin ('longho') not found. Skipping migration."); return; } const result = await User.updateMany( { is_admin: true, is_super_admin: false, created_by_super_admin_id: null }, { $set: { created_by_super_admin_id: originalSuperAdmin._id } } ); if (result.modifiedCount > 0) { console.log(`Migration successful: Assigned ${result.modifiedCount} orphaned sub-admin(s) to '${originalSuperAdmin.username}'.`); } else { console.log("Migration script: No orphaned sub-admins found to update."); } } catch (error) { console.error("Error during sub-admin migration:", error.message); } }
+
+async function migrateLobbyCategories() {
+    try {
+        const result = await Lobby.updateMany(
+            { category: { $exists: false } }, 
+            { $set: { category: 'nohu' } }    
+        );
+        if (result.modifiedCount > 0) {
+            console.log(`Migration successful: Updated ${result.modifiedCount} old lobbies to 'nohu' category.`);
+        } else {
+            console.log("Lobby migration: No lobbies needed to be updated.");
+        }
+    } catch (error) {
+        console.error("Error during lobby category migration:", error.message);
+    }
+}
 
 // --- PHẦN 3: CÁC API ENDPOINTS ---
 app.post('/api/register', async (req, res) => { try { const { username, password } = req.body; if (!username || !password) { return res.status(400).json({ success: false, message: 'Tên đăng nhập và mật khẩu không được để trống' }); } if (username.length <= 4) { return res.status(400).json({ success: false, message: 'Tên đăng nhập phải có nhiều hơn 4 ký tự' }); } if (password.length <= 6) { return res.status(400).json({ success: false, message: 'Mật khẩu phải có nhiều hơn 6 ký tự' }); } const existingUser = await User.findOne({ username }); if (existingUser) { return res.status(409).json({ success: false, message: 'Tên đăng nhập đã tồn tại' }); } const hashedPassword = await bcrypt.hash(password, 10); await new User({ username, password: hashedPassword }).save(); res.json({ success: true, message: 'Đăng ký thành công!' }); } catch (error) { res.status(500).json({ success: false, message: 'Lỗi server khi tạo tài khoản' }); } });
@@ -80,19 +90,16 @@ app.post('/api/create-sub-admin', async (req, res) => { try { const { username, 
 app.post('/api/grant-coins-to-admin', async (req, res) => { try { const { adminId, amount } = req.body; const numAmount = parseInt(amount, 10); if (isNaN(numAmount) || numAmount <= 0) { return res.status(400).json({ success: false, message: "Số Token cấp phải là một số dương." }); } const adminToUpdate = await User.findById(adminId); if (!adminToUpdate || !adminToUpdate.is_admin || adminToUpdate.is_super_admin) { return res.status(404).json({ success: false, message: "Không tìm thấy tài khoản Admin phụ hợp lệ." }); } adminToUpdate.coins += numAmount; await adminToUpdate.save(); res.json({ success: true, message: `Cấp ${numAmount} Token cho ${adminToUpdate.username} thành công. Số dư mới: ${adminToUpdate.coins}` }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server khi cấp Token." }); } });
 app.post('/api/revoke-coins-from-admin', async (req, res) => { try { const { adminId, amount } = req.body; const numAmount = parseInt(amount, 10); if (isNaN(numAmount) || numAmount <= 0) { return res.status(400).json({ success: false, message: "Số Token thu hồi phải là một số dương." }); } const adminToUpdate = await User.findById(adminId); if (!adminToUpdate || !adminToUpdate.is_admin || adminToUpdate.is_super_admin) { return res.status(404).json({ success: false, message: "Không tìm thấy tài khoản Admin phụ hợp lệ." }); } adminToUpdate.coins -= numAmount; if (adminToUpdate.coins < 0) { adminToUpdate.coins = 0; } await adminToUpdate.save(); res.json({ success: true, message: `Thu hồi ${numAmount} Token từ ${adminToUpdate.username} thành công. Số dư mới: ${adminToUpdate.coins}` }); } catch (error) { console.error("Lỗi khi thu hồi Token:", error); res.status(500).json({ success: false, message: "Lỗi server khi thu hồi Token." }); } });
 app.post('/api/delete-sub-admin', async (req, res) => { try { const { adminId } = req.body; if (!adminId) return res.status(400).json({ success: false, message: "Thiếu thông tin." }); await User.updateMany({ managed_by_admin_ids: adminId }, { $pull: { managed_by_admin_ids: adminId } }); const result = await User.deleteOne({ _id: adminId, is_super_admin: false }); if (result.deletedCount === 0) return res.status(404).json({ success: false, message: "Không tìm thấy admin phụ để xóa." }); res.json({ success: true, message: "Xóa Admin phụ thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
-app.post('/api/add-lobby', upload.single('logo'), async (req, res) => { try { const { name } = req.body; if (!req.file) return res.status(400).json({ success: false, message: 'Vui lòng chọn ảnh logo.' }); const logoUrl = `/uploads/${req.file.filename}`; await new Lobby({ name, logo_url: logoUrl }).save(); res.json({ success: true, message: 'Thêm sảnh thành công!' }); } catch (error) { console.error("Lỗi khi thêm sảnh:", error); res.status(500).json({ success: false, message: 'Lỗi server khi thêm sảnh.' }); } });
+app.post('/api/add-lobby', upload.single('logo'), async (req, res) => { try { const { name, category } = req.body; if (!req.file) return res.status(400).json({ success: false, message: 'Vui lòng chọn ảnh logo.' }); if (!category) return res.status(400).json({ success: false, message: 'Vui lòng chọn loại sảnh.' }); const logoUrl = `/uploads/${req.file.filename}`; await new Lobby({ name, logo_url: logoUrl, category }).save(); res.json({ success: true, message: 'Thêm sảnh thành công!' }); } catch (error) { console.error("Lỗi khi thêm sảnh:", error); res.status(500).json({ success: false, message: 'Lỗi server khi thêm sảnh.' }); } });
 app.post('/api/add-game', upload.single('image'), async (req, res) => { try { const { lobby_id, name } = req.body; if (!req.file) return res.status(400).json({ success: false, message: 'Vui lòng chọn ảnh game.' }); const imageUrl = `/uploads/${req.file.filename}`; await new Game({ lobby_id, name, image_url: imageUrl }).save(); delete lobbyRatesCache[lobby_id]; res.json({ success: true, message: 'Thêm game thành công!' }); } catch (error) { console.error("Lỗi khi thêm game:", error); res.status(500).json({ success: false, message: 'Lỗi server khi thêm game.' }); } });
-app.get('/api/lobbies', async (req, res) => { try { const lobbies = await Lobby.find({}).sort({ position: 1, _id: 1 }); res.json({ success: true, lobbies }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } });
+app.get('/api/lobbies', async (req, res) => { try { const { category } = req.query; let filter = {}; if (category) { filter.category = category; } const lobbies = await Lobby.find(filter).sort({ position: 1, _id: 1 }); res.json({ success: true, lobbies }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } });
 app.post('/api/update-lobby-order', async (req, res) => { try { const { orderedIds } = req.body; if (!Array.isArray(orderedIds)) { return res.status(400).json({ success: false, message: "Dữ liệu không hợp lệ." }); } const updates = orderedIds.map((id, index) => ({ updateOne: { filter: { _id: id }, update: { $set: { position: index } } } })); await Lobby.bulkWrite(updates); res.json({ success: true, message: 'Cập nhật thứ tự sảnh thành công!' }); } catch (error) { console.error("Lỗi khi cập nhật thứ tự sảnh:", error); res.status(500).json({ success: false, message: "Lỗi server khi cập nhật thứ tự." }); } });
 app.post('/api/update-lobby', upload.single('logo'), async (req, res) => { try { const { lobby_id } = req.body; if (!lobby_id) return res.status(400).json({ success: false, message: 'Thiếu ID của sảnh.' }); if (!req.file) return res.status(400).json({ success: false, message: 'Vui lòng chọn ảnh logo mới.' }); const lobby = await Lobby.findById(lobby_id); if (!lobby) return res.status(404).json({ success: false, message: 'Không tìm thấy sảnh game.' }); const oldLogoUrl = lobby.logo_url; if (oldLogoUrl) { try { const oldFilename = path.basename(oldLogoUrl); const oldFilePath = path.join(UPLOADS_DIR, oldFilename); if (fs.existsSync(oldFilePath)) { fs.unlinkSync(oldFilePath); console.log(`Successfully deleted old logo from disk: ${oldFilePath}`); } } catch (deleteError) { console.error("Could not delete old logo from disk:", deleteError.message); } } const newLogoUrl = `/uploads/${req.file.filename}`; await Lobby.updateOne({ _id: lobby_id }, { $set: { logo_url: newLogoUrl } }); res.json({ success: true, message: 'Cập nhật logo sảnh thành công!' }); } catch (error) { console.error("Lỗi khi cập nhật sảnh:", error); res.status(500).json({ success: false, message: 'Lỗi server khi cập nhật sảnh.' }); } });
 app.get('/api/games', async (req, res) => { try { const { lobby_id } = req.query; if (!lobby_id) return res.status(400).json({ success: false, message: "Thiếu ID của sảnh" }); const games = await Game.find({ lobby_id }); res.json({ success: true, games }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server khi lấy game" }); } });
 app.post('/api/update-game', upload.single('image'), async (req, res) => { try { const { game_id } = req.body; if (!game_id) return res.status(400).json({ success: false, message: 'Thiếu ID của game.' }); if (!req.file) return res.status(400).json({ success: false, message: 'Vui lòng chọn ảnh game mới.' }); const game = await Game.findById(game_id); if (!game) return res.status(404).json({ success: false, message: 'Không tìm thấy game.' }); const oldImageUrl = game.image_url; if (oldImageUrl) { try { const oldFilename = path.basename(oldImageUrl); const oldFilePath = path.join(UPLOADS_DIR, oldFilename); if (fs.existsSync(oldFilePath)) { fs.unlinkSync(oldFilePath); console.log(`Successfully deleted old game image from disk: ${oldFilePath}`); } } catch (deleteError) { console.error("Could not delete old game image from disk:", deleteError.message); } } const newImageUrl = `/uploads/${req.file.filename}`; await Game.updateOne({ _id: game_id }, { $set: { image_url: newImageUrl } }); delete lobbyRatesCache[game.lobby_id.toString()]; res.json({ success: true, message: 'Cập nhật ảnh game thành công!' }); } catch (error) { console.error("Lỗi khi cập nhật game:", error); res.status(500).json({ success: false, message: 'Lỗi server khi cập nhật game.' }); } });
 app.get('/api/games-with-rates', async (req, res) => { try { const { lobby_id } = req.query; if (!lobby_id) return res.status(400).json({ success: false, message: "Thiếu ID của sảnh" }); const now = Date.now(); const cachedData = lobbyRatesCache[lobby_id]; if (cachedData && (now - cachedData.timestamp < ONE_HOUR_IN_MS)) { return res.json({ success: true, games: cachedData.games }); } const games = await Game.find({ lobby_id }).lean(); if (games.length > 0) { let gamesWithRates = games.map(game => ({ ...game, winRate: Math.floor(Math.random() * (85 - 10 + 1)) + 10 })); const randomHighRateCount = Math.floor(Math.random() * 4) + 2; const highRateCount = Math.min(games.length, randomHighRateCount); const indices = [...Array(games.length).keys()].sort(() => 0.5 - Math.random()); for (let i = 0; i < highRateCount; i++) { const gameIndexToBoost = indices[i]; gamesWithRates[gameIndexToBoost].winRate = Math.floor(Math.random() * (95 - 86 + 1)) + 86; } gamesWithRates.sort(() => 0.5 - Math.random()); lobbyRatesCache[lobby_id] = { timestamp: now, games: gamesWithRates }; res.json({ success: true, games: gamesWithRates }); } else { res.json({ success: true, games: [] }); } } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } });
-
-// === CẬP NHẬT: Chi phí phân tích và duy trì ===
 const ANALYSIS_COST = 10;
 const RECURRING_COST = 10;
-
 app.post('/api/analyze-game', async (req, res) => { try { const { username, winRate, brandName } = req.body; if (!username || !winRate || !brandName) return res.status(400).json({ success: false, message: "Thiếu thông tin để phân tích." }); const user = await User.findOne({ username }); if (!user) return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); const currentBrandCoins = user.coins_by_brand.get(brandName) || 0; if (currentBrandCoins < ANALYSIS_COST) { return res.json({ success: false, message: `Không đủ Token cho ${brandName}! Bạn cần ${ANALYSIS_COST} Token.`, outOfTokens: true }); } const newCoinBalance = currentBrandCoins - ANALYSIS_COST; user.coins_by_brand.set(brandName, newCoinBalance); user.markModified('coins_by_brand'); await user.save(); const baseRate = parseInt(winRate, 10); const boostedRate = Math.floor(Math.random() * (98 - baseRate + 1)) + baseRate; const finalAnalysisResult = Math.min(98, boostedRate); res.json({ success: true, message: "Phân tích thành công!", newCoinBalance, analysisResult: finalAnalysisResult }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server khi phân tích." }); } });
 app.post('/api/deduct-recurring-token', async (req, res) => { try { const { username, brandName } = req.body; if (!username || !brandName) { return res.status(400).json({ success: false, message: "Thiếu thông tin người dùng hoặc sảnh game." }); } const user = await User.findOne({ username }); if (!user) { return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); } const currentBrandCoins = user.coins_by_brand.get(brandName) || 0; if (currentBrandCoins < RECURRING_COST) { return res.json({ success: false, message: `Hết Token. Việc phân tích đã dừng lại.`, outOfTokens: true }); } const newCoinBalance = currentBrandCoins - RECURRING_COST; user.coins_by_brand.set(brandName, newCoinBalance); user.markModified('coins_by_brand'); await user.save(); res.json({ success: true, message: "Đã trừ 10 Token duy trì phân tích.", newCoinBalance }); } catch (error) { console.error("Lỗi khi trừ Token định kỳ:", error); res.status(500).json({ success: false, message: "Lỗi server khi trừ Token." }); } });
 

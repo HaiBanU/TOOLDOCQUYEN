@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản Lý Sảnh Nổ Hũ</title>
+    <title>Quản Lý Sảnh Bắn Cá</title>
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/admin.css">
     <link rel="manifest" href="/manifest.json">
@@ -28,7 +28,7 @@
 
     <main class="fadeIn" style="animation-delay: 0.2s;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin-top:0;">Quản Lý Sảnh Nổ Hũ 🎰</h2>
+            <h2 style="margin-top:0;">Quản Lý Sảnh Bắn Cá 🐠</h2>
             <div>
                 <button id="save-order-btn" class="btn-primary" style="display: none; width: auto; padding: 12px 20px; margin-right: 15px; background: #28a745;">Lưu Thứ Tự</button>
                 <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="openAddLobbyModal()">Tạo Sảnh Mới</button>
@@ -40,9 +40,9 @@
     <div id="addLobbyModal" class="modal">
         <div class="modal-content fadeIn">
             <span class="close-btn" onclick="closeModals()">&times;</span>
-            <h2>Tạo Sảnh Nổ Hũ Mới</h2>
+            <h2>Tạo Sảnh Bắn Cá Mới</h2>
             <form id="add-lobby-form">
-                <input type="hidden" name="category" value="nohu">
+                <input type="hidden" name="category" value="banca">
                 <div class="form-group"><input type="text" name="name" placeholder="Tên Sảnh" required></div>
                 <div class="form-group">
                     <label>Logo Sảnh</label>
@@ -61,7 +61,7 @@
             <form id="edit-lobby-form">
                 <input type="hidden" name="lobby_id" id="edit-lobby-id">
                 <div class="form-group" style="text-align: center;"><label>Logo Hiện Tại</label><img id="current-lobby-logo" src="" style="max-width: 150px; max-height: 80px; margin-top: 10px; border: 1px solid #ddd; padding: 5px; border-radius: 8px;"></div>
-                <div class="form-group"><label>Chọn Logo Mới</label><input type="file" name="logo" accept="image/gif, image/jpeg, image/png" required></div>
+                <div class="form-group"><label>Chọn Logo Mới</label><input type="file" name="logo" required></div>
                 <button type="submit" class="btn-primary">Lưu Thay Đổi</button>
             </form>
              <div id="edit-modal-message" class="modal-alert"></div>
@@ -78,9 +78,9 @@
         const editLobbyForm = document.getElementById('edit-lobby-form');
         const editModalMessageEl = document.getElementById('edit-modal-message');
         let sortableInstance = null;
-
+        
         async function fetchAndDisplayLobbies() {
-            const response = await fetch('/api/lobbies?category=nohu');
+            const response = await fetch('/api/lobbies?category=banca');
             const data = await response.json();
             lobbyContainer.innerHTML = '';
             if (data.success && data.lobbies.length > 0) {
@@ -105,11 +105,10 @@
                     sortableInstance = new Sortable(lobbyContainer, { animation: 150, ghostClass: 'sortable-ghost', onEnd: function() { saveOrderBtn.style.display = 'inline-block'; } });
                 }
             } else {
-                 lobbyContainer.innerHTML = `<p style="text-align:center; color: #888; grid-column: 1 / -1;">Chưa có sảnh Nổ Hũ nào.</p>`
+                 lobbyContainer.innerHTML = `<p style="text-align:center; color: #888; grid-column: 1 / -1;">Chưa có sảnh Bắn Cá nào.</p>`
             }
         }
         
-        // === SỬA LỖI: Cập nhật SVG trong hàm showToast ===
         function showToast(message, isSuccess = true) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -131,7 +130,7 @@
             el.classList.add('show', isSuccess ? 'modal-alert-success' : 'modal-alert-error');
         }
 
-        function openAddLobbyModal() { addLobbyModal.style.display = 'flex'; }
+        function openAddLobbyModal(){addLobbyModal.style.display='flex'}
         function openEditLobbyModal(lobbyId, lobbyName, currentLogoUrl) {
             document.getElementById('edit-lobby-id').value = lobbyId;
             document.getElementById('edit-lobby-title').textContent = `Chỉnh Sửa Sảnh "${lobbyName}"`;
@@ -143,7 +142,7 @@
             editLobbyModal.style.display = 'none';
         }
 
-        addLobbyForm.addEventListener('submit', async (e) => {
+        addLobbyForm.addEventListener('submit', async(e)=>{
             e.preventDefault();
             const button = e.target.querySelector('button[type="submit"]');
             button.classList.add('btn-loading');
@@ -154,8 +153,8 @@
             if (result.success) { showToast(result.message, true); addLobbyForm.reset(); closeModals(); fetchAndDisplayLobbies(); } 
             else { showModalMessage(result.message, false, 'add'); }
         });
-
-        editLobbyForm.addEventListener('submit', async (e) => {
+        
+        editLobbyForm.addEventListener('submit', async(e)=>{
             e.preventDefault();
             const button = e.target.querySelector('button[type="submit"]');
             button.classList.add('btn-loading');
@@ -167,7 +166,7 @@
             else { showModalMessage(result.message, false, 'edit'); }
         });
 
-        saveOrderBtn.addEventListener('click', async () => {
+        saveOrderBtn.addEventListener('click', async()=>{
             if (!sortableInstance) return;
             saveOrderBtn.classList.add('btn-loading');
             const orderedIds = sortableInstance.toArray();
@@ -178,8 +177,8 @@
             if (result.success) { saveOrderBtn.style.display = 'none'; }
         });
 
-        document.querySelector('.logout-button').addEventListener('click', () => { localStorage.clear(); window.location.href = '/'; });
-        window.onclick = (event) => { if (event.target == addLobbyModal || event.target == editLobbyModal) { closeModals(); } };
+        document.querySelector('.logout-button').addEventListener('click',()=>{localStorage.clear();window.location.href='/'});
+        window.onclick=(e)=>{if(e.target==addLobbyModal||e.target==editLobbyModal){closeModals()}};
         window.onload = fetchAndDisplayLobbies;
     </script>
 </body>
