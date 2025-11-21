@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css">
     <link rel="stylesheet" href="/css/analysis.css">
-    <!-- File CSS riêng cho trang này, bây giờ đã được đơn giản hóa -->
     <link rel="stylesheet" href="/css/analysis-pilot.css">
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -71,11 +70,9 @@
                         </div>
                     </div>
 
-                    <!-- === THÊM MỚI: Dòng chữ chạy tên game === -->
                     <div id="game-name-display-bottom">
                         <span class="scrolling-text">PHI CÔNG SIÊU CẤP</span>
                     </div>
-                    <!-- === KẾT THÚC THÊM MỚI === -->
 
                     <div class="energy-separator"></div>
 
@@ -86,6 +83,17 @@
                             <span id="chart-result-text">1.11x</span>
                         </div>
                     </div>
+
+                    <!-- === ĐÃ SỬA: Xóa style="display: none;" để bảng hiện ra mặc định === -->
+                    <div class="analysis-info-panel" id="pilot-analysis-info">
+                        <div class="scan-effect-overlay"></div>
+                        <div class="info-boxes-area">
+                            <div id="info-box-1" class="led-info-box"><span>TÍN HIỆU VÀO CẦU</span><small>Chưa có dữ liệu</small></div>
+                            <div id="info-box-2" class="led-info-box"><span>ĐIỂM DỪNG AN TOÀN</span><small>Chưa có dữ liệu</small></div>
+                            <div id="info-box-3" class="led-info-box"><span>TẦN SUẤT CAO</span><small>Chưa có dữ liệu</small></div>
+                        </div>
+                    </div>
+                    <!-- === KẾT THÚC SỬA ĐỔI === -->
 
                     <div class="energy-separator"></div>
                 </div>

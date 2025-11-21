@@ -14,6 +14,10 @@ window.onload = () => {
     const ctx = document.getElementById('pilotChart').getContext('2d');
     const airplaneIcon = document.getElementById('chart-airplane-icon');
     const progressText = document.getElementById('progress-text');
+    const pilotAnalysisInfo = document.getElementById('pilot-analysis-info');
+    const infoBox1 = document.getElementById('info-box-1');
+    const infoBox2 = document.getElementById('info-box-2');
+    const infoBox3 = document.getElementById('info-box-3');
 
 
     // === LẤY DỮ LIỆU TỪ LOCALSTORAGE ===
@@ -88,8 +92,6 @@ window.onload = () => {
             
             pilotChart.update('none');
             
-            // === THAY ĐỔI: Đã xóa toàn bộ code JS định vị máy bay ở đây ===
-
         }, 150);
     }
 
@@ -97,6 +99,12 @@ window.onload = () => {
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
+        
+        // Reset hiệu ứng animation của các ô thông tin
+        [infoBox1, infoBox2, infoBox3].forEach(box => {
+             box.classList.remove('result-reveal', 'result-highlight');
+        });
+
         analyzeButton.disabled = true;
         analyzeButton.style.display = 'none';
         analysisProgressContainer.style.display = 'block';
@@ -126,6 +134,23 @@ window.onload = () => {
                     
                     pilotChartContainer.classList.add('highlight');
                     chartResultOverlay.style.display = 'flex';
+                    
+                    // Tạo và hiển thị dữ liệu phân tích
+                    const startSignal = (Math.random() * (3.55 - 2.15) + 2.15).toFixed(2);
+                    const endSignal = (parseFloat(startSignal) + Math.random() * 2).toFixed(2);
+                    const safeStop = (Math.random() * 3 + 4).toFixed(2);
+                    const frequency = Math.floor(Math.random() * 3) + 2;
+
+                    infoBox1.querySelector('small').textContent = `${startSignal}x - ${endSignal}x`;
+                    infoBox2.querySelector('small').textContent = `< ${safeStop}x`;
+                    infoBox3.querySelector('small').textContent = `~${frequency} phiên`;
+
+                    // Kích hoạt hiệu ứng animation cho các ô thông tin
+                    [infoBox1, infoBox2, infoBox3].forEach((box, index) => {
+                        setTimeout(() => {
+                            box.classList.add('result-reveal', 'result-highlight');
+                        }, 100 + index * 150);
+                    });
 
                     setTimeout(() => {
                         pilotChartContainer.classList.remove('highlight');

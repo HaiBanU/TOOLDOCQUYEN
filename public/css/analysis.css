@@ -19,14 +19,20 @@
 
 .analysis-main { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 20px 15px; box-sizing: border-box; }
 
+/* <<<< ĐÃ SỬA: Thay đổi thuộc tính height >>>> */
 .analysis-frame { 
-    width: 100%; max-width: 400px;
-    height: 720px;
+    width: 100%; 
+    max-width: 400px;
+    height: auto; /* Chiều cao tự động theo nội dung */
+    min-height: 720px; /* Giữ chiều cao tối thiểu cho các trang ít nội dung */
     background: transparent; 
     border: 2px solid var(--primary-red); 
     box-shadow: 0 0 15px var(--primary-red), inset 0 0 15px var(--primary-red); 
-    padding: 0; animation: fadeIn 1s, glowing-border 4s infinite ease-in-out;
-    border-radius: 12px; position: relative; overflow: hidden;
+    padding: 0; 
+    animation: fadeIn 1s, glowing-border 4s infinite ease-in-out;
+    border-radius: 12px; 
+    position: relative; 
+    overflow: hidden;
 }
 .analysis-frame::before {
     content: ''; position: absolute; z-index: -1; inset: -3px;
@@ -38,16 +44,32 @@
 
 .particle-burst { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 .particle-burst > .particle { position: absolute; top: 50%; left: 50%; width: 2px; height: 30px; background: linear-gradient(to bottom, #ff4d4d, transparent); transform-origin: top center; opacity: 0; animation: shoot-out var(--duration) ease-out var(--delay) infinite; transform: rotate(var(--angle)) translateY(var(--radius)); }
-.analysis-frame-inner { width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; overflow: hidden; position: relative; border-radius: 10px; }
+
+/* <<<< ĐÃ SỬA: Xóa overflow-y và padding-bottom >>>> */
+.analysis-frame-inner { 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0, 0, 0, 0.7); 
+    display: flex; 
+    flex-direction: column; 
+    position: relative; 
+    border-radius: 10px; 
+    box-sizing: border-box;
+}
 
 #frame-wide-effects, #frame-wide-lightning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
 
 .analysis-content { 
-    flex-grow: 1; display: flex; flex-direction: column; 
-    justify-content: space-around;
-    padding: 15px; position: relative; z-index: 2;
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-start; 
+    gap: 15px; 
+    padding: 15px; 
+    position: relative; 
+    z-index: 2;
 }
-.analysis-footer { position: relative; z-index: 2; flex-shrink: 0; }
+.analysis-footer { position: relative; z-index: 2; flex-shrink: 0; padding: 15px; box-sizing: border-box; margin-top: auto; } /* Thêm margin-top: auto để đẩy footer xuống dưới */
 
 @keyframes scan-down { 0% { transform: translateY(-20px); opacity: 0; } 20% { opacity: 0.8; } 80% { opacity: 0.8; } 100% { transform: translateY(120%); opacity: 0; } }
 .analysis-title-module { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--primary-red); border-radius: 10px; padding: 10px 15px; text-align: center; box-shadow: 0 0 15px rgba(217, 4, 41, 0.4); position: relative; overflow: hidden; }
@@ -174,7 +196,6 @@
 }
 
 /* Vị trí và góc xoay cho 3 tia trên Desktop */
-/* <<<< ĐÃ SỬA: Giảm giá trị "top" để đẩy tia laser lên cao hơn >>>> */
 .scanner-1 { top: 55px; left: 80px; width: 75px; transform: rotate(-25deg); }
 .scanner-2 { top: 75px; left: 80px; width: 90px; transform: rotate(0deg); animation-delay: 0.3s; }
 .scanner-3 { top: 95px; left: 80px; width: 75px; transform: rotate(25deg); animation-delay: 0.6s; }
@@ -223,21 +244,21 @@
 @media (max-width: 480px) {
     /* === BẮT ĐẦU: TỐI ƯU GIAO DIỆN DI ĐỘNG === */
     .analysis-main {
-        align-items: flex-start; /* Không căn giữa theo chiều dọc nữa */
+        align-items: flex-start; 
         padding: 10px;
     }
 
     .analysis-frame {
-        height: auto; /* Chiều cao tự động */
-        min-height: 95vh; /* Chiều cao tối thiểu để lấp đầy màn hình */
+        height: auto; 
+        min-height: 95vh;
         margin-top: 10px;
         width: 100%;
         max-width: none;
     }
 
     .analysis-content {
-        justify-content: flex-start; /* Các mục bắt đầu từ trên xuống */
-        gap: 20px; /* Thêm khoảng cách giữa các mục */
+        justify-content: flex-start; 
+        gap: 20px; 
     }
     
     .main-game-display { width: 120px; height: 120px; }
@@ -249,7 +270,6 @@
     .led-info-box span { font-size: .8em; }
 
     /* Vị trí và góc xoay cho 3 tia trên Mobile */
-    /* <<<< ĐÃ SỬA: Giảm giá trị "top" để đẩy tia laser lên cao hơn >>>> */
     .scanner-1 { top: 40px; left: 65px; width: 55px; transform: rotate(-40deg); }
     .scanner-2 { top: 60px; left: 65px; width: 65px; transform: rotate(-10deg); }
     .scanner-3 { top: 80px; left: 65px; width: 55px; transform: rotate(20deg); }
