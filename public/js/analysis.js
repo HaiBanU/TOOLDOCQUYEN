@@ -4,11 +4,11 @@ window.onload = () => {
     // === LẤY CÁC PHẦN TỬ DOM ===
     const coinDisplay = document.getElementById('coin-display');
     const panelGameImage = document.getElementById('panel-game-image');
-    const mainVisual = document.getElementById('analysis-main-visual');
     const progressTag = document.getElementById('progress-tag');
     const progressText = document.getElementById('progress-text');
     const analyzeButton = document.getElementById('analyze-button');
     const gameNameBottom = document.getElementById('game-name-display-bottom');
+    const moduleGameName = document.getElementById('module-game-name'); // THÊM DÒNG NÀY
     const analysisProgressContainer = document.getElementById('analysis-progress-container');
     const progressBarFill = document.getElementById('progress-bar-fill');
     const progressBarText = document.getElementById('progress-bar-text');
@@ -46,8 +46,7 @@ window.onload = () => {
     const createScrollingText = (element, text) => { if (!element) return; element.innerHTML = `<span class="scrolling-text">${text}</span>`; };
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
-    const createHolographicRings = (container) => { if (!container) return; container.innerHTML = ''; for (let i = 0; i < 3; i++) { const r = document.createElement('div'); r.className = 'ring'; r.style.cssText = `width:${(i+1)*90}px;height:${(i+1)*90}px;animation-delay:${i*0.9}s;`; container.appendChild(r); } };
-
+    
     // === CÁC HÀM XỬ LÝ LOGIC ===
     const updateDisplayedTokens = (amount) => {
         displayedTokens = amount;
@@ -130,20 +129,26 @@ window.onload = () => {
     };
 
     function initializeUI() {
+        if (moduleGameName) moduleGameName.textContent = gameName; // THÊM DÒNG NÀY
         createScrollingText(gameNameBottom, gameName);
         panelGameImage.src = imageUrl;
-        mainVisual.innerHTML = `<div id="holographic-rings"></div><img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">`;
+        
         const frameLightning = document.getElementById('frame-wide-lightning');
-        if (frameLightning) { frameLightning.innerHTML = `<div class="lightning-field left">${createLightningField()}</div><div class="lightning-field right">${createLightningField()}</div>`; }
+        if (frameLightning) { 
+            frameLightning.innerHTML = `<div class="lightning-field left">${createLightningField()}</div><div class="lightning-field right">${createLightningField()}</div>`; 
+        }
+        
         createEnergyRain(document.getElementById('particle-field'));
-        createHolographicRings(document.getElementById('holographic-rings'));
         createParticleBurstEffect();
+
         progressText.textContent = initialWinRate ? `${initialWinRate}%` : '0%';
         progressTag.classList.remove('result-state');
         [infoBox1, infoBox2, infoBox3].forEach(box => {
             box.classList.remove('result-reveal', 'result-highlight');
-            const title = box.querySelector('span').textContent;
-            box.innerHTML = `<span>${title}</span><small>Chưa có dữ liệu</small>`;
+            const smallElement = box.querySelector('small');
+            if (smallElement) {
+                smallElement.textContent = 'Chưa có dữ liệu';
+            }
         });
     }
 

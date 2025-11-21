@@ -11,9 +11,8 @@
     <link rel="manifest" href="/manifest.json">
 </head>
 <script>
-    // === BẮT BUỘC KIỂM TRA ĐĂNG NHẬP ===
     if (!localStorage.getItem('username')) {
-        window.location.href = '/'; // Chuyển về trang đăng nhập
+        window.location.href = '/';
     }
 </script>
 <body class="analysis-page">
@@ -21,9 +20,7 @@
     <div id="space-dust-overlay"></div>
     <div id="background-effects"></div>
     <div id="grid-overlay"></div>
-
     <div class="video-overlay"></div>
-    <!-- === CẬP NHẬT: TĂNG SỐ LƯỢNG SAO BĂNG LÊN 20 === -->
     <div class="shooting-stars">
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
@@ -42,56 +39,51 @@
         <div class="analysis-frame">
             <div class="analysis-frame-inner">
                 <div class="particle-burst"></div>
-                
-                <div id="frame-wide-effects">
-                    <div id="particle-field"></div>
-                </div>
+                <div id="frame-wide-effects"><div id="particle-field"></div></div>
                 <div id="frame-wide-lightning"></div>
 
                 <div class="analysis-content">
-                    <div class="analysis-top-bar">
+                    <div class="analysis-title-module">
+                        <div class="scanline"></div>
+                        <h2 id="module-game-name">Đang tải tên game...</h2>
+                    </div>
+
+                    <div class="analysis-top-visuals">
+                        <div class="robot-container">
+                            <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
+                        </div>
+                        <div class="main-game-display">
+                            <img id="panel-game-image" src="" alt="Game">
+                        </div>
                         <div id="progress-tag">
                             <span id="progress-text">0%</span>
                         </div>
-                        
-                        <div class="data-bridge">
-                            <div class="bridge-line line-1"></div>
-                            <div class="bridge-line line-2"></div>
-                            <div class="bridge-line line-3"></div>
-                            <div class="bridge-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m15.5 8.5-7 7"/><path d="m8.5 8.5 7 7"/></svg>
-                            </div>
-                        </div>
+                        <!-- === HIỆU ỨNG LASER QUÉT MỚI === -->
+                        <div class="robot-scan-laser"></div>
+                    </div>
 
+                    <div id="game-name-display-bottom"></div>
+                    
+                    <div class="gif-container">
                         <div class="gif-frame">
                             <div class="gif-frame-inner">
                                 <img src="/assets/images/premium.gif" alt="Premium Tag">
                             </div>
                         </div>
-
                     </div>
 
-                    <div class="analysis-main-visual" id="analysis-main-visual">
-                        <div id="holographic-rings"></div>
-                        <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
-                    </div>
+                    <div class="energy-separator"></div>
 
                     <div class="analysis-info-panel" id="analysis-info-panel">
                         <div class="scan-effect-overlay"></div>
-                        
-                        <div class="game-display-area">
-                            <div class="panel-game-image-wrapper">
-                                <img id="panel-game-image" src="" alt="Game">
-                            </div>
-                        </div>
                         <div class="info-boxes-area">
-                            <div id="info-box-1" class="led-info-box"><span>QUAY MỒI</span><small>0 vòng - Mức Min 0K</small></div>
-                            <div id="info-box-2" class="led-info-box"><span>QUAY AUTO</span><small>0 vòng - Mức Min 0K</small></div>
+                            <div id="info-box-1" class="led-info-box"><span>QUAY MỒI</span><small>Chưa có dữ liệu</small></div>
+                            <div id="info-box-2" class="led-info-box"><span>QUAY AUTO</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-3" class="led-info-box"><span>KHUNG GIỜ</span><small>Chưa có dữ liệu</small></div>
                         </div>
                     </div>
-                    
-                    <div id="game-name-display-bottom"></div>
+
+                    <div class="energy-separator"></div>
                 </div>
 
                 <div class="analysis-footer">
@@ -102,22 +94,15 @@
                             <span id="progress-bar-text" class="progress-bar-text">0%</span>
                         </div>
                     </div>
-                    <button id="analyze-button" class="btn-primary">BẮT ĐẦU HACK </button>
+                    <button id="analyze-button" class="btn-primary">PHÂN TÍCH</button>
                 </div>
             </div>
         </div>
     </main>
     <script src="/js/analysis.js"></script>
-
     <script>
         const overlay = document.querySelector('.video-overlay');
-        if (overlay) {
-            window.addEventListener('mousemove', (e) => {
-                const { clientX, clientY } = e;
-                overlay.style.setProperty('--mouse-x', `${clientX}px`);
-                overlay.style.setProperty('--mouse-y', `${clientY}px`);
-            });
-        }
+        if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }
     </script>
     <script src="/js/global.js"></script>
 </body>

@@ -2,16 +2,66 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản Lý Game</title>
+    <title>Quản Lý User</title>
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/admin.css">
     <link rel="manifest" href="/manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        .card { padding: 0; }
+        .user-item { 
+            display: grid; 
+            grid-template-columns: minmax(150px, 1fr) auto auto; 
+            gap: 20px; 
+            align-items: center; 
+            padding: 15px 20px; 
+        }
+        .user-item:not(:last-child) { border-bottom: 1px solid #e9ecef; }
+        .user-name { font-weight: bold; color: #333; }
+        .user-token-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-self: end;
+        }
+        .user-token-display {
+            font-weight: 500;
+            background-color: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #495057;
+            white-space: nowrap;
+        }
+        .token-update-form {
+            display: flex;
+            gap: 10px;
+        }
+        .token-update-form input {
+            width: 120px;
+            text-align: center;
+        }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .search-bar { width: 50%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .btn-danger { background: #dc3545; color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-warning { 
+            background: #ffc107; 
+            color: #212529; 
+            border: none; 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-warning:hover { background: #e0a800; }
+    </style>
 </head>
 <script>
-    // === BẮT BUỘC KIỂM TRA ĐĂNG NHẬP ===
     if (!localStorage.getItem('username')) {
-        window.location.href = '/'; // Chuyển về trang đăng nhập
+        window.location.href = '/';
     }
 </script>
 <body class="admin-page">
@@ -29,77 +79,34 @@
     </header>
 
     <main class="fadeIn" style="animation-delay: 0.2s;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin-top:0;">Quản Lý Sảnh Game</h2>
-            <div>
-                <button id="save-order-btn" class="btn-primary" style="display: none; width: auto; padding: 12px 20px; margin-right: 15px; background: #28a745;">Lưu Thứ Tự</button>
-                <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="openAddLobbyModal()">Tạo Sảnh Mới</button>
-            </div>
+        <h2 id="main-title" style="margin-top:0;">Quản Lý Người Dùng</h2>
+        <div class="page-header">
+            <input type="text" id="user-search-input" class="search-bar" placeholder="Tìm kiếm user...">
+            <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="openLinkUserModal()">+ Thêm Tài Khoản</button>
         </div>
-        <div id="lobby-container" class="grid-container" style="margin-top: 20px; cursor: grab;"></div>
+        <div id="user-list-container" class="card"></div>
     </main>
-
-    <div id="addLobbyModal" class="modal">
+    
+    <div id="linkUserModal" class="modal">
         <div class="modal-content fadeIn">
-            <span class="close-btn" onclick="closeModals()">&times;</span>
-            <h2>Tạo Sảnh Game Mới</h2>
-            <form id="add-lobby-form">
-                <div class="form-group"><input type="text" name="name" placeholder="Tên Sảnh" required></div>
-                
-                <!-- === CẬP NHẬT: Thêm trường chọn Loại Sảnh === -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 5px; text-align: left;">Loại Sảnh</label>
-                    <select name="category" class="form-control" required style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 100%;">
-                        <option value="nohu">Nổ Hũ</option>
-                        <option value="banca">Bắn Cá</option>
-                    </select>
-                </div>
-                <!-- ======================================= -->
-
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 5px; text-align: left;">Logo Sảnh (Khuyến khích ảnh GIF)</label>
-                    <input type="file" name="logo" accept="image/gif, image/jpeg, image/png" required>
-                </div>
-                <button type="submit" class="btn-primary">Tạo Sảnh</button>
+            <span class="close-btn" onclick="closeAllModals()">&times;</span>
+            <h2>Thêm Tài Khoản Mới</h2>
+            <form id="link-user-form">
+                <div class="form-group" style="margin-top: 20px;"><input type="text" id="add-username-input" placeholder="Tên tài khoản" required></div>
+                <button type="submit" class="btn-primary">Thêm Tài Khoản</button>
             </form>
-             <div id="modal-message" class="modal-alert"></div>
-        </div>
-    </div>
-
-    <div id="editLobbyModal" class="modal">
-        <div class="modal-content fadeIn">
-            <span class="close-btn" onclick="closeModals()">&times;</span>
-            <h2 id="edit-lobby-title">Chỉnh Sửa Sảnh</h2>
-            <form id="edit-lobby-form">
-                <input type="hidden" name="lobby_id" id="edit-lobby-id">
-                
-                <div class="form-group" style="text-align: center;">
-                    <label>Logo Hiện Tại</label>
-                    <img id="current-lobby-logo" src="" style="max-width: 150px; max-height: 80px; margin-top: 10px; border: 1px solid #ddd; padding: 5px; border-radius: 8px;">
-                </div>
-
-                <div class="form-group">
-                    <label>Chọn Logo Mới</label>
-                    <input type="file" name="logo" accept="image/gif, image/jpeg, image/png" required>
-                </div>
-                <button type="submit" class="btn-primary">Lưu Thay Đổi</button>
-            </form>
-             <div id="edit-modal-message" class="modal-alert"></div>
+            <div id="modal-message" class="modal-alert"></div>
         </div>
     </div>
     
     <script>
-        const lobbyContainer = document.getElementById('lobby-container');
-        const addLobbyModal = document.getElementById('addLobbyModal');
-        const addLobbyForm = document.getElementById('add-lobby-form');
-        const saveOrderBtn = document.getElementById('save-order-btn');
+        const userListContainer = document.getElementById('user-list-container');
         const modalMessageEl = document.getElementById('modal-message');
-        
-        const editLobbyModal = document.getElementById('editLobbyModal');
-        const editLobbyForm = document.getElementById('edit-lobby-form');
-        const editModalMessageEl = document.getElementById('edit-modal-message');
-        
-        let sortableInstance = null;
+        const linkUserModal = document.getElementById('linkUserModal');
+        const userSearchInput = document.getElementById('user-search-input');
+        const linkUserForm = document.getElementById('link-user-form');
+        let currentUsers = [];
+        let adminAssignedBrand = null;
 
         function showToast(message, isSuccess = true) {
             const container = document.getElementById('toast-container');
@@ -117,177 +124,13 @@
             }, 4000);
         }
 
-        function showModalMessage(message, isSuccess, modalType = 'add') {
-            const el = modalType === 'add' ? modalMessageEl : editModalMessageEl;
-            el.classList.remove('show', 'modal-alert-success', 'modal-alert-error');
+        function showModalMessage(message, isSuccess) {
+            modalMessageEl.classList.remove('show', 'modal-alert-success', 'modal-alert-error');
             if (!message) return;
-            el.textContent = message;
-            el.classList.add('show', isSuccess ? 'modal-alert-success' : 'modal-alert-error');
+            modalMessageEl.textContent = message;
+            modalMessageEl.classList.add('show', isSuccess ? 'modal-alert-success' : 'modal-alert-error');
         }
 
-        function openAddLobbyModal() { 
-            showModalMessage('', true, 'add');
-            addLobbyModal.style.display = 'flex'; 
-        }
-
-        function openEditLobbyModal(lobbyId, lobbyName, currentLogoUrl) {
-            showModalMessage('', true, 'edit');
-            document.getElementById('edit-lobby-id').value = lobbyId;
-            document.getElementById('edit-lobby-title').textContent = `Chỉnh Sửa Sảnh "${lobbyName}"`;
-            document.getElementById('current-lobby-logo').src = currentLogoUrl;
-            editLobbyModal.style.display = 'flex';
-        }
-
-        function closeModals() { 
-            addLobbyModal.style.display = 'none'; 
-            editLobbyModal.style.display = 'none';
-        }
-        
-        // === CẬP NHẬT: Toàn bộ hàm fetchAndDisplayLobbies để phân nhóm ===
-        async function fetchAndDisplayLobbies() {
-            // Fetch tất cả các sảnh, không lọc
-            const response = await fetch('/api/lobbies');
-            const data = await response.json();
-            lobbyContainer.innerHTML = '';
-
-            if (data.success && data.lobbies.length > 0) {
-                // Nhóm các sảnh theo category
-                const groupedLobbies = data.lobbies.reduce((acc, lobby) => {
-                    const category = lobby.category || 'nohu'; // Mặc định là nổ hũ nếu không có
-                    if (!acc[category]) {
-                        acc[category] = [];
-                    }
-                    acc[category].push(lobby);
-                    return acc;
-                }, {});
-
-                const renderLobbyGroup = (title, lobbies) => {
-                    const groupTitle = document.createElement('h3');
-                    groupTitle.textContent = title;
-                    groupTitle.style.cssText = "grid-column: 1 / -1; margin-top: 20px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; color: #333;";
-                    lobbyContainer.appendChild(groupTitle);
-
-                    lobbies.forEach(lobby => {
-                        const cardWrapper = document.createElement('div');
-                        cardWrapper.className = 'card';
-                        cardWrapper.dataset.id = lobby._id;
-                        
-                        cardWrapper.innerHTML = `
-                            <a href="/admin_manage_lobby.html?id=${lobby._id}&name=${encodeURIComponent(lobby.name)}" style="text-decoration: none; color: inherit; display: block;">
-                                <h3>${lobby.name}</h3>
-                                <img src="${lobby.logo_url}" style="width: 100px; height: 50px; object-fit: contain;" loading="lazy">
-                                <p style="margin-top: 10px; font-size: 0.8em; color: #888;">Nhấn để quản lý game</p>
-                            </a>
-                            <button class="btn-primary" style="width: 100%; margin-top: 15px; background: #5a6268;" 
-                                    onclick="event.preventDefault(); openEditLobbyModal('${lobby._id}', '${lobby.name}', '${lobby.logo_url}')">
-                                Sửa Sảnh
-                            </button>
-                        `;
-                        lobbyContainer.appendChild(cardWrapper);
-                    });
-                };
-
-                // Hiển thị nhóm Nổ Hũ trước nếu có
-                if (groupedLobbies.nohu) {
-                    renderLobbyGroup('🎰 Sảnh Nổ Hũ', groupedLobbies.nohu);
-                }
-                // Hiển thị nhóm Bắn Cá nếu có
-                if (groupedLobbies.banca) {
-                    renderLobbyGroup('🐠 Sảnh Bắn Cá', groupedLobbies.banca);
-                }
-
-                if (!sortableInstance) {
-                    sortableInstance = new Sortable(lobbyContainer, {
-                        animation: 150,
-                        ghostClass: 'sortable-ghost',
-                        onEnd: function() { saveOrderBtn.style.display = 'inline-block'; }
-                    });
-                }
-            } else {
-                 lobbyContainer.innerHTML = `<p style="text-align:center; color: #888; grid-column: 1 / -1;">Chưa có sảnh nào.</p>`
-            }
-        }
-
-        addLobbyForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button[type="submit"]');
-            button.classList.add('btn-loading');
-            showModalMessage('', true, 'add');
-            const formData = new FormData(addLobbyForm);
-            try {
-                const response = await fetch('/api/add-lobby', { method: 'POST', body: formData });
-                const result = await response.json();
-                if (result.success) {
-                    showToast(result.message, true);
-                    addLobbyForm.reset();
-                    closeModals();
-                    fetchAndDisplayLobbies();
-                } else {
-                    showModalMessage(result.message, false, 'add');
-                }
-            } catch (error) {
-                showModalMessage('Lỗi kết nối máy chủ!', false, 'add');
-            } finally {
-                button.classList.remove('btn-loading');
-            }
-        });
-        
-        editLobbyForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button[type="submit"]');
-            button.classList.add('btn-loading');
-            showModalMessage('', true, 'edit');
-
-            const formData = new FormData(editLobbyForm);
-            try {
-                const response = await fetch('/api/update-lobby', { 
-                    method: 'POST', 
-                    body: formData 
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    showToast(result.message, true);
-                    editLobbyForm.reset();
-                    closeModals();
-                    fetchAndDisplayLobbies();
-                } else {
-                    showModalMessage(result.message, false, 'edit');
-                }
-            } catch (error) {
-                showModalMessage('Lỗi kết nối máy chủ!', false, 'edit');
-            } finally {
-                button.classList.remove('btn-loading');
-            }
-        });
-        
-        saveOrderBtn.addEventListener('click', async () => {
-            if (!sortableInstance) return;
-            const orderedIds = sortableInstance.toArray();
-            saveOrderBtn.classList.add('btn-loading');
-            try {
-                const response = await fetch('/api/update-lobby-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderedIds })
-                });
-                const result = await response.json();
-                showToast(result.message, result.success);
-                if (result.success) {
-                    saveOrderBtn.style.display = 'none';
-                }
-            } catch (error) {
-                showToast('Lỗi kết nối máy chủ!', false);
-            } finally {
-                saveOrderBtn.classList.remove('btn-loading');
-            }
-        });
-        
-        document.querySelector('.logout-button').addEventListener('click', () => {
-            localStorage.clear();
-            window.location.href = '/';
-        });
-        
         async function fetchAdminInfo() {
             const username = localStorage.getItem('username');
             const coinDisplay = document.getElementById('admin-coin-display');
@@ -302,12 +145,204 @@
             }
         }
 
-        window.onclick = (event) => { 
-            if (event.target == addLobbyModal || event.target == editLobbyModal) {
-                closeModals();
+        function openLinkUserModal() { 
+            showModalMessage('', true);
+            linkUserModal.style.display = 'flex'; 
+        }
+
+        function closeAllModals() {
+            linkUserModal.style.display = 'none';
+            linkUserForm.reset();
+            showModalMessage('', true);
+        }
+
+        async function initializePage() {
+            const adminId = localStorage.getItem('adminId');
+            const username = localStorage.getItem('username');
+            const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
+
+            if (!adminId || !username) {
+                alert("Lỗi xác thực Admin. Vui lòng đăng nhập lại.");
+                window.location.href = '/';
+                return;
+            }
+            
+            if (!isSuperAdmin) {
+                const adminInfoRes = await fetch(`/api/user-info?username=${username}`);
+                const adminInfoData = await adminInfoRes.json();
+                if (adminInfoData.success) {
+                    adminAssignedBrand = adminInfoData.userInfo.assigned_brand;
+                    document.getElementById('main-title').textContent = `Quản lý User - SẢNH GAME: ${adminAssignedBrand || 'Chưa gán'}`;
+                } else {
+                    alert("Không thể lấy thông tin Admin.");
+                    return;
+                }
+            } else {
+                adminAssignedBrand = "SuperAdmin"; // Super Admin có thể quản lý token ở mọi sảnh
+                document.getElementById('main-title').textContent = `Quản lý User (Super Admin)`;
+            }
+
+            const userRes = await fetch(`/api/users?admin_id=${adminId}`);
+            const userData = await userRes.json();
+            if (userData.success) {
+                currentUsers = userData.users;
+                renderUsers(currentUsers);
+            } else {
+                currentUsers = [];
+                renderUsers([]);
+            }
+            fetchAdminInfo();
+        }
+        
+        function renderUsers(users) {
+            userListContainer.innerHTML = '';
+             if (users.length === 0) {
+                userListContainer.innerHTML = '<div style="padding: 20px; text-align:center; color: var(--text-light);">Không có người dùng nào. Hãy thêm tài khoản để bắt đầu quản lý.</div>';
+                return;
+            }
+            users.forEach(user => {
+                const userCoinsByBrand = user.coins_by_brand || {};
+                // Admin chỉ thấy và thao tác được với token của sảnh mình quản lý
+                const currentCoins = userCoinsByBrand[adminAssignedBrand] || 0;
+
+                const item = document.createElement('div');
+                item.className = 'user-item';
+                item.innerHTML = `
+                    <span class="user-name">${user.username}</span>
+                    <div class="user-token-info">
+                        <span class="user-token-display" id="tokens-for-${user._id}">Token: ${currentCoins}</span>
+                        <div class="token-update-form">
+                            <input type="number" id="input-for-${user._id}" class="form-control" placeholder="+/- Token">
+                            <button class="btn-primary" style="padding: 8px 15px;" onclick="updateUserCoins(event, '${user._id}')">Lưu</button>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn-warning" onclick="revokeAllCoins('${user._id}', '${user.username}')">Thu hồi hết</button>
+                        <button class="btn-danger" onclick="deleteUser('${user._id}', '${user.username}')">Xóa</button>
+                    </div>
+                `;
+                userListContainer.appendChild(item);
+            });
+        }
+        
+        userSearchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredUsers = currentUsers.filter(user => user.username.toLowerCase().includes(searchTerm));
+            renderUsers(filteredUsers);
+        });
+
+        linkUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button[type="submit"]');
+            button.classList.add('btn-loading');
+            showModalMessage('', true);
+            const username = document.getElementById('add-username-input').value;
+            const adminId = localStorage.getItem('adminId');
+            try {
+                const response = await fetch('/api/link-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId, username })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, true);
+                    closeAllModals();
+                    initializePage(); // Tải lại danh sách để user mới hiện ra
+                } else {
+                    showModalMessage(result.message, false);
+                }
+            } catch (error) {
+                showModalMessage('Lỗi kết nối máy chủ!', false);
+            } finally {
+                button.classList.remove('btn-loading');
+            }
+        });
+
+        async function updateUserCoins(event, userId) {
+            const button = event.target;
+            button.classList.add('btn-loading');
+            const amountInput = document.getElementById(`input-for-${userId}`);
+            const amount = amountInput.value;
+            if (!amount) {
+                showToast("Vui lòng nhập số Token cần thay đổi.", false);
+                button.classList.remove('btn-loading');
+                return;
+            }
+            const adminId = localStorage.getItem('adminId');
+            try {
+                const response = await fetch('/api/add-coins-to-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, amount, adminId })
+                });
+                const result = await response.json();
+                showToast(result.message, result.success);
+                if (result.success) {
+                    const tokenDisplay = document.getElementById(`tokens-for-${userId}`);
+                    tokenDisplay.textContent = `Token: ${result.newTotal}`;
+                    amountInput.value = '';
+                    fetchAdminInfo();
+                }
+            } catch (error) {
+                showToast('Lỗi kết nối máy chủ!', false);
+            } finally {
+                button.classList.remove('btn-loading');
             }
         }
-        window.onload = () => { fetchAndDisplayLobbies(); fetchAdminInfo(); };
+
+        async function revokeAllCoins(userId, username) {
+            if (confirm(`Bạn có chắc chắn muốn thu hồi TOÀN BỘ Token tại sảnh ${adminAssignedBrand} từ "${username}" không?`)) {
+                try {
+                    const adminId = localStorage.getItem('adminId');
+                    const response = await fetch('/api/revoke-all-coins-from-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId, adminId })
+                    });
+                    const result = await response.json();
+                    showToast(result.message, result.success);
+                    if (result.success) {
+                        document.getElementById(`tokens-for-${userId}`).textContent = 'Token: 0';
+                        fetchAdminInfo();
+                    }
+                } catch (error) {
+                    showToast('Lỗi kết nối máy chủ!', false);
+                }
+            }
+        }
+
+        // === CẬP NHẬT: Hộp thoại xác nhận cho hành động "xóa liên kết" ===
+        async function deleteUser(userId, username) {
+            if (confirm(`Bạn có chắc chắn muốn xóa tài khoản "${username}" khỏi danh sách quản lý của mình không?`)) {
+                try {
+                    const adminId = localStorage.getItem('adminId');
+                    const response = await fetch('/api/delete-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId, adminId })
+                    });
+                    const result = await response.json();
+                    showToast(result.message, result.success);
+                    if (result.success) {
+                        initializePage();
+                    }
+                } catch (error) {
+                    showToast('Lỗi kết nối máy chủ!', false);
+                }
+            }
+        }
+
+        document.querySelector('.logout-button').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/';
+        });
+        window.onload = initializePage;
+        window.onclick = (event) => {
+            if (event.target == linkUserModal) {
+                closeAllModals();
+            }
+        }
     </script>
     <script src="/js/global.js"></script>
 </body>
