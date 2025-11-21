@@ -8,7 +8,7 @@ window.onload = () => {
     const progressText = document.getElementById('progress-text');
     const analyzeButton = document.getElementById('analyze-button');
     const gameNameBottom = document.getElementById('game-name-display-bottom');
-    const moduleGameName = document.getElementById('module-game-name'); // THÊM DÒNG NÀY
+    const moduleGameName = document.getElementById('module-game-name');
     const analysisProgressContainer = document.getElementById('analysis-progress-container');
     const progressBarFill = document.getElementById('progress-bar-fill');
     const progressBarText = document.getElementById('progress-bar-text');
@@ -129,9 +129,16 @@ window.onload = () => {
     };
 
     function initializeUI() {
-        if (moduleGameName) moduleGameName.textContent = gameName; // THÊM DÒNG NÀY
+        if (moduleGameName) moduleGameName.textContent = gameName;
         createScrollingText(gameNameBottom, gameName);
         panelGameImage.src = imageUrl;
+
+        // === THAY ĐỔI: Thêm code để cập nhật ảnh nền cho các lớp glitch ===
+        const glitchLayers = document.querySelectorAll('.glitch-layer');
+        glitchLayers.forEach(layer => {
+            layer.style.backgroundImage = `url(${imageUrl})`;
+        });
+        // ================================================================
         
         const frameLightning = document.getElementById('frame-wide-lightning');
         if (frameLightning) { 

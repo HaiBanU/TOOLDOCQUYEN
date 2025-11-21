@@ -87,10 +87,11 @@
 
             const username = localStorage.getItem('username');
             if (!username) { window.location.href = '/'; return; }
-
+            
+            // === SỬA LỖI: Thêm category='nohu' để chỉ lấy sảnh Nổ Hũ ===
             const [userRes, lobbyRes] = await Promise.all([
                 fetch(`/api/user-info?username=${username}`),
-                fetch('/api/lobbies')
+                fetch('/api/lobbies?category=nohu') 
             ]);
             const userData = await userRes.json();
             const lobbyData = await lobbyRes.json();

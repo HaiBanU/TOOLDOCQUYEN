@@ -130,41 +130,115 @@
 
 .main-game-display { width: 150px; height: 150px; border-radius: 50%; position: relative; display: grid; place-items: center; padding: 5px; background-color: rgba(0,0,0,.5); box-shadow: 0 0 15px rgba(255,0,242,.5), inset 0 0 15px rgba(135,0,255,.5); flex-shrink: 0; }
 .main-game-display::before { content: ''; position: absolute; inset: -3px; border-radius: 50%; background: conic-gradient(from var(--angle), #ff00f2, #8700ff, #00aaff, #00ffc3, #a2ff00, #ffd500, #ff00f2); animation: electric-spin 3s linear infinite; filter: blur(5px) drop-shadow(0 0 10px #8700ff); }
-#panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 2; border: 2px solid #fff; }
 .gif-container { display: flex; justify-content: center; align-items: center; }
 .gif-frame { width: 120px; position: relative; }
 
 @keyframes energy-pulse { 0%, 100% { box-shadow: 0 0 8px #ffc300, 0 0 4px #ffc300 inset; } 50% { box-shadow: 0 0 16px #ff8c00, 0 0 8px #ff8c00 inset; } }
 .energy-separator { width: 90%; height: 2px; background: linear-gradient(90deg, transparent, #ffc300, var(--primary-red), #ffc300, transparent); border-radius: 2px; margin: 0 auto; animation: energy-pulse 2s infinite ease-in-out; }
 
-/* === HIỆU ỨNG LASER QUÉT MÀN HÌNH MỚI === */
-@keyframes wide-scan {
-    0% { transform: translateX(80px); opacity: 0; }
-    20% { opacity: 1; }
-    80% { transform: translateX(200px); opacity: 1; }
-    100% { transform: translateX(200px); opacity: 0; }
-}
-.robot-scan-laser {
+/* === BẮT ĐẦU: HIỆU ỨNG LASER SCAN VÀ PING MỚI (V4) === */
+
+.scanner-effects-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 80px;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.05));
-    border-right: 1px solid rgba(0, 255, 255, 0.8);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5), 0 0 25px rgba(0, 255, 255, 0.3);
-    backdrop-filter: blur(2px);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
     z-index: 4;
-    opacity: 0;
-    animation: wide-scan 3s ease-in-out infinite;
-    animation-delay: 1.5s;
 }
 
+.robot-to-game-scanner {
+    position: absolute;
+    height: 2px; /* Độ dày của tia laser */
+    background: linear-gradient(to right, #00ffff, rgba(0, 255, 255, 0));
+    box-shadow: 0 0 6px #00ffff;
+    transform-origin: left center; /* Xoay từ điểm bắt đầu bên trái */
+    overflow: hidden; /* Ẩn phần thừa của vạch quét */
+}
+
+/* Vạch quét di chuyển bên trong tia laser */
+.robot-to-game-scanner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -20px; /* Bắt đầu bên ngoài */
+    width: 15px; /* Chiều rộng của vạch quét */
+    height: 100%;
+    background: #fff;
+    box-shadow: 0 0 8px #fff, 0 0 12px #00ffff;
+    animation: pulse-along-beam 2.5s linear infinite;
+}
+
+@keyframes pulse-along-beam {
+    from { left: -20px; } /* Bắt đầu bên ngoài */
+    to { left: 110%; } /* Kết thúc ở cuối tia */
+}
+
+/* Vị trí và góc xoay cho 3 tia trên Desktop */
+.scanner-1 { top: 75px; left: 80px; width: 75px; transform: rotate(-25deg); }
+.scanner-2 { top: 95px; left: 80px; width: 90px; transform: rotate(0deg); animation-delay: 0.3s; }
+.scanner-3 { top: 115px; left: 80px; width: 75px; transform: rotate(25deg); animation-delay: 0.6s; }
+
+.scanner-2::after, .scanner-3::after { animation-delay: inherit; }
+
+/* Hiệu ứng gợn sóng (ripple) khi tia quét "chạm" vào */
+.scan-impact-ripple {
+    position: absolute;
+    top: -5px; left: -5px;
+    width: calc(100% + 10px); height: calc(100% + 10px);
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    z-index: 5;
+    opacity: 0;
+    animation: ripple-effect 2.5s linear infinite;
+}
+.scan-impact-ripple::after {
+    content: '';
+    position: absolute;
+    top: -4px; left: -4px;
+    width: calc(100% + 8px); height: calc(100% + 8px);
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    animation-delay: 0.2s; /* gợn sóng thứ 2 trễ hơn */
+}
+
+@keyframes ripple-effect {
+    0% { transform: scale(0.9); opacity: 0; }
+    80% { transform: scale(0.9); opacity: 0; }
+    90% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.1); opacity: 0; }
+}
+
+/* Nâng cấp hiệu ứng Glitch trên vòng tròn */
+.glitch-wrapper { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; position: relative; z-index: 2; border: 2px solid #fff; }
+#panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; }
+.glitch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; border-radius: 50%; z-index: 2; }
+.glitch-layer:nth-child(2) { background: repeating-linear-gradient(rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 1px, transparent 1px, transparent 4px); background-size: 100% 4px; opacity: 0.3; animation: scanlines-move 2s linear infinite; }
+@keyframes scanlines-move { from { background-position: 0 0; } to { background-position: 0 -8px; } }
+.glitch-layer:nth-child(3) { background-color: rgba(217, 4, 41, 0.3); mix-blend-mode: color-dodge; animation: glitch-flicker 3s linear infinite; }
+@keyframes glitch-flicker { 0%, 100% { clip-path: inset(0); } 10% { clip-path: inset(90% 0 5% 0); } 11% { clip-path: inset(0); } 40% { clip-path: inset(10% 0 85% 0); } 41% { clip-path: inset(0); } 70% { clip-path: inset(80% 0 10% 0); } 71% { clip-path: inset(0); } 94% { clip-path: inset(5% 0 90% 0); } 95% { clip-path: inset(0); } }
+
+/* === KẾT THÚC CSS HIỆU ỨNG MỚI === */
+
 @media (max-width: 480px) {
-    .analysis-frame { height: auto; min-height: 680px; }
-    .analysis-content { padding: 10px; }
-    .analysis-title-module h2 { font-size: 1em; }
+    /* === BẮT ĐẦU: TỐI ƯU GIAO DIỆN DI ĐỘNG === */
+    .analysis-main {
+        align-items: flex-start; /* Không căn giữa theo chiều dọc nữa */
+        padding: 10px;
+    }
+
+    .analysis-frame {
+        height: auto; /* Chiều cao tự động */
+        min-height: 95vh; /* Chiều cao tối thiểu để lấp đầy màn hình */
+        margin-top: 10px;
+        width: 100%;
+        max-width: none;
+    }
+
+    .analysis-content {
+        justify-content: flex-start; /* Các mục bắt đầu từ trên xuống */
+        gap: 20px; /* Thêm khoảng cách giữa các mục */
+    }
+    
     .main-game-display { width: 120px; height: 120px; }
     #robot-image { max-width: 70px; }
     #progress-tag { width: 60px; height: 60px; }
@@ -172,5 +246,16 @@
     .gif-frame { width: 100px; }
     .led-info-box { padding: 8px; }
     .led-info-box span { font-size: .8em; }
-    .robot-scan-laser { display: none; } /* Ẩn hiệu ứng quét trên mobile cho nhẹ */
+
+    /* Vị trí và góc xoay cho 3 tia trên Mobile */
+    .scanner-1 { top: 60px; left: 65px; width: 55px; transform: rotate(-40deg); }
+    .scanner-2 { top: 80px; left: 65px; width: 65px; transform: rotate(-10deg); }
+    .scanner-3 { top: 100px; left: 65px; width: 55px; transform: rotate(20deg); }
+    
+    .scan-impact-ripple { /* Điều chỉnh hiệu ứng Ping cho khớp */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
 }
