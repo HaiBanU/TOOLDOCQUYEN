@@ -46,6 +46,30 @@
 
     <main class="main-content fadeIn" style="animation-delay: 0.2s;">
         <h2 class="main-title" id="main-title-header">Đang tải...</h2>
+
+        <div class="featured-games-container">
+            <a href="/analysis-soccer.html" class="featured-game-card">
+                <div class="featured-game-card-inner">
+                    <span class="featured-tag">JACKPOT</span>
+                    <img src="/assets/images/soccer-striker.jpg" alt="Soccer Striker">
+                    <div class="featured-game-info">
+                        <h3>Soccer Striker</h3>
+                        <p>Sảnh Microgaming</p>
+                    </div>
+                </div>
+            </a>
+            <a href="/analysis-pilot.html" class="featured-game-card">
+                <div class="featured-game-card-inner">
+                    <span class="featured-tag">JACKPOT</span>
+                    <img src="/assets/images/phi-cong.jpg" alt="Phi Công">
+                    <div class="featured-game-info">
+                        <h3>Phi Công Siêu Cấp</h3>
+                        <p>Sảnh SPRIBE</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
         <div class="grid-container" id="lobby-container"></div>
     </main>
     
@@ -58,9 +82,29 @@
     </div>
 
     <script>
+        const username = localStorage.getItem('username');
+        const coinDisplay = document.getElementById('coin-display');
+
+        // Hàm duy nhất để lấy và cập nhật token
+        async function updateTokenDisplay() {
+            if (!username) return;
+            try {
+                const res = await fetch(`/api/user-info?username=${username}`);
+                const data = await res.json();
+                if (data.success) {
+                    const brandName = sessionStorage.getItem('selectedBrand');
+                    const userCoinsByBrand = data.userInfo.coins_by_brand || {};
+                    const coinsForCurrentBrand = userCoinsByBrand[brandName] || 0;
+                    coinDisplay.textContent = `Token: ${coinsForCurrentBrand}`;
+                }
+            } catch (error) {
+                console.error("Lỗi cập nhật token:", error);
+            }
+        }
+
         document.querySelector('.logout-button').addEventListener('click', () => { 
             localStorage.clear(); 
-            sessionStorage.clear(); // CẬP NHẬT
+            sessionStorage.clear();
             window.location.href = '/'; 
         });
 
@@ -73,6 +117,11 @@
         function typeMessage(element, message) { if (typingInterval) clearInterval(typingInterval); let i = 0; element.innerHTML = ''; typingInterval = setInterval(() => { if (i < message.length) { element.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); } }, 50); }
         function showNextTerminalMessage() { const messageEl = document.getElementById('terminal-message'); if (!messageEl || terminalMessages.length === 0) return; let randomIndex; do { randomIndex = Math.floor(Math.random() * terminalMessages.length); } while (randomIndex === lastMessageIndex && terminalMessages.length > 1); lastMessageIndex = randomIndex; const messageToShow = terminalMessages[randomIndex]; typeMessage(messageEl, messageToShow); }
         
+        // *** SỬA LỖI: Dùng 'pageshow' để fetch lại token mỗi khi quay lại trang ***
+        window.addEventListener('pageshow', function(event) {
+            updateTokenDisplay(); // Gọi hàm cập nhật token
+        });
+
         window.onload = async () => {
             updateClock();
             setInterval(updateClock, 1000);
@@ -85,10 +134,9 @@
             }
             document.getElementById('main-title-header').textContent = `SẢNH GAME CỦA ${brandName.toUpperCase()}`;
 
-            const username = localStorage.getItem('username');
             if (!username) { window.location.href = '/'; return; }
             
-            // === SỬA LỖI: Thêm category='nohu' để chỉ lấy sảnh Nổ Hũ ===
+            // Lấy thông tin user và sảnh game
             const [userRes, lobbyRes] = await Promise.all([
                 fetch(`/api/user-info?username=${username}`),
                 fetch('/api/lobbies?category=nohu') 
@@ -98,20 +146,6 @@
 
             if (userData.success) {
                 document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}!`;
-                
-                // *** LOGIC ĐỒNG BỘ TOKEN MỚI ***
-                const visualTokenCount = sessionStorage.getItem('wukongVisualTokenCount');
-                const activeAnalysis = sessionStorage.getItem('wukongActiveAnalysis');
-
-                if (activeAnalysis && visualTokenCount !== null) {
-                    document.getElementById('coin-display').textContent = `Token: ${visualTokenCount}`;
-                } else {
-                    const userCoinsByBrand = userData.userInfo.coins_by_brand || {};
-                    const coinsForCurrentBrand = userCoinsByBrand[brandName] || 0;
-                    document.getElementById('coin-display').textContent = `Token: ${coinsForCurrentBrand}`;
-                    sessionStorage.removeItem('wukongVisualTokenCount');
-                    sessionStorage.removeItem('wukongActiveAnalysis');
-                }
             }
 
             const lobbyContainer = document.getElementById('lobby-container');

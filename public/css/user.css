@@ -359,3 +359,136 @@ body:not(.login-page):not(.games-page) .header { display: flex; justify-content:
     opacity: 0.3;
     animation: move-dust 200s linear infinite; /* Animation chạy rất chậm */
 }
+
+/* ======================================================= */
+/* === BẮT ĐẦU: CSS CHO KHU VỰC GAME ĐẶC BIỆT (V2) === */
+/* ======================================================= */
+
+.featured-games-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px; /* Giảm khoảng cách */
+    margin: 30px 0 40px 0;
+    flex-wrap: wrap;
+}
+
+.featured-game-card {
+    width: 250px; /* <<<< LÀM NHỎ LẠI */
+    height: 320px; /* <<<< LÀM NHỎ LẠI */
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.featured-game-card:hover {
+    transform: translateY(-10px) scale(1.05); /* Điều chỉnh hiệu ứng hover */
+    box-shadow: 0 0 35px rgba(0, 255, 140, 0.6); /* Đổi màu shadow cho hợp với tag xanh */
+}
+
+/* Hiệu ứng viền LED quay tròn */
+.featured-game-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 250%; 
+    height: 250%;
+    /* <<<< ĐỔI MÀU VIỀN LED SANG XANH LÁ */
+    background: conic-gradient(
+        from 0deg, 
+        transparent 0%, 
+        transparent 85%, 
+        #00ff8c 95%, 
+        #00b894 100%
+    );
+    animation: featured-spin 3s linear infinite;
+    transform-origin: 0 0;
+}
+
+@keyframes featured-spin {
+    100% { transform: rotate(360deg); }
+}
+
+/* Lớp nội dung bên trong */
+.featured-game-card-inner {
+    position: absolute;
+    inset: 3px; /* Giảm viền một chút */
+    background: rgba(10, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.featured-game-card-inner img {
+    width: 100%;
+    height: 70%; /* Điều chỉnh tỷ lệ ảnh */
+    object-fit: cover;
+    border-bottom: 2px solid #00b894; /* Đổi màu viền dưới ảnh */
+}
+
+.featured-game-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    text-align: center;
+}
+
+.featured-game-info h3 {
+    margin: 0;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2em; /* Giảm kích thước font */
+    text-transform: uppercase;
+    text-shadow: 0 0 10px var(--primary-red);
+}
+
+.featured-game-info p {
+    margin: 5px 0 0;
+    color: #ccc;
+    font-size: 0.9em;
+    font-weight: bold; /* Làm đậm chữ sảnh */
+}
+
+/* Thẻ Tag "JACKPOT" */
+.featured-tag {
+    position: absolute;
+    top: 12px;
+    left: -35px;
+    transform: rotate(-45deg);
+    width: 130px;
+    text-align: center;
+    padding: 5px 0;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: #111;
+    /* <<<< ĐỔI MÀU NỀN TAG SANG XANH LÁ */
+    background: linear-gradient(45deg, #00ff8c, #00b894);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+
+/* CSS cho điện thoại */
+@media (max-width: 768px) {
+    .featured-games-container {
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .featured-game-card {
+        width: 45%; /* Hiển thị 2 game trên 1 hàng */
+        max-width: 200px;
+        height: 280px; /* Giảm chiều cao trên mobile */
+    }
+    .featured-game-info h3 {
+        font-size: 1em;
+    }
+    .featured-game-info p {
+        font-size: 0.8em;
+    }
+}

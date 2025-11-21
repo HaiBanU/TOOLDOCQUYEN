@@ -174,9 +174,10 @@
 }
 
 /* Vị trí và góc xoay cho 3 tia trên Desktop */
-.scanner-1 { top: 75px; left: 80px; width: 75px; transform: rotate(-25deg); }
-.scanner-2 { top: 95px; left: 80px; width: 90px; transform: rotate(0deg); animation-delay: 0.3s; }
-.scanner-3 { top: 115px; left: 80px; width: 75px; transform: rotate(25deg); animation-delay: 0.6s; }
+/* <<<< ĐÃ SỬA: Giảm giá trị "top" để đẩy tia laser lên cao hơn >>>> */
+.scanner-1 { top: 55px; left: 80px; width: 75px; transform: rotate(-25deg); }
+.scanner-2 { top: 75px; left: 80px; width: 90px; transform: rotate(0deg); animation-delay: 0.3s; }
+.scanner-3 { top: 95px; left: 80px; width: 75px; transform: rotate(25deg); animation-delay: 0.6s; }
 
 .scanner-2::after, .scanner-3::after { animation-delay: inherit; }
 
@@ -248,9 +249,10 @@
     .led-info-box span { font-size: .8em; }
 
     /* Vị trí và góc xoay cho 3 tia trên Mobile */
-    .scanner-1 { top: 60px; left: 65px; width: 55px; transform: rotate(-40deg); }
-    .scanner-2 { top: 80px; left: 65px; width: 65px; transform: rotate(-10deg); }
-    .scanner-3 { top: 100px; left: 65px; width: 55px; transform: rotate(20deg); }
+    /* <<<< ĐÃ SỬA: Giảm giá trị "top" để đẩy tia laser lên cao hơn >>>> */
+    .scanner-1 { top: 40px; left: 65px; width: 55px; transform: rotate(-40deg); }
+    .scanner-2 { top: 60px; left: 65px; width: 65px; transform: rotate(-10deg); }
+    .scanner-3 { top: 80px; left: 65px; width: 55px; transform: rotate(20deg); }
     
     .scan-impact-ripple { /* Điều chỉnh hiệu ứng Ping cho khớp */
         top: 0;

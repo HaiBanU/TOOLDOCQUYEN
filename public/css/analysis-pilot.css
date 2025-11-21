@@ -1,0 +1,86 @@
+/* public/css/analysis-pilot.css */
+
+/* === BẮT ĐẦU: CSS RIÊNG CHO TRANG HACK PHI CÔNG (Bản sửa lỗi cuối cùng) === */
+
+/* 1. Container cho biểu đồ */
+#pilotChartContainer {
+    width: 100%;
+    max-width: 350px;
+    height: 180px;
+    margin: 0 auto;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative; 
+    background: linear-gradient(135deg, rgba(10, 20, 35, 0.7), rgba(0, 5, 15, 0.8));
+    border: 1px solid rgba(0, 170, 255, 0.4);
+    border-radius: 8px;
+    box-shadow: inset 0 0 15px rgba(0, 170, 255, 0.3);
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+#pilotChartContainer.highlight {
+    border-color: #ffd700;
+    box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+/* 2. Canvas của biểu đồ */
+#pilotChart {
+    position: relative;
+    z-index: 1;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 3. Icon máy bay - SỬA ĐỔI LỚN */
+@keyframes airplane-float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-6px); }
+}
+
+#chart-airplane-icon {
+    position: absolute;
+    z-index: 2;
+    width: 60px; /* <<<< ĐÃ TĂNG TỪ 40px LÊN 60px >>>> */
+    height: auto;
+    pointer-events: none;
+    filter: drop-shadow(0 0 8px #ffd700);
+    
+    /* === THAY ĐỔI: Dùng CSS để căn giữa tuyệt đối === */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: airplane-float 3s ease-in-out infinite; /* Thêm hiệu ứng trôi nổi */
+}
+
+/* 4. Lớp phủ kết quả */
+#chart-result-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 3;
+    display: none;
+    justify-content: center; align-items: center;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.7) 0%, transparent 70%);
+    opacity: 0;
+    animation: fadeInResult 0.5s forwards;
+}
+
+@keyframes fadeInResult {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* 5. Văn bản kết quả */
+#chart-result-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 4em;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ff8c00;
+    animation: pulseText 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseText {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}

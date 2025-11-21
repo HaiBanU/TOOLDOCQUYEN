@@ -10,137 +10,22 @@
     <link rel="stylesheet" href="/css/brand-selection-final.css">
     <link rel="manifest" href="/manifest.json">
 
-    <!-- === CẬP NHẬT: CSS NÂNG CẤP CHO POPUP VÀ HIỆU ỨNG ICON === -->
+    <!-- CSS NÂNG CẤP CHO POPUP VÀ HIỆU ỨNG ICON -->
     <style>
-        /* 1. Khung Modal "Ngầu" Hơn */
-        #categoryChoiceModal .modal-content {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(15px);
-            border: none;
-            position: relative;
-            padding: 35px 45px;
-            box-shadow: 0 0 40px rgba(217, 4, 41, 0.6), inset 0 0 20px rgba(217, 4, 41, 0.4);
-            overflow: hidden;
-            border-radius: 12px;
-        }
-
-        /* 2. Viền Neon Chuyển Động */
-        #categoryChoiceModal .modal-content::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            border-radius: 12px;
-            padding: 2px;
-            background: linear-gradient(135deg, var(--primary-red), #ffc300);
-            -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            animation: spin-glow 4s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes spin-glow {
-            to { transform: rotate(360deg); }
-        }
-
-        /* 3. Góc Khung Kiểu Sci-Fi */
-        #categoryChoiceModal .modal-content::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background:
-                linear-gradient(to right, var(--primary-red), transparent 50%),
-                linear-gradient(to bottom, var(--primary-red), transparent 50%),
-                linear-gradient(to left, var(--primary-red), transparent 50%),
-                linear-gradient(to bottom, var(--primary-red), transparent 50%),
-                linear-gradient(to right, var(--primary-red), transparent 50%),
-                linear-gradient(to top, var(--primary-red), transparent 50%),
-                linear-gradient(to left, var(--primary-red), transparent 50%),
-                linear-gradient(to top, var(--primary-red), transparent 50%);
-            background-repeat: no-repeat;
-            background-size: 30px 2px, 2px 30px;
-            background-position: top left, top left, top right, top right, bottom left, bottom left, bottom right, bottom right;
-            pointer-events: none;
-            animation: pulse-corners-modal 3s infinite ease-in-out;
-        }
-
-        @keyframes pulse-corners-modal {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        /* 4. Nâng cấp Tiêu đề */
-        #categoryChoiceModal h3 {
-            font-size: 1.5em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* 5. Nâng cấp Nút bấm */
-        .category-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            font-size: 1.3em !important;
-            padding: 18px 15px !important;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--secondary-red);
-        }
-        .category-button:hover {
-            box-shadow: 0 0 25px rgba(217, 4, 41, 0.8);
-            border-color: var(--primary-red);
-        }
-        .category-button::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 20%; height: 200%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(45deg);
-            opacity: 0;
-            transition: all 0.5s ease;
-        }
+        #categoryChoiceModal .modal-content { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); border: none; position: relative; padding: 35px 45px; box-shadow: 0 0 40px rgba(217, 4, 41, 0.6), inset 0 0 20px rgba(217, 4, 41, 0.4); overflow: hidden; border-radius: 12px; }
+        #categoryChoiceModal .modal-content::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; padding: 2px; background: linear-gradient(135deg, var(--primary-red), #ffc300); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin-glow 4s linear infinite; pointer-events: none; }
+        @keyframes spin-glow { to { transform: rotate(360deg); } }
+        #categoryChoiceModal .modal-content::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, var(--primary-red), transparent 50%), linear-gradient(to bottom, var(--primary-red), transparent 50%), linear-gradient(to left, var(--primary-red), transparent 50%), linear-gradient(to bottom, var(--primary-red), transparent 50%), linear-gradient(to right, var(--primary-red), transparent 50%), linear-gradient(to top, var(--primary-red), transparent 50%), linear-gradient(to left, var(--primary-red), transparent 50%), linear-gradient(to top, var(--primary-red), transparent 50%); background-repeat: no-repeat; background-size: 30px 2px, 2px 30px; background-position: top left, top left, top right, top right, bottom left, bottom left, bottom right, bottom right; pointer-events: none; animation: pulse-corners-modal 3s infinite ease-in-out; }
+        @keyframes pulse-corners-modal { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        #categoryChoiceModal h3 { font-size: 1.5em; letter-spacing: 2px; text-transform: uppercase; }
+        .category-button { display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 1.3em !important; padding: 18px 15px !important; border-radius: 10px; position: relative; overflow: hidden; border: 1px solid var(--secondary-red); }
+        .category-button:hover { box-shadow: 0 0 25px rgba(217, 4, 41, 0.8); border-color: var(--primary-red); }
+        .category-button::after { content: ''; position: absolute; top: -50%; left: -50%; width: 20%; height: 200%; background: rgba(255, 255, 255, 0.3); transform: rotate(45deg); opacity: 0; transition: all 0.5s ease; }
         .category-button:hover::after { left: 130%; opacity: 1; }
-        
-        /* 6. === THÊM MỚI: HIỆU ỨNG CHO ICON === */
-        .category-button img {
-            height: 56px;
-            width: auto;
-            /* Áp dụng animation */
-            animation-name: icon-bounce-glow;
-            animation-duration: 3s;
-            animation-iteration-count: infinite;
-            animation-timing-function: ease-in-out;
-        }
-
-        /* Keyframes cho hiệu ứng nhảy và tỏa sáng */
-        @keyframes icon-bounce-glow {
-            0%, 100% {
-                transform: translateY(0);
-                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-            }
-            50% {
-                transform: translateY(-8px);
-                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
-            }
-        }
-
-        /* Làm cho 2 icon hoạt động lệch pha nhau */
-        #select-nohu-btn img {
-            animation-delay: 0s;
-        }
-        #select-banca-btn img {
-            animation-delay: 1.5s; /* Bằng một nửa thời gian của animation */
-        }
-        /* ======================================= */
-
+        .category-button img { height: 56px; width: auto; animation-name: icon-bounce-glow; animation-duration: 3s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+        @keyframes icon-bounce-glow { 0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); } 50% { transform: translateY(-8px); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)); } }
+        #select-nohu-btn img { animation-delay: 0s; }
+        #select-banca-btn img { animation-delay: 1.5s; }
     </style>
 </head>
 <script>
@@ -166,8 +51,8 @@
         <div class="header-left"><div id="welcome-message">Chào, ...!</div></div>
         <div class="header-center"><div id="live-clock-container"></div></div>
         <div class="header-right">
+             <!-- === CẬP NHẬT: ĐÃ XÓA PHẦN HIỂN THỊ TOKEN === -->
              <div class="header-right-content">
-                <div id="coin-display">Token: ...</div>
                 <button class="logout-button">Đăng Xuất</button>
             </div>
         </div>
@@ -252,6 +137,7 @@
             if (!username) { window.location.href = '/'; return; }
 
             try {
+                // === CẬP NHẬT: Gộp 2 API call thành 1 để lấy tên user ===
                 const [userRes, brandsRes] = await Promise.all([
                     fetch(`/api/user-info?username=${username}`),
                     fetch(`/api/brands-with-rates?username=${username}`)
@@ -259,18 +145,10 @@
 
                 const userData = await userRes.json();
                 const brandsData = await brandsRes.json();
-
+                
+                // Cập nhật lời chào
                 if (userData.success) {
                     document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}!`;
-                    const visualTokenCount = sessionStorage.getItem('wukongVisualTokenCount');
-                    const activeAnalysis = sessionStorage.getItem('wukongActiveAnalysis');
-                    if (activeAnalysis && visualTokenCount !== null) {
-                        document.getElementById('coin-display').textContent = `Token: ${visualTokenCount}`;
-                    } else {
-                        document.getElementById('coin-display').textContent = `Token: ${userData.userInfo.coins || 0}`;
-                        sessionStorage.removeItem('wukongVisualTokenCount');
-                        sessionStorage.removeItem('wukongActiveAnalysis');
-                    }
                 }
                 
                 if (!brandsData.success) { throw new Error(brandsData.message); }

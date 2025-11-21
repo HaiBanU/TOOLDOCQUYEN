@@ -116,11 +116,11 @@
         function generateGameMessages(games = []) {
             const messageTemplates = [
                 "Giải mã dữ liệu trò chơi trong sảnh đã chọn...",
-                "Đang phân tích chu kỳ và độ biến động của từng game.",
+                "Đang HACK chu kỳ và độ biến động của từng game.",
                 "Hệ thống gợi ý Jackpot đã được kích hoạt.",
                 "Cross-referencing historical data to identify patterns...",
                 "Lọc các game có tín hiệu 'chuẩn bị nhả thưởng'...",
-                "Chọn một trò chơi để tiến hành phân tích sâu bằng 4 Token.",
+                "Chọn một trò chơi để tiến hành HACK sâu bằng 4 Token.",
                 "Hãy nhớ, kiên nhẫn cũng là một chiến lược."
             ];
 
@@ -129,7 +129,7 @@
                 if (jackpotGames.length > 0) {
                     const bestGame = jackpotGames.sort((a, b) => b.winRate - a.winRate)[0];
                     messageTemplates.push(`Cảnh báo Jackpot! Game "${bestGame.name}" đang có tỷ lệ nổ hũ ${bestGame.winRate}%.`);
-                    messageTemplates.push(`Phân tích cho thấy game "${bestGame.name}" là lựa chọn tốt nhất lúc này.`);
+                    messageTemplates.push(`HACK cho thấy game "${bestGame.name}" là lựa chọn tốt nhất lúc này.`);
                 }
                 const playableGames = games.filter(game => game.winRate > 60 && game.winRate <= 85);
                 if (playableGames.length > 0) {

@@ -100,8 +100,50 @@ app.post('/api/update-game', upload.single('image'), async (req, res) => { try {
 app.get('/api/games-with-rates', async (req, res) => { try { const { lobby_id } = req.query; if (!lobby_id) return res.status(400).json({ success: false, message: "Thiếu ID của sảnh" }); const now = Date.now(); const cachedData = lobbyRatesCache[lobby_id]; if (cachedData && (now - cachedData.timestamp < ONE_HOUR_IN_MS)) { return res.json({ success: true, games: cachedData.games }); } const games = await Game.find({ lobby_id }).lean(); if (games.length > 0) { let gamesWithRates = games.map(game => ({ ...game, winRate: Math.floor(Math.random() * (85 - 10 + 1)) + 10 })); const randomHighRateCount = Math.floor(Math.random() * 4) + 2; const highRateCount = Math.min(games.length, randomHighRateCount); const indices = [...Array(games.length).keys()].sort(() => 0.5 - Math.random()); for (let i = 0; i < highRateCount; i++) { const gameIndexToBoost = indices[i]; gamesWithRates[gameIndexToBoost].winRate = Math.floor(Math.random() * (95 - 86 + 1)) + 86; } gamesWithRates.sort(() => 0.5 - Math.random()); lobbyRatesCache[lobby_id] = { timestamp: now, games: gamesWithRates }; res.json({ success: true, games: gamesWithRates }); } else { res.json({ success: true, games: [] }); } } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } });
 const ANALYSIS_COST = 10;
 const RECURRING_COST = 10;
-app.post('/api/analyze-game', async (req, res) => { try { const { username, winRate, brandName } = req.body; if (!username || !winRate || !brandName) return res.status(400).json({ success: false, message: "Thiếu thông tin để phân tích." }); const user = await User.findOne({ username }); if (!user) return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); const currentBrandCoins = user.coins_by_brand.get(brandName) || 0; if (currentBrandCoins < ANALYSIS_COST) { return res.json({ success: false, message: `Không đủ Token cho ${brandName}! Bạn cần ${ANALYSIS_COST} Token.`, outOfTokens: true }); } const newCoinBalance = currentBrandCoins - ANALYSIS_COST; user.coins_by_brand.set(brandName, newCoinBalance); user.markModified('coins_by_brand'); await user.save(); const baseRate = parseInt(winRate, 10); const boostedRate = Math.floor(Math.random() * (98 - baseRate + 1)) + baseRate; const finalAnalysisResult = Math.min(98, boostedRate); res.json({ success: true, message: "Phân tích thành công!", newCoinBalance, analysisResult: finalAnalysisResult }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server khi phân tích." }); } });
-app.post('/api/deduct-recurring-token', async (req, res) => { try { const { username, brandName } = req.body; if (!username || !brandName) { return res.status(400).json({ success: false, message: "Thiếu thông tin người dùng hoặc sảnh game." }); } const user = await User.findOne({ username }); if (!user) { return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); } const currentBrandCoins = user.coins_by_brand.get(brandName) || 0; if (currentBrandCoins < RECURRING_COST) { return res.json({ success: false, message: `Hết Token. Việc phân tích đã dừng lại.`, outOfTokens: true }); } const newCoinBalance = currentBrandCoins - RECURRING_COST; user.coins_by_brand.set(brandName, newCoinBalance); user.markModified('coins_by_brand'); await user.save(); res.json({ success: true, message: "Đã trừ 10 Token duy trì phân tích.", newCoinBalance }); } catch (error) { console.error("Lỗi khi trừ Token định kỳ:", error); res.status(500).json({ success: false, message: "Lỗi server khi trừ Token." }); } });
+app.post('/api/analyze-game', async (req, res) => { try { const { username, winRate, brandName } = req.body; if (!username || !winRate || !brandName) return res.status(400).json({ success: false, message: "Thiếu thông tin để HACK." }); const user = await User.findOne({ username }); if (!user) return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); const currentBrandCoins = user.coins_by_brand.get(brandName) || 0; if (currentBrandCoins < ANALYSIS_COST) { return res.json({ success: false, message: `Không đủ Token cho ${brandName}! Bạn cần ${ANALYSIS_COST} Token.`, outOfTokens: true }); } const newCoinBalance = currentBrandCoins - ANALYSIS_COST; user.coins_by_brand.set(brandName, newCoinBalance); user.markModified('coins_by_brand'); await user.save(); const baseRate = parseInt(winRate, 10); const boostedRate = Math.floor(Math.random() * (98 - baseRate + 1)) + baseRate; const finalAnalysisResult = Math.min(98, boostedRate); res.json({ success: true, message: "HACK thành công!", newCoinBalance, analysisResult: finalAnalysisResult }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server khi HACK." }); } });
+app.post('/api/deduct-recurring-token', async (req, res) => { try { const { username, brandName } = req.body; if (!username || !brandName) { return res.status(400).json({ success: false, message: "Thiếu thông tin người dùng hoặc sảnh game." }); } const user = await User.findOne({ username }); if (!user) { return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); } const currentBrandCoins = user.coins_by_brand.get(brandName) || 0; if (currentBrandCoins < RECURRING_COST) { return res.json({ success: false, message: `Hết Token. Việc HACK đã dừng lại.`, outOfTokens: true }); } const newCoinBalance = currentBrandCoins - RECURRING_COST; user.coins_by_brand.set(brandName, newCoinBalance); user.markModified('coins_by_brand'); await user.save(); res.json({ success: true, message: "Đã trừ 10 Token duy trì HACK.", newCoinBalance }); } catch (error) { console.error("Lỗi khi trừ Token định kỳ:", error); res.status(500).json({ success: false, message: "Lỗi server khi trừ Token." }); } });
+
+// === THÊM MỚI: API CHO CÁC GAME HACK ĐẶC BIỆT ===
+app.post('/api/analyze-special-game', async (req, res) => {
+    try {
+        const { username, brandName, cost } = req.body;
+        const analysisCost = parseInt(cost, 10);
+
+        if (!username || !brandName || isNaN(analysisCost)) {
+            return res.status(400).json({ success: false, message: "Thiếu thông tin để HACK." });
+        }
+        
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." });
+        }
+
+        const currentBrandCoins = user.coins_by_brand.get(brandName) || 0;
+        if (currentBrandCoins < analysisCost) {
+            return res.json({ 
+                success: false, 
+                message: `Không đủ Token tại ${brandName}! Bạn cần ${analysisCost} Token để HACK.`, 
+                outOfTokens: true 
+            });
+        }
+
+        const newCoinBalance = currentBrandCoins - analysisCost;
+        user.coins_by_brand.set(brandName, newCoinBalance);
+        user.markModified('coins_by_brand');
+        await user.save();
+
+        res.json({ 
+            success: true, 
+            message: "HACK thành công!", 
+            newCoinBalance 
+        });
+
+    } catch (error) {
+        console.error("Lỗi khi HACK game đặc biệt:", error);
+        res.status(500).json({ success: false, message: "Lỗi server khi HACK." });
+    }
+});
+
 
 // --- PHẦN 4: KHỞI ĐỘNG SERVER ---
 app.listen(port, () => {

@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Wukong Slot - HACK Game</title>
+    <title>Wukong Slot - HACK Soccer Striker</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css"> 
     <link rel="stylesheet" href="/css/analysis.css">
+    <link rel="stylesheet" href="/css/analysis-soccer.css">
     <link rel="manifest" href="/manifest.json">
 </head>
 <script>
@@ -18,18 +19,15 @@
 <body class="analysis-page">
     <div id="page-background"></div>
     <div id="space-dust-overlay"></div>
-    <div id="background-effects"></div>
     <div id="grid-overlay"></div>
     <div class="video-overlay"></div>
     <div class="shooting-stars">
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
     
     <header class="analysis-page-header">
-        <a href="javascript:history.back()" class="back-button-user">← Quay Lại</a>
+        <a href="/dashboard.html" class="back-button-user">← Quay Lại Sảnh</a>
         <div class="user-info-box">
             <span>Tổng Token: <b id="coin-display">...</b></span>
         </div>
@@ -45,7 +43,7 @@
                 <div class="analysis-content">
                     <div class="analysis-title-module">
                         <div class="scanline"></div>
-                        <h2 id="module-game-name">Đang tải tên game...</h2>
+                        <h2>SOCCER STRIKER</h2>
                     </div>
 
                     <div class="analysis-top-visuals">
@@ -53,7 +51,6 @@
                             <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
                         </div>
                         
-                        <!-- === THAY ĐỔI: Thêm container và 3 tia laser === -->
                         <div class="scanner-effects-container">
                             <div class="robot-to-game-scanner scanner-1"></div>
                             <div class="robot-to-game-scanner scanner-2"></div>
@@ -61,59 +58,56 @@
                         </div>
                         
                         <div class="main-game-display">
-                            <div class="scan-impact-ripple"></div>
-                            <!-- ============================================= -->
-
+                             <div class="scan-impact-ripple"></div>
                             <div class="glitch-wrapper">
-                                <img id="panel-game-image" src="" alt="Game">
-                                <div class="glitch-layer"></div>
-                                <div class="glitch-layer"></div>
+                                <img id="panel-game-image" src="/assets/images/soccer-striker.jpg" alt="Soccer Striker">
+                                <div class="glitch-layer" style="background-image: url('/assets/images/soccer-striker.jpg');"></div>
+                                <div class="glitch-layer" style="background-image: url('/assets/images/soccer-striker.jpg');"></div>
                             </div>
                         </div>
 
                         <div id="progress-tag">
-                            <span id="progress-text">0%</span>
+                            <span id="progress-text">--%</span>
                         </div>
                     </div>
 
-                    <div id="game-name-display-bottom"></div>
-                    
-                    <div class="gif-container">
-                        <div class="gif-frame">
-                            <div class="gif-frame-inner">
-                                <img src="/assets/images/premium.gif" alt="Premium Tag">
+                    <!-- === THÊM MỚI: Dòng chữ chạy tên game === -->
+                    <div id="game-name-display-bottom">
+                        <span class="scrolling-text">SOCCER STRIKER</span>
+                    </div>
+                    <!-- === KẾT THÚC THÊM MỚI === -->
+
+                    <div class="soccer-content-wrapper">
+                        <div class="league-buttons-container">
+                            <div class="led-button league-amateur">AMATEUR</div>
+                            <div class="led-button league-club">CLUB</div>
+                            <div class="led-button league-premier">PREMIER</div>
+                        </div>
+                        
+                        <div class="analysis-results-container">
+                            <div class="results-header">KẾT QUẢ DỰ ĐOÁN 9 LƯỢT SÚT</div>
+                            <div class="analysis-results-grid" id="analysis-results-grid">
+                                <p class="placeholder-text">Nhấn "HACK" để nhận kết quả</p>
                             </div>
                         </div>
                     </div>
-
-                    <div class="energy-separator"></div>
-
-                    <div class="analysis-info-panel" id="analysis-info-panel">
-                        <div class="scan-effect-overlay"></div>
-                        <div class="info-boxes-area">
-                            <div id="info-box-1" class="led-info-box"><span>QUAY MỒI</span><small>Chưa có dữ liệu</small></div>
-                            <div id="info-box-2" class="led-info-box"><span>QUAY AUTO</span><small>Chưa có dữ liệu</small></div>
-                            <div id="info-box-3" class="led-info-box"><span>KHUNG GIỜ</span><small>Chưa có dữ liệu</small></div>
-                        </div>
-                    </div>
-
-                    <div class="energy-separator"></div>
                 </div>
 
                 <div class="analysis-footer">
                     <div id="analysis-progress-container" style="display: none;">
-                        <p class="progress-status-text">Đang hội tụ năng lượng...</p>
+                        <p class="progress-status-text">Đang kết nối Sảnh...</p>
                         <div class="progress-bar-wrapper">
                             <div id="progress-bar-fill" class="progress-bar-fill"></div>
                             <span id="progress-bar-text" class="progress-bar-text">0%</span>
                         </div>
                     </div>
-                    <button id="analyze-button" class="btn-primary">HACK</button>
+                    <button id="analyze-button" class="btn-primary">HACK (10 TOKEN)</button>
                 </div>
             </div>
         </div>
     </main>
-    <script src="/js/analysis.js"></script>
+    
+    <script src="/js/analysis-soccer.js"></script>
     <script>
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }

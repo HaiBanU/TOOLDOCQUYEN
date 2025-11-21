@@ -1,0 +1,163 @@
+/* === BẮT ĐẦU: CSS RIÊNG CHO TRANG HACK SOCCER (V4 - Bố cục chuẩn) === */
+
+/* Nới rộng khung HACK để có nhiều không gian hơn */
+.analysis-frame {
+    max-width: 420px;
+}
+
+/* Các hiệu ứng top-visuals (robot, laser, progress-tag) sẽ được kế thừa từ file analysis.css chung */
+
+.soccer-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin-top: 15px; 
+}
+
+/* 1. Nút bấm giải đấu LED */
+.league-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.led-button {
+    position: relative;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 8px currentColor;
+    z-index: 1;
+    cursor: default;
+    transition: all 0.2s ease-in-out;
+}
+
+.led-button::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    background: rgba(0,0,0,.8);
+    border-radius: 10px;
+}
+
+.led-button::after {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 12px;
+    background-size: 300% 300%;
+    animation: animated-gradient-flow 4s linear infinite;
+}
+
+@keyframes animated-gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.led-button.league-amateur::after {
+    background-image: linear-gradient(60deg, #00ff8c, #0d6a2c, #2eff76, #00ff8c);
+}
+.led-button.league-club::after {
+    background-image: linear-gradient(60deg, #ffde8a, #e29c06, #ffc93d, #ffde8a);
+}
+.led-button.league-premier::after {
+    background-image: linear-gradient(60deg, #ff6b78, #a51320, #d92b3a, #ff6b78);
+}
+
+/* 2. Khu vực kết quả */
+.analysis-results-container {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--primary-red);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.results-header {
+    font-weight: bold;
+    color: #ffd700;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(217, 4, 41, 0.5);
+}
+
+.analysis-results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.result-item {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    opacity: 0;
+    animation: result-fade-in 0.5s ease-out forwards;
+    transition: all 0.2s ease-in-out;
+}
+.result-item:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--primary-red);
+}
+
+.result-item .turn {
+    color: #ccc;
+    display: block;
+    font-size: 0.8em;
+}
+
+.result-item .direction {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.placeholder-text {
+    grid-column: 1 / -1;
+    color: rgba(255,255,255,0.4);
+    font-style: italic;
+    font-size: 0.9em;
+    padding: 20px 0;
+}
+
+@keyframes result-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* === NÂNG CẤP: HIỆU ỨNG NỔI BẬT MẠNH MẼ HƠN === */
+
+/* Keyframes cho animation tỏa sáng dạng pulse */
+@keyframes active-glow-pulse {
+    0%, 100% { box-shadow: 0 0 25px currentColor; }
+    50% { box-shadow: 0 0 45px currentColor, 0 0 15px #fff; } /* Tăng độ sáng và thêm vầng sáng trắng */
+}
+
+.led-button.active-league {
+    /* Hiệu ứng scale để nút "nhô" ra */
+    transform: scale(1.05);
+    /* Chữ sáng rực hơn */
+    text-shadow: 0 0 15px #fff, 0 0 10px currentColor;
+    /* Animation tỏa sáng dạng pulse */
+    animation: active-glow-pulse 2s infinite ease-in-out;
+}
+
+.led-button.active-league::after {
+    animation-duration: 1.5s; /* Viền chạy nhanh hơn nữa */
+    filter: brightness(1.8); /* Viền sáng hơn */
+}

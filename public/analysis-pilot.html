@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Wukong Slot - HACK Game</title>
+    <title>Wukong Slot - HACK Phi Công Siêu Cấp</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
-    <link rel="stylesheet" href="/css/user.css"> 
+    <link rel="stylesheet" href="/css/user.css">
     <link rel="stylesheet" href="/css/analysis.css">
+    <!-- File CSS riêng cho trang này, bây giờ đã được đơn giản hóa -->
+    <link rel="stylesheet" href="/css/analysis-pilot.css">
     <link rel="manifest" href="/manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <script>
     if (!localStorage.getItem('username')) {
@@ -24,12 +27,10 @@
     <div class="shooting-stars">
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
-    
+
     <header class="analysis-page-header">
-        <a href="javascript:history.back()" class="back-button-user">← Quay Lại</a>
+        <a href="/dashboard.html" class="back-button-user">← Quay Lại</a>
         <div class="user-info-box">
             <span>Tổng Token: <b id="coin-display">...</b></span>
         </div>
@@ -45,55 +46,44 @@
                 <div class="analysis-content">
                     <div class="analysis-title-module">
                         <div class="scanline"></div>
-                        <h2 id="module-game-name">Đang tải tên game...</h2>
+                        <h2 id="module-game-name">PHI CÔNG SIÊU CẤP</h2>
                     </div>
 
                     <div class="analysis-top-visuals">
                         <div class="robot-container">
                             <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
                         </div>
-                        
-                        <!-- === THAY ĐỔI: Thêm container và 3 tia laser === -->
                         <div class="scanner-effects-container">
                             <div class="robot-to-game-scanner scanner-1"></div>
                             <div class="robot-to-game-scanner scanner-2"></div>
                             <div class="robot-to-game-scanner scanner-3"></div>
                         </div>
-                        
                         <div class="main-game-display">
                             <div class="scan-impact-ripple"></div>
-                            <!-- ============================================= -->
-
                             <div class="glitch-wrapper">
-                                <img id="panel-game-image" src="" alt="Game">
-                                <div class="glitch-layer"></div>
-                                <div class="glitch-layer"></div>
+                                <img id="panel-game-image" src="/assets/images/phi-cong.jpg" alt="Phi Công Siêu Cấp">
+                                <div class="glitch-layer" style="background-image: url('/assets/images/phi-cong.jpg');"></div>
+                                <div class="glitch-layer" style="background-image: url('/assets/images/phi-cong.jpg');"></div>
                             </div>
                         </div>
-
                         <div id="progress-tag">
-                            <span id="progress-text">0%</span>
+                            <span id="progress-text">--%</span>
                         </div>
                     </div>
 
-                    <div id="game-name-display-bottom"></div>
-                    
-                    <div class="gif-container">
-                        <div class="gif-frame">
-                            <div class="gif-frame-inner">
-                                <img src="/assets/images/premium.gif" alt="Premium Tag">
-                            </div>
-                        </div>
+                    <!-- === THÊM MỚI: Dòng chữ chạy tên game === -->
+                    <div id="game-name-display-bottom">
+                        <span class="scrolling-text">PHI CÔNG SIÊU CẤP</span>
                     </div>
+                    <!-- === KẾT THÚC THÊM MỚI === -->
 
                     <div class="energy-separator"></div>
 
-                    <div class="analysis-info-panel" id="analysis-info-panel">
-                        <div class="scan-effect-overlay"></div>
-                        <div class="info-boxes-area">
-                            <div id="info-box-1" class="led-info-box"><span>QUAY MỒI</span><small>Chưa có dữ liệu</small></div>
-                            <div id="info-box-2" class="led-info-box"><span>QUAY AUTO</span><small>Chưa có dữ liệu</small></div>
-                            <div id="info-box-3" class="led-info-box"><span>KHUNG GIỜ</span><small>Chưa có dữ liệu</small></div>
+                    <div id="pilotChartContainer">
+                        <canvas id="pilotChart"></canvas>
+                        <img src="/assets/images/airplane-icon.png" id="chart-airplane-icon" alt="Airplane">
+                        <div id="chart-result-overlay">
+                            <span id="chart-result-text">1.11x</span>
                         </div>
                     </div>
 
@@ -108,12 +98,13 @@
                             <span id="progress-bar-text" class="progress-bar-text">0%</span>
                         </div>
                     </div>
-                    <button id="analyze-button" class="btn-primary">HACK</button>
+                    <button id="analyze-button" class="btn-primary">HACK (10 TOKEN)</button>
                 </div>
             </div>
         </div>
     </main>
-    <script src="/js/analysis.js"></script>
+
+    <script src="/js/analysis-pilot.js"></script>
     <script>
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }
