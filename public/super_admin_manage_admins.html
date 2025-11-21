@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+     <title>Wukong Slot</title> <!-- Đã sửa -->
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png"> <!-- Đã thêm -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        .card { padding: 25px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        #modal-message { margin-top: 15px; font-weight: bold; text-align: center; height: 20px; }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            background-color: #fff;
+        }
+
+        /* === CSS MỚI CHO BỐ CỤC THEO SẢNH GAME === */
+        .brand-group {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            background-color: #fcfcfc;
+            overflow: hidden;
+        }
+
+        .brand-header {
+            background-color: #e9ecef;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #495057;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .admin-item {
+            display: grid;
+            grid-template-columns: 1fr auto; /* Chia 2 cột: thông tin và control */
+            gap: 20px;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .brand-group .admin-item:last-child {
+            border-bottom: none;
+        }
+
+        .admin-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .admin-main-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-username {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .admin-brand-tag {
+            background-color: var(--primary-red);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .admin-meta-info {
+            font-size: 0.85em;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .meta-separator {
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        .coin-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .coin-controls input { width: 100px; }
+        .btn-danger { background: #dc3545; color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+        
+        /* === THÊM MỚI: CSS cho nút Thu hồi và Badge đếm Admin === */
+        .btn-warning { 
+            background: #ffc107; 
+            color: #212529; 
+            border: none; 
+            border-radius: 8px; 
+            padding: 8px 12px; 
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-warning:hover { background: #e0a800; }
+
+        .admin-count-badge {
+            display: inline-block;
+            background-color: #6c757d;
+            color: #fff;
+            font-size: 0.7em;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        /* ======================================================== */
+        
+    </style>
+</head>
+<body class="admin-page">
+    <header class="header fadeIn">
+        <a href="/admin.html" class="back-button">&larr; Quay lại Menu</a>
+        <button class="logout-button">
+            <span>Đăng Xuất</span>
+        </button>
+    </header>
+
+    <main class="fadeIn" style="animation-delay: 0.2s;">
+        <div class="page-header">
+            <h2 style="margin-top:0;">Quản Lý Admin Phụ <span id="admin-count-display" class="admin-count-badge">...</span></h2>
+            <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="openCreateAdminModal()">+ Tạo Admin Mới</button>
+        </div>
+
+        <div id="admin-list-container"></div>
+        <p id="message"></p>
+    </main>
+    
+    <div id="createAdminModal" class="modal">
+        <div class="modal-content fadeIn">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>Tạo Tài Khoản Admin Mới</h2>
+            <form id="create-admin-form">
+                <div class="form-group"><input type="text" id="new-admin-username" placeholder="Tên đăng nhập" required></div>
+                <div class="form-group"><input type="password" id="new-admin-password" placeholder="Mật khẩu" required></div>
+                <div class="form-group">
+                    <select id="new-admin-brand" class="form-control" required>
+                        <option value="">-- Chọn SẢNH GAME quản lý --</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Tạo Tài Khoản</button>
+            </form>
+            <p id="modal-message"></p>
+        </div>
+    </div>
+    
+    <script>
+        document.querySelector('.logout-button').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/';
+        });
+
+        const adminListContainer = document.getElementById('admin-list-container');
+        const messageEl = document.getElementById('message');
+        const modalMessageEl = document.getElementById('modal-message');
+        const createAdminModal = document.getElementById('createAdminModal');
+        const createAdminForm = document.getElementById('create-admin-form');
+
+        function showMessage(msg, isSuccess) {
+            messageEl.textContent = msg;
+            messageEl.className = isSuccess ? 'success' : 'error';
+            setTimeout(() => { messageEl.textContent = ''; }, 4000);
+        }
+        function showModalMessage(msg, isSuccess) {
+            modalMessageEl.textContent = msg;
+            modalMessageEl.className = isSuccess ? 'success' : 'error';
+        }
+        function openCreateAdminModal() { createAdminModal.style.display = 'flex'; }
+        function closeModal() {
+            createAdminModal.style.display = 'none';
+            createAdminForm.reset();
+            showModalMessage('', true);
+        }
+        
+        function calculateDaysSince(dateString) {
+            const creationDate = new Date(dateString);
+            const today = new Date();
+            creationDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            const differenceInTime = today.getTime() - creationDate.getTime();
+            const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+            
+            if (differenceInDays < 0) return 'Tương lai';
+            if (differenceInDays === 0) return 'Hôm nay';
+            return `${differenceInDays} ngày`;
+        }
+
+        async function loadBrandsIntoSelect() {
+            try {
+                const response = await fetch('/api/brands');
+                const data = await response.json();
+                const selectEl = document.getElementById('new-admin-brand');
+                if (data.success) {
+                    data.brands.forEach(brand => {
+                        const option = document.createElement('option');
+                        option.value = brand.name;
+                        option.textContent = brand.name;
+                        selectEl.appendChild(option);
+                    });
+                }
+            } catch(e) { console.error("Lỗi khi tải SẢNH GAME:", e); }
+        }
+
+        // === CẬP NHẬT: Lấy danh sách Admin theo ID của Super Admin hiện tại ===
+        async function fetchAndDisplayAdmins() {
+            // <<< Lấy ID của super admin đang đăng nhập từ localStorage
+            const creatorId = localStorage.getItem('adminId');
+            if (!creatorId) {
+                adminListContainer.innerHTML = '<p style="text-align:center; color: red;">Lỗi: Không tìm thấy ID của Super Admin.</p>';
+                return;
+            }
+
+            // <<< Gửi ID này lên server để lọc
+            const response = await fetch(`/api/sub-admins?creator_id=${creatorId}`);
+            const data = await response.json();
+            adminListContainer.innerHTML = ''; 
+
+            if (data.success) {
+                document.getElementById('admin-count-display').textContent = `Tổng: ${data.admins.length}`;
+            }
+
+            if (data.success && data.admins.length > 0) {
+                const groupedAdmins = data.admins.reduce((acc, admin) => {
+                    const brand = admin.assigned_brand || 'Chưa Phân Loại';
+                    if (!acc[brand]) { acc[brand] = []; }
+                    acc[brand].push(admin);
+                    return acc;
+                }, {});
+
+                const sortedBrands = Object.keys(groupedAdmins).sort();
+
+                for (const brand of sortedBrands) {
+                    const adminsInGroup = groupedAdmins[brand];
+                    const brandGroup = document.createElement('div');
+                    brandGroup.className = 'brand-group';
+                    const brandHeader = document.createElement('div');
+                    brandHeader.className = 'brand-header';
+                    brandHeader.textContent = `SẢNH GAME: ${brand}`;
+                    brandGroup.appendChild(brandHeader);
+
+                    adminsInGroup.forEach(admin => {
+                        const item = document.createElement('div');
+                        item.className = 'admin-item';
+                        const creationDate = new Date(admin.createdAt).toLocaleDateString('vi-VN');
+                        const daysActive = calculateDaysSince(admin.createdAt);
+                        
+                        item.innerHTML = `
+                            <div class="admin-details">
+                                <div class="admin-main-info">
+                                    <span class="admin-username">${admin.username}</span>
+                                    <span class="admin-brand-tag">Token: ${admin.coins}</span>
+                                </div>
+                                <div class="admin-meta-info">
+                                    <span>Ngày tạo: ${creationDate}</span>
+                                    <span class="meta-separator">|</span>
+                                    <span>Hoạt động: ${daysActive}</span>
+                                </div>
+                            </div>
+                            <div class="coin-controls">
+                                <input type="number" min="1" placeholder="Số Token" id="coins-for-${admin._id}">
+                                <button class="btn-primary" onclick="grantCoins('${admin._id}')">Cấp</button>
+                                <button class="btn-warning" onclick="revokeCoins('${admin._id}', '${admin.username}')">Thu hồi</button>
+                                <button class="btn-danger" onclick="deleteAdmin('${admin._id}', '${admin.username}')">Xóa</button>
+                            </div>
+                        `;
+                        brandGroup.appendChild(item);
+                    });
+                    adminListContainer.appendChild(brandGroup);
+                }
+            } else {
+                adminListContainer.innerHTML = '<p style="text-align:center; color: var(--text-light);">Bạn chưa tạo Admin phụ nào.</p>';
+            }
+        }
+        
+        // === CẬP NHẬT: Gửi ID của Super Admin khi tạo Admin phụ mới ===
+        createAdminForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showModalMessage('Đang xử lý...', true);
+            const username = document.getElementById('new-admin-username').value;
+            const password = document.getElementById('new-admin-password').value;
+            const brandName = document.getElementById('new-admin-brand').value;
+            // <<< Lấy ID của super admin đang đăng nhập từ localStorage
+            const creatorId = localStorage.getItem('adminId');
+
+            const response = await fetch('/api/create-sub-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // <<< Gửi thêm creatorId trong body của request
+                body: JSON.stringify({ username, password, brandName, creatorId })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                showModalMessage(result.message, true);
+                setTimeout(() => { closeModal(); fetchAndDisplayAdmins(); }, 1500);
+            } else {
+                showModalMessage(result.message, false);
+            }
+        });
+
+        // ... (Các hàm grantCoins, revokeCoins, deleteAdmin không đổi) ...
+        async function grantCoins(adminId) {
+            const amountInput = document.getElementById(`coins-for-${adminId}`);
+            if (!amountInput.value) {
+                showMessage("Vui lòng nhập số Token cần cấp.", false);
+                return;
+            }
+            const response = await fetch('/api/grant-coins-to-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adminId, amount: amountInput.value })
+            });
+            const result = await response.json();
+            showMessage(result.message, result.success);
+            if (result.success) {
+                amountInput.value = '';
+                fetchAndDisplayAdmins();
+            }
+        }
+
+        async function revokeCoins(adminId, username) {
+            const amountInput = document.getElementById(`coins-for-${adminId}`);
+            const amount = amountInput.value;
+            if (!amount) {
+                showMessage("Vui lòng nhập số Token cần thu hồi.", false);
+                return;
+            }
+
+            if (confirm(`Bạn có chắc chắn muốn THU HỒI ${amount} Token từ Admin "${username}" không?`)) {
+                 const response = await fetch('/api/revoke-coins-from-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId, amount: amount })
+                });
+                const result = await response.json();
+                showMessage(result.message, result.success);
+                if (result.success) {
+                    amountInput.value = '';
+                    fetchAndDisplayAdmins();
+                }
+            }
+        }
+        
+        async function deleteAdmin(adminId, username) {
+            if (confirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn Admin "${username}" không? Toàn bộ user do admin này quản lý sẽ bị gỡ.`)) {
+                const response = await fetch('/api/delete-sub-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId })
+                });
+                const result = await response.json();
+                showMessage(result.message, result.success);
+                if (result.success) {
+                    fetchAndDisplayAdmins();
+                }
+            }
+        }
+
+        window.onload = () => {
+            fetchAndDisplayAdmins();
+            loadBrandsIntoSelect();
+        };
+        window.onclick = (event) => {
+            if (event.target == createAdminModal) {
+                closeModal();
+            }
+        }
+    </script>
+    <script src="/js/global.js"></script>
+</body>
+</html>

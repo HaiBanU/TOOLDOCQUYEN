@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Wukong Slot</title> <!-- Đã sửa -->
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png"> <!-- Đã thêm -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/user.css">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        #filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            border: 2px solid transparent;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .filter-btn.filter-all,
+        .filter-btn.filter-wait {
+            background: linear-gradient(45deg, #a40606, #d90429);
+        }
+
+        .filter-btn.filter-jackpot {
+            background: linear-gradient(45deg, #00b894, #00ff8c);
+        }
+
+        .filter-btn.filter-play {
+            background: linear-gradient(45deg, #ff8e00, #ffc62b);
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+
+        .filter-btn.active {
+            transform: translateY(-2px) scale(1.05);
+            filter: brightness(1.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            border-color: #fff;
+        }
+    </style>
+</head>
+<script>
+    // === BẮT BUỘC KIỂM TRA ĐĂNG NHẬP ===
+    if (!localStorage.getItem('username')) {
+        window.location.href = '/'; // Chuyển về trang đăng nhập
+    }
+</script>
+<body class="games-page">
+    <div id="page-background"></div>
+    <div id="space-dust-overlay"></div>
+    <div id="background-effects"></div>
+    <div id="grid-overlay"></div>
+
+    <div class="video-overlay"></div>
+    <div class="shooting-stars">
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+    </div>
+
+    <header class="header games-header fadeIn">
+        <a href="javascript:history.back()" class="back-button-user">← Quay Lại</a>
+        <h2 id="lobby-title">Đang tải...</h2>
+        <div id="live-clock-container"></div>
+    </header>
+
+    <main class="main-content fadeIn" style="animation-delay: 0.2s;">
+        <div id="filter-container">
+            <button class="filter-btn filter-all active" data-filter="all">Tất Cả</button>
+            <button class="filter-btn filter-jackpot" data-filter="jackpot">Jackpot</button>
+            <button class="filter-btn filter-play" data-filter="play">Chơi</button>
+            <button class="filter-btn filter-wait" data-filter="wait">Chờ</button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="game-search-input" placeholder="Nhập tên game để tìm kiếm...">
+        </div>
+        
+        <div class="grid-container" id="game-container">
+            <!-- Game cards will be inserted here -->
+        </div>
+    </main>
+    
+    <div class="terminal-notification fadeIn" style="animation-delay: 0.5s;">
+        <div class="terminal-bot-icon"><img src="/assets/images/bot-icon.png" alt="Bot Icon"></div>
+        <div class="terminal-content">
+            <div class="terminal-header">Terminal</div>
+            <div class="terminal-body"><span id="terminal-message"></span><span class="cursor"></span></div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); const timeString = now.toLocaleTimeString('vi-VN'); const dateString = now.toLocaleDateString('vi-VN'); clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; }
+        
+        // === NÂNG CẤP V4: HOÀN TOÀN MỚI NỘI DUNG TERMINAL ===
+        let terminalMessages = [];
+        let lastMessageIndex = -1;
+        let typingInterval;
+
+        function generateGameMessages(games = []) {
+            const messageTemplates = [
+                "Giải mã dữ liệu trò chơi trong sảnh đã chọn...",
+                "Đang phân tích chu kỳ và độ biến động của từng game.",
+                "Hệ thống gợi ý Jackpot đã được kích hoạt.",
+                "Cross-referencing historical data to identify patterns...",
+                "Lọc các game có tín hiệu 'chuẩn bị nhả thưởng'...",
+                "Chọn một trò chơi để tiến hành phân tích sâu bằng 4 Token.",
+                "Hãy nhớ, kiên nhẫn cũng là một chiến lược."
+            ];
+
+            if (games.length > 0) {
+                const jackpotGames = games.filter(game => game.winRate > 85);
+                if (jackpotGames.length > 0) {
+                    const bestGame = jackpotGames.sort((a, b) => b.winRate - a.winRate)[0];
+                    messageTemplates.push(`Cảnh báo Jackpot! Game "${bestGame.name}" đang có tỷ lệ nổ hũ ${bestGame.winRate}%.`);
+                    messageTemplates.push(`Phân tích cho thấy game "${bestGame.name}" là lựa chọn tốt nhất lúc này.`);
+                }
+                const playableGames = games.filter(game => game.winRate > 60 && game.winRate <= 85);
+                if (playableGames.length > 0) {
+                    const goodGame = playableGames[Math.floor(Math.random() * playableGames.length)];
+                    messageTemplates.push(`Game "${goodGame.name}" đang trong chu kỳ nhả thưởng, cân nhắc tham gia.`);
+                }
+            }
+            return messageTemplates;
+        }
+
+        function typeMessage(element, message) { if (typingInterval) clearInterval(typingInterval); let i = 0; element.innerHTML = ''; typingInterval = setInterval(() => { if (i < message.length) { element.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); } }, 50); }
+        function showNextTerminalMessage() { 
+            const messageEl = document.getElementById('terminal-message'); 
+            if (!messageEl || terminalMessages.length === 0) return;
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * terminalMessages.length);
+            } while (randomIndex === lastMessageIndex && terminalMessages.length > 1);
+            lastMessageIndex = randomIndex;
+            const messageToShow = terminalMessages[randomIndex]; 
+            typeMessage(messageEl, messageToShow); 
+        }
+        // === KẾT THÚC NÂNG CẤP ===
+
+        let allGames = [];
+        const gameContainer = document.getElementById('game-container');
+        
+        function renderGames(gamesToDisplay) {
+            gameContainer.innerHTML = ''; 
+            if (gamesToDisplay.length > 0) {
+                gamesToDisplay.forEach(game => {
+                    const card = document.createElement('div');
+                    card.className = 'game-card-enhanced';
+                    const colors = getColorScheme(game.winRate);
+                    card.innerHTML = `<div class="game-card-inner-frame"><div class="card-image-wrapper"><img src="${game.image_url}" alt="${game.name}" loading="lazy"></div></div><div class="game-card-content"><div class="game-info"><h4 class="game-name">${game.name}</h4></div><div class="status-tag-wrapper"><span class="status-tag ${colors.className}">${colors.tag}</span></div><div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${game.winRate}%; background: ${colors.gradientColor};"></div></div><button class="action-button" style="background: ${colors.gradientColor};">${game.winRate}%</button></div>`;
+                    card.onclick = () => {
+                        const params = new URLSearchParams(window.location.search);
+                        const lobbyName = decodeURIComponent(params.get('lobby_name'));
+                        const url = `/analysis.html?gameName=${encodeURIComponent(game.name)}&imageUrl=${encodeURIComponent(game.image_url)}&winRate=${game.winRate}&lobbyName=${encodeURIComponent(lobbyName)}`;
+                        window.location.href = url;
+                    };
+                    gameContainer.appendChild(card);
+                });
+            } else {
+                gameContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #fff;">Không tìm thấy game nào phù hợp.</p>';
+            }
+        }
+        
+        window.onload = async () => {
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            const params = new URLSearchParams(window.location.search);
+            const lobbyId = params.get('lobby_id');
+            const lobbyName = decodeURIComponent(params.get('lobby_name'));
+            if (!lobbyId) { window.location.href = '/dashboard.html'; return; }
+
+            document.getElementById('lobby-title').textContent = lobbyName;
+            const response = await fetch(`/api/games-with-rates?lobby_id=${lobbyId}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                allGames = data.games; 
+                renderGames(allGames); 
+                
+                // Cập nhật và kích hoạt Terminal với dữ liệu mới
+                terminalMessages = generateGameMessages(allGames);
+                showNextTerminalMessage();
+                setInterval(showNextTerminalMessage, 10000);
+            } else {
+                gameContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #fff;">Sảnh này chưa có game nào.</p>';
+            }
+
+            const searchInput = document.getElementById('game-search-input');
+            const filterContainer = document.getElementById('filter-container');
+            let currentFilter = 'all';
+            let currentSearchTerm = '';
+
+            function applyFiltersAndSearch() {
+                let filteredGames = [...allGames];
+                if (currentFilter === 'jackpot') {
+                    filteredGames = filteredGames.filter(game => game.winRate > 85);
+                } else if (currentFilter === 'play') {
+                    filteredGames = filteredGames.filter(game => game.winRate > 60 && game.winRate <= 85);
+                } else if (currentFilter === 'wait') {
+                    filteredGames = filteredGames.filter(game => game.winRate <= 60);
+                }
+                if (currentSearchTerm) {
+                    filteredGames = filteredGames.filter(game => game.name.toLowerCase().includes(currentSearchTerm));
+                }
+                renderGames(filteredGames);
+            }
+
+            filterContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    filterContainer.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    applyFiltersAndSearch();
+                }
+            });
+            
+            searchInput.addEventListener('input', (e) => {
+                currentSearchTerm = e.target.value.toLowerCase();
+                applyFiltersAndSearch();
+            });
+        };
+
+        function getColorScheme(rate) { if (rate > 85) return { className: 'tag-jackpot', tag: 'JACKPOT', gradientColor: 'linear-gradient(45deg, #00ff8c, #00b894)' }; else if (rate > 60) return { className: 'tag-play', tag: 'CHƠI', gradientColor: 'linear-gradient(45deg, #ffc62b, #ff8e00)' }; else return { className: 'tag-wait', tag: 'CHỜ', gradientColor: 'linear-gradient(45deg, #d90429, #ef233c)' }; }
+    </script>
+    
+    <script>
+        const overlay = document.querySelector('.video-overlay');
+        if (overlay) {
+            window.addEventListener('mousemove', (e) => {
+                const { clientX, clientY } = e;
+                overlay.style.setProperty('--mouse-x', `${clientX}px`);
+                overlay.style.setProperty('--mouse-y', `${clientY}px`);
+            });
+        }
+    </script>
+    <script src="/js/global.js"></script>
+</body>
+</html>

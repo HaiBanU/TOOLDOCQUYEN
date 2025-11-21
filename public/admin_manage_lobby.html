@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Game trong Sảnh</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+<script>
+    // === BẮT BUỘC KIỂM TRA ĐĂNG NHẬP ===
+    if (!localStorage.getItem('username')) {
+        window.location.href = '/'; // Chuyển về trang đăng nhập
+    }
+</script>
+<body class="admin-page">
+    <div id="toast-container"></div>
+
+    <header class="header fadeIn">
+        <a href="/admin_games.html" class="back-button">&larr; Quay lại Quản Lý Sảnh</a>
+        <div class="header-right-group">
+            <div id="admin-coin-display">Token: ...</div>
+            <button class="logout-button">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Đăng Xuất</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="fadeIn" style="animation-delay: 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 id="lobby-name-title" style="margin-top:0;">Đang tải...</h2>
+            <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="openAddGameModal()">+ Thêm Game Mới</button>
+        </div>
+        <div id="game-container" class="grid-container" style="margin-top: 20px;"></div>
+    </main>
+
+    <div id="addGameModal" class="modal">
+        <div class="modal-content fadeIn">
+            <span class="close-btn" onclick="closeModals()">&times;</span>
+            <h2>Thêm Game Mới</h2>
+            <form id="add-game-form">
+                <input type="hidden" name="lobby_id" id="game-lobby-id">
+                <div class="form-group"><input type="text" name="name" placeholder="Tên Game" required></div>
+                <div class="form-group"><label>Ảnh Game</label><input type="file" name="image" accept="image/*" required></div>
+                <button type="submit" class="btn-primary">Thêm Game</button>
+            </form>
+            <div id="modal-message" class="modal-alert"></div>
+        </div>
+    </div>
+
+    <!-- === BẮT ĐẦU: MODAL CHỈNH SỬA GAME MỚI === -->
+    <div id="editGameModal" class="modal">
+        <div class="modal-content fadeIn">
+            <span class="close-btn" onclick="closeModals()">&times;</span>
+            <h2 id="edit-game-title">Chỉnh Sửa Ảnh Game</h2>
+            <form id="edit-game-form">
+                <input type="hidden" name="game_id" id="edit-game-id">
+                
+                <div class="form-group" style="text-align: center;">
+                    <label>Ảnh Hiện Tại</label>
+                    <img id="current-game-image" src="" style="width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd;">
+                </div>
+
+                <div class="form-group">
+                    <label>Chọn Ảnh Mới</label>
+                    <input type="file" name="image" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn-primary">Lưu Thay Đổi</button>
+            </form>
+            <div id="edit-game-modal-message" class="modal-alert"></div>
+        </div>
+    </div>
+    <!-- === KẾT THÚC: MODAL MỚI === -->
+
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const lobbyNameTitle = document.getElementById('lobby-name-title');
+        const addGameModal = document.getElementById('addGameModal');
+        const addGameForm = document.getElementById('add-game-form');
+        const modalMessageEl = document.getElementById('modal-message');
+        
+        // === THÊM MỚI: Lấy các phần tử của modal edit game ===
+        const editGameModal = document.getElementById('editGameModal');
+        const editGameForm = document.getElementById('edit-game-form');
+        const editGameModalMessageEl = document.getElementById('edit-game-modal-message');
+
+        const params = new URLSearchParams(window.location.search);
+        const lobbyId = params.get('id');
+        const lobbyName = decodeURIComponent(params.get('name'));
+
+        function showToast(message, isSuccess = true) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isSuccess ? 'success' : 'error'}`;
+            const iconSVG = isSuccess 
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm4.3 14.3a.996.996 0 01-1.41 0L12 13.41l-2.89 2.89a.996.996 0 11-1.41-1.41L10.59 12 7.7 9.11a.996.996 0 111.41-1.41L12 10.59l2.89-2.89a.996.996 0 111.41 1.41L13.41 12l2.89 2.89c.38.38.38 1.02 0 1.41z"></path></svg>`;
+            toast.innerHTML = `<span class="toast-icon">${iconSVG}</span><span class="toast-message">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.add('hide');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 4000);
+        }
+
+        function showModalMessage(message, isSuccess, modalType = 'add') {
+            const el = modalType === 'add' ? modalMessageEl : editGameModalMessageEl;
+            el.classList.remove('show', 'modal-alert-success', 'modal-alert-error');
+            if (!message) return;
+            el.textContent = message;
+            el.classList.add('show', isSuccess ? 'modal-alert-success' : 'modal-alert-error');
+        }
+
+        function openAddGameModal() {
+            showModalMessage('', true, 'add');
+            document.getElementById('game-lobby-id').value = lobbyId;
+            addGameModal.style.display = 'flex';
+        }
+
+        function openEditGameModal(gameId, gameName, currentImageUrl) {
+            showModalMessage('', true, 'edit');
+            document.getElementById('edit-game-id').value = gameId;
+            document.getElementById('edit-game-title').textContent = `Sửa ảnh: ${gameName}`;
+            document.getElementById('current-game-image').src = currentImageUrl;
+            editGameModal.style.display = 'flex';
+        }
+
+        function closeModals() { 
+            addGameModal.style.display = 'none'; 
+            editGameModal.style.display = 'none';
+        }
+
+        async function fetchAndDisplayGames() {
+            if (!lobbyId) {
+                gameContainer.innerHTML = '<p>Lỗi: Không tìm thấy ID của sảnh.</p>';
+                return;
+            }
+            lobbyNameTitle.textContent = `Quản lý game cho sảnh "${lobbyName}"`;
+            const response = await fetch(`/api/games?lobby_id=${lobbyId}`);
+            const data = await response.json();
+            gameContainer.innerHTML = '';
+            if (data.success && data.games.length > 0) {
+                data.games.forEach(game => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    card.innerHTML = `
+                        <h4>${game.name}</h4>
+                        <img src="${game.image_url}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px;" loading="lazy">
+                        <button class="btn-primary" style="width: 100%; margin-top: 15px; background: #5a6268;" 
+                                onclick="openEditGameModal('${game._id}', '${game.name}', '${game.image_url}')">
+                            Sửa Ảnh
+                        </button>
+                    `;
+                    gameContainer.appendChild(card);
+                });
+            } else {
+                gameContainer.innerHTML = `<p style="text-align:center; color: #888; grid-column: 1 / -1;">Chưa có game nào trong sảnh này.</p>`;
+            }
+        }
+
+        addGameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button[type="submit"]');
+            button.classList.add('btn-loading');
+            showModalMessage('', true, 'add');
+            const formData = new FormData(addGameForm);
+            try {
+                const response = await fetch('/api/add-game', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, true);
+                    addGameForm.reset();
+                    closeModals();
+                    fetchAndDisplayGames();
+                } else {
+                    showModalMessage(result.message, false, 'add');
+                }
+            } catch (error) {
+                showModalMessage('Lỗi kết nối máy chủ!', false, 'add');
+            } finally {
+                button.classList.remove('btn-loading');
+            }
+        });
+        
+        editGameForm.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button[type="submit"]');
+            button.classList.add('btn-loading');
+            showModalMessage('', true, 'edit');
+            const formData = new FormData(editGameForm);
+            try {
+                const response = await fetch('/api/update-game', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, true);
+                    editGameForm.reset();
+                    closeModals();
+                    fetchAndDisplayGames();
+                } else {
+                    showModalMessage(result.message, false, 'edit');
+                }
+            } catch (error) {
+                 showModalMessage('Lỗi kết nối máy chủ!', false, 'edit');
+            } finally {
+                button.classList.remove('btn-loading');
+            }
+        });
+
+        document.querySelector('.logout-button').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/';
+        });
+        
+        async function fetchAdminInfo() {
+            const username = localStorage.getItem('username');
+            const coinDisplay = document.getElementById('admin-coin-display');
+            if (localStorage.getItem('isSuperAdmin') === 'true' || !coinDisplay) {
+                if(coinDisplay) coinDisplay.style.display = 'none';
+                return;
+            }
+            const response = await fetch(`/api/user-info?username=${username}`);
+            const data = await response.json();
+            if (data.success) {
+                coinDisplay.textContent = `Token còn lại: ${data.userInfo.coins}`;
+            }
+        }
+
+        window.onclick = (event) => { 
+            if (event.target == addGameModal || event.target == editGameModal) {
+                closeModals(); 
+            }
+        }
+        window.onload = () => { fetchAndDisplayGames(); fetchAdminInfo(); };
+    </script>
+    <script src="/js/global.js"></script>
+</body>
+</html>

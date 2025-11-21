@@ -1,0 +1,186 @@
+/* Giao diện cuối cùng: Carousel 3D cho Desktop, Lưới 2 cột cho Mobile */
+
+body {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ======================================= */
+/* === CONTAINER & HIỆU ỨNG 3D (DESKTOP) === */
+/* ======================================= */
+.carousel-main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    z-index: 5;
+    padding: 20px 0;
+}
+
+.carousel-container {
+    width: 100%;
+    height: 520px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+}
+
+.brand-slider {
+    position: relative;
+    width: 320px;
+    height: 480px;
+    transform-style: preserve-3d;
+}
+
+/* ======================================= */
+/* === THIẾT KẾ THẺ BÀI (Chung) === */
+/* ======================================= */
+
+.brand-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.brand-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent 0%, transparent 80%, var(--primary-red) 95%, var(--primary-red) 100%);
+    animation: led-border-spin 2s linear infinite;
+    transform-origin: 0 0;
+}
+
+@keyframes led-border-spin {
+    100% { transform: rotate(360deg); }
+}
+
+.brand-card-inner {
+    position: absolute;
+    inset: 3px; 
+    border-radius: 18px;
+    background: rgba(15, 5, 5, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.logo-background { width: 150px; height: 150px; background-color: #fff; border-radius: 15px; display: flex; justify-content: center; align-items: center; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.brand-logo { max-width: 100%; max-height: 100%; object-fit: contain; }
+.brand-name { font-size: 1.5em; font-weight: 700; font-family: 'Poppins', sans-serif; color: var(--primary-red); text-shadow: 0 0 15px var(--primary-red); }
+
+/* === STYLE CHO TỶ LỆ % === */
+.brand-percentage {
+    background: linear-gradient(45deg, #00b894, #00ff8c);
+    color: #111;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.4em;
+    padding: 8px 25px;
+    border-radius: 50px;
+    box-shadow: 0 0 15px rgba(0, 255, 140, 0.8);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    border: 2px solid #fff;
+    transition: background 0.3s ease;
+}
+
+.brand-percentage.low {
+    background: linear-gradient(45deg, var(--secondary-red), var(--primary-red));
+    box-shadow: 0 0 15px rgba(217, 4, 41, 0.8);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* ======================================= */
+/* === VỊ TRÍ 3D (DESKTOP) - PHIÊN BẢN 5 THẺ === */
+/* ======================================= */
+.brand-card.active { transform: translateX(0) translateZ(0) scale(1); opacity: 1; z-index: 100; }
+.brand-card.prev { transform: translateX(-65%) translateZ(-180px) scale(0.85); opacity: 0.7; z-index: 95; }
+.brand-card.next { transform: translateX(65%) translateZ(-180px) scale(0.85); opacity: 0.7; z-index: 95; }
+.brand-card.prev2 { transform: translateX(-130%) translateZ(-320px) scale(0.7); opacity: 0.4; z-index: 90; }
+.brand-card.next2 { transform: translateX(130%) translateZ(-320px) scale(0.7); opacity: 0.4; z-index: 90; }
+.brand-card:not(.active):not(.prev):not(.next):not(.prev2):not(.next2) { transform: scale(0.5); opacity: 0; pointer-events: none; }
+
+/* ======================================= */
+/* === NÚT ĐIỀU KHIỂN (DESKTOP) === */
+/* ======================================= */
+.carousel-controls { display: flex; justify-content: space-between; width: 100%; max-width: 800px; margin-top: 20px; }
+.control-btn { background: linear-gradient(45deg, var(--secondary-red), var(--primary-red)); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 1.1em; font-family: 'Poppins', sans-serif; font-weight: 700; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.5); transition: all 0.2s ease-in-out; padding: 12px 30px; display: flex; align-items: center; gap: 10px; border-radius: 50px; box-shadow: 0 4px 15px rgba(217, 4, 41, 0.4); }
+.control-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 20px rgba(217, 4, 41, 0.7); }
+.control-btn .arrow { font-size: 1.5em; }
+
+/* ==================================================================== */
+/* === BẮT ĐẦU: PHẦN CẬP NHẬT CHO GIAO DIỆN ĐIỆN THOẠI === */
+/* ==================================================================== */
+@media (max-width: 768px) {
+    .carousel-main-content { flex-grow: 1; display: block; width: auto; padding: 20px 10px; }
+    .carousel-container { display: block; height: auto; perspective: none; }
+    .brand-slider { transform-style: flat; position: static; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; height: auto; }
+    
+    .brand-card { 
+        position: relative; /* SỬA LỖI: Thêm dòng này để chứa hiệu ứng viền LED */
+        opacity: 1 !important; 
+        transform: none !important; 
+        z-index: 1 !important; 
+        height: auto; 
+        border-radius: 15px;
+    }
+    
+    .brand-card-inner {
+        position: static; /* Đổi về static để không bị ảnh hưởng bởi ::before */
+        inset: 3px;
+        background: rgba(15, 5, 5, 0.8);
+        backdrop-filter: blur(10px);
+        gap: 10px;
+        padding: 15px;
+        height: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+    }
+
+    .logo-background {
+        width: 80px;
+        height: 80px;
+        padding: 8px;
+        border-radius: 12px;
+    }
+    
+    .brand-name {
+        width: auto;
+        font-size: 1em;
+        text-shadow: 0 0 10px var(--primary-red);
+        background: none;
+        padding: 0;
+        text-align: center;
+        text-transform: none;
+    }
+
+    .brand-percentage {
+        display: block;
+        font-size: 1.1em;
+        padding: 5px 15px;
+    }
+    
+    .carousel-controls { 
+        display: none; 
+    }
+}
