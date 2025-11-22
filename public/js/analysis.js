@@ -4,7 +4,6 @@ window.onload = () => {
     // === 1. LẤY CÁC PHẦN TỬ DOM ===
     const coinDisplay = document.getElementById('coin-display');
     const panelGameImage = document.getElementById('panel-game-image');
-    // Lấy đúng ID của khung tròn %
     const progressValue = document.getElementById('progress-value'); 
     
     const analyzeButton = document.getElementById('analyze-button');
@@ -23,6 +22,9 @@ window.onload = () => {
     const infoBox1 = document.getElementById('info-box-1');
     const infoBox2 = document.getElementById('info-box-2');
     const infoBox3 = document.getElementById('info-box-3');
+
+    // Lấy phần tử khung Scanner để thay đổi nội dung
+    const scannerBox = document.querySelector('.slot-scanner-box');
 
     // === 2. LẤY DỮ LIỆU TỪ URL ===
     const params = new URLSearchParams(window.location.search);
@@ -77,9 +79,24 @@ window.onload = () => {
         createParticleBurstEffect();
     }
 
+    // === HÀM RESET SCANNER VỀ MẶC ĐỊNH ===
+    function resetScannerToDefault() {
+        if (scannerBox) {
+            scannerBox.innerHTML = `
+                <div class="scanner-lines">
+                    <div class="scan-line-item s1"></div>
+                    <div class="scan-line-item s2"></div>
+                    <div class="scan-line-item s3"></div>
+                    <div class="scan-text">SCANNING...</div>
+                </div>
+            `;
+        }
+    }
+
     // === 5. KHỞI TẠO GIAO DIỆN ===
     function initializeUI() {
         setupVisuals();
+        resetScannerToDefault(); // Reset scanner về trạng thái quét
         
         // Hiển thị % ban đầu
         const startPercent = (initialWinRate && initialWinRate !== 'null') ? initialWinRate : 0;
@@ -87,7 +104,6 @@ window.onload = () => {
         
         // RESET: Xóa class success để về màu đỏ
         progressValue.classList.remove('success'); 
-        // Xóa style inline để CSS mặc định (đỏ) có tác dụng
         progressValue.style.color = ''; 
         progressValue.style.textShadow = '';
         
@@ -104,7 +120,7 @@ window.onload = () => {
         isAnalyzing = false;
     }
 
-    // === 6. HÀM HIỂN THỊ KẾT QUẢ (ĐÃ SỬA: ÉP MÀU XANH NGAY) ===
+    // === 6. HÀM HIỂN THỊ KẾT QUẢ (ĐÃ SỬA: THAY ĐỔI NỘI DUNG SCANNER) ===
     function displayResults(results, isResuming = false) {
         const targetVal = results.finalRate;
 
@@ -117,33 +133,40 @@ window.onload = () => {
             else box.style.animationDelay = `${index * 0.15}s`;
             box.classList.add('result-reveal', 'result-highlight'); 
         });
+
+        // === CẬP NHẬT NỘI DUNG SCANNER SAU KHI HACK ===
+        if (scannerBox) {
+            scannerBox.innerHTML = `
+                <div class="post-hack-content">
+                    <div class="hack-item">RNG: <span style="color:#00ff8c">BẺ KHÓA</span></div>
+                    <div class="hack-item">LATENCY: <span style="color:#00ff8c">12ms</span></div>
+                    <div class="hack-item">TỶ LỆ: <span style="color:#ff3333">BIẾN ĐỘNG CAO</span></div>
+                    <div class="hack-status">PHÂN TÍCH HOÀN TẤT</div>
+                </div>
+            `;
+        }
         
         analysisProgressContainer.style.display = 'none';
         analyzeButton.style.display = 'block';
 
-        // TRƯỜNG HỢP 1: RESUME -> Hiện xanh ngay
         if (isResuming) {
             progressValue.textContent = `${targetVal}%`;
             progressValue.classList.add('success');
             return;
         }
 
-        // TRƯỜNG HỢP 2: HACK MỚI -> Chạy số + Chuyển xanh
         const startVal = parseInt(initialWinRate) || 0;
         const finalDisplayVal = targetVal;
         const duration = 1500; 
         let startTime = null;
 
-        // === QUAN TRỌNG: Ép màu xanh NGAY LẬP TỨC trước khi chạy số ===
         progressValue.classList.add('success');
-        progressValue.style.color = '#00ff8c'; // Backup inline style
+        progressValue.style.color = '#00ff8c'; 
         progressValue.style.textShadow = '0 0 10px #00ff8c, 0 0 20px #00b894';
 
         function animationStep(timestamp) {
             if (!startTime) startTime = timestamp;
             const progress = Math.min((timestamp - startTime) / duration, 1);
-            
-            // Tính giá trị hiện tại
             const currentValue = Math.floor(startVal + (progress * (finalDisplayVal - startVal)));
             
             progressValue.textContent = `${currentValue}%`;
@@ -180,7 +203,6 @@ window.onload = () => {
         } else { cleanupSession(); initializeUI(); }
     };
 
-    // === XỬ LÝ SỰ KIỆN HACK (LOGIC TĂNG 3-5%) ===
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
@@ -188,12 +210,13 @@ window.onload = () => {
         cleanupSession();
         document.body.classList.remove('analyzing');
         
-        // Không gọi initializeUI() để giữ nguyên % cũ màu đỏ
-        
         analyzeButton.style.display = 'none';
         endButton.style.display = 'none';
         analysisProgressContainer.style.display = 'block';
         progressStatusText.textContent = `Đang phân tích Sảnh "${lobbyName}" game "${gameName}"...`;
+        
+        // Reset scanner về trạng thái quét khi bắt đầu hack
+        resetScannerToDefault();
         
         let progress = 0;
         const progressInterval = setInterval(() => { progress += 2; progressBarFill.style.width = `${progress}%`; progressBarText.textContent = `${Math.floor(progress)}%`; if (progress >= 100) clearInterval(progressInterval); }, 100);
@@ -209,13 +232,12 @@ window.onload = () => {
                     const now = new Date(), future = new Date(now.getTime() + 30 * 60 * 1000);
                     const formatTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
                     
-                    // === LOGIC TÍNH TOÁN MỚI: Tăng từ 3% đến 5% so với ban đầu ===
                     const startRate = parseInt(initialWinRate) || 0;
-                    const increase = Math.floor(Math.random() * 3) + 3; // Random từ 3 đến 5
+                    const increase = Math.floor(Math.random() * 3) + 3;
                     const calculatedRate = Math.min(99, startRate + increase);
 
                     const analysisResults = {
-                        finalRate: calculatedRate, // Dùng số vừa tính
+                        finalRate: calculatedRate,
                         quayMoiVong: Math.floor(Math.random() * 21) + 20,
                         quayAutoVong: Math.floor(Math.random() * 21) + 20,
                         quayMoiMucCuoc: Math.floor(Math.random() * 37) + 4,

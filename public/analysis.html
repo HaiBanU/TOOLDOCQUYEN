@@ -34,7 +34,8 @@
     </header>
 
     <main class="analysis-main">
-        <div class="analysis-frame">
+        <!-- ID slot-specific-ui dùng để cô lập CSS cho trang này -->
+        <div class="analysis-frame" id="slot-specific-ui">
             <div class="analysis-frame-inner">
                 <div class="particle-burst"></div>
                 <div id="frame-wide-effects"><div id="particle-field"></div></div>
@@ -46,44 +47,63 @@
                         <h2 id="module-game-name">Đang tải tên game...</h2>
                     </div>
 
-                    <div class="analysis-top-visuals">
-                        <div class="robot-container">
-                            <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
-                        </div>
+                    <!-- === BỐ CỤC DASHBOARD MỚI === -->
+                    <div class="slot-dashboard-layout">
                         
-                        <div class="scanner-effects-container">
-                            <div class="robot-to-game-scanner scanner-1"></div>
-                            <div class="robot-to-game-scanner scanner-2"></div>
-                            <div class="robot-to-game-scanner scanner-3"></div>
-                        </div>
-                        
-                        <div class="main-game-display">
-                            <div class="scan-impact-ripple"></div>
-                            <div class="glitch-wrapper">
-                                <img id="panel-game-image" src="" alt="Game">
-                                <div class="glitch-layer"></div>
-                                <div class="glitch-layer"></div>
+                        <!-- HÀNG 1: % (Trái) - ROBOT (Giữa) - GIF (Phải) -->
+                        <div class="slot-row-top">
+                            <!-- Cột Trái -->
+                            <div class="slot-col-left">
+                                <div class="progress-frame-container">
+                                    <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
+                                    <span id="progress-value" class="progress-frame-value">0%</span>
+                                </div>
+                            </div>
+
+                            <!-- Cột Giữa -->
+                            <div class="slot-col-center">
+                                <div class="robot-container">
+                                    <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
+                                </div>
+                            </div>
+
+                            <!-- Cột Phải -->
+                            <div class="slot-col-right">
+                                <div class="gif-frame">
+                                    <div class="gif-frame-inner">
+                                        <img src="/assets/images/premium.gif" alt="Premium Tag">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- === CẬP NHẬT: DÙNG KHUNG TRÒN MỚI (Giống Bắn Cá) === -->
-                        <div class="progress-frame-container">
-                             <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
-                             <span id="progress-value" class="progress-frame-value">0%</span>
+                        <!-- HÀNG 2: ẢNH GAME (Trái) - SCANNER/THÔNG SỐ (Phải) -->
+                        <div class="slot-row-middle">
+                            <!-- Khung Ảnh Game: Đã thêm hiệu ứng đẹp hơn -->
+                            <div class="slot-game-image-box">
+                                <div class="glitch-wrapper">
+                                    <div class="scan-impact-ripple"></div>
+                                    <img id="panel-game-image" src="" alt="Game">
+                                    <div class="glitch-layer"></div>
+                                    <div class="glitch-layer"></div>
+                                </div>
+                            </div>
+
+                            <!-- Khung Scanner: Sẽ đổi thành text sau khi hack -->
+                            <div class="slot-scanner-box">
+                                <div class="scanner-lines">
+                                    <div class="scan-line-item s1"></div>
+                                    <div class="scan-line-item s2"></div>
+                                    <div class="scan-line-item s3"></div>
+                                    <div class="scan-text">SCANNING...</div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- === KẾT THÚC CẬP NHẬT === -->
                     </div>
+                    <!-- === KẾT THÚC BỐ CỤC === -->
 
                     <div id="game-name-display-bottom"></div>
                     
-                    <div class="gif-container">
-                        <div class="gif-frame">
-                            <div class="gif-frame-inner">
-                                <img src="/assets/images/premium.gif" alt="Premium Tag">
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="energy-separator"></div>
 
                     <div class="analysis-info-panel" id="analysis-info-panel">

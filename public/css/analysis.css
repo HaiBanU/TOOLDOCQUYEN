@@ -81,7 +81,7 @@
 .analysis-title-module .scanline { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, rgba(255, 100, 100, 0.8), transparent); box-shadow: 0 0 10px var(--primary-red); animation: scan-down 3s linear infinite; }
 .analysis-title-module h2 { margin: 0; color: #ffd700; font-size: 1.1em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px #ffd700; }
 
-/* 4. Visuals (Robot, Scanner, Game Image) */
+/* 4. Visuals Cũ (Cho các trang khác) */
 .analysis-top-visuals { display: flex; justify-content: space-around; align-items: center; padding: 0 10px; position: relative; }
 .robot-container { width: 25%; flex-shrink: 0; z-index: 5; }
 #robot-image { width: 100%; max-width: 90px; animation: bot-float 3s infinite ease-in-out; }
@@ -115,7 +115,6 @@
 /* ========================================= */
 /* === 5. PROGRESS FRAME (KHUNG % TRÒN) === */
 /* ========================================= */
-
 /* Container */
 .progress-frame-container {
     width: 120px;
@@ -127,8 +126,7 @@
     margin: 0 15px;
     flex-shrink: 0;
 }
-
-/* Ảnh khung xoay - Màu Đỏ Lửa */
+/* Ảnh khung xoay */
 .progress-frame-img {
     width: 100%;
     height: 100%;
@@ -136,54 +134,30 @@
     top: 0;
     left: 0;
     animation: spin-frame 6s linear infinite;
-    /* Bộ lọc tạo màu đỏ cam rực */
     filter: sepia(100%) saturate(500%) hue-rotate(-50deg) drop-shadow(0 0 10px #ff3300);
     z-index: 1;
     opacity: 0.95;
 }
-
-/* Số % - Đã thu nhỏ & Thêm hiệu ứng nhịp thở */
+/* Số % */
 .progress-frame-value {
     font-family: 'Poppins', sans-serif;
-    font-size: 1.7em; /* Kích thước nhỏ hơn */
+    font-size: 1.7em; 
     font-weight: 900;
     color: #fff;
     z-index: 2;
     position: relative;
-    /* Mặc định: Nhịp thở đỏ */
     text-shadow: 0 0 10px #ff0000, 0 0 20px #ff4500;
     animation: text-pulse-red 2s infinite ease-in-out;
 }
-
-/* Class này JS thêm vào khi Hack thành công */
 .progress-frame-value.success {
     color: #00ff8c;
     text-shadow: 0 0 10px #00ff8c, 0 0 20px #00b894;
     animation: text-pulse-green 1s infinite ease-in-out;
 }
 
-/* Animation */
 @keyframes spin-frame { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-@keyframes text-pulse-red {
-    0%, 100% { transform: scale(1); opacity: 0.9; text-shadow: 0 0 10px #ff0000; }
-    50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px #ff0000, 0 0 30px #ff4500; }
-}
-
-@keyframes text-pulse-green {
-    0%, 100% { transform: scale(1); text-shadow: 0 0 10px #00ff8c; }
-    50% { transform: scale(1.15); text-shadow: 0 0 25px #00ff8c, 0 0 40px #fff; }
-}
-
-/* Hỗ trợ Progress Tag cũ cho các trang khác nếu cần */
-#progress-tag { width: 70px; height: 70px; background-color: rgba(0,0,0,0.5); border: 2px solid var(--primary-red); border-radius: 50%; display: grid; place-items: center; position: relative; animation: pulse-red-glow 3s infinite ease-in-out; transition: all 0.5s ease-in-out; flex-shrink: 0; }
-#progress-text { color: #fff; font-weight: bold; font-size: 1.4em; text-shadow: 0 0 8px var(--primary-red); transition: all 0.5s ease-in-out; }
-#progress-tag::before, #progress-tag::after { content: ''; position: absolute; top: -6px; left: -6px; width: calc(100% + 8px); height: calc(100% + 8px); border-radius: 50%; border: 2px solid transparent; transition: all 0.5s ease-in-out; }
-#progress-tag::before { border-top-color: #ffd700; animation: spin 2s linear infinite; }
-#progress-tag::after { border-left-color: var(--primary-red); animation: spin 3s linear infinite reverse; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes pulse-red-glow { 0%, 100% { box-shadow: 0 0 15px #ff0000, 0 0 5px #ff0000 inset; } 50% { box-shadow: 0 0 25px #ff0000, 0 0 10px #ff0000 inset; } }
-
+@keyframes text-pulse-red { 0%, 100% { transform: scale(1); opacity: 0.9; text-shadow: 0 0 10px #ff0000; } 50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px #ff0000, 0 0 30px #ff4500; } }
+@keyframes text-pulse-green { 0%, 100% { transform: scale(1); text-shadow: 0 0 10px #00ff8c; } 50% { transform: scale(1.15); text-shadow: 0 0 25px #00ff8c, 0 0 40px #fff; } }
 
 /* 6. Info Panels & Text */
 #game-name-display-bottom { font-weight: bold; font-size: 1.1em; width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
@@ -276,7 +250,6 @@
     .main-game-display { width: 120px; height: 120px; }
     #robot-image { max-width: 70px; }
     
-    /* Responsive cho khung tròn đỏ */
     .progress-frame-container { width: 90px; height: 90px; }
     .progress-frame-value { font-size: 1.4em; }
     
@@ -287,4 +260,172 @@
     .scanner-2 { top: 60px; left: 65px; width: 65px; transform: rotate(-10deg); }
     .scanner-3 { top: 80px; left: 65px; width: 55px; transform: rotate(20deg); }
     .scan-impact-ripple { top: 0; left: 0; width: 100%; height: 100%; }
+}
+
+/* ================================================================= */
+/* === SLOT SPECIFIC UI (GIAO DIỆN RIÊNG CHO TRANG NỔ HŨ) === */
+/* ================================================================= */
+
+#slot-specific-ui .slot-dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* --- HÀNG 1: % - ROBOT - GIF --- */
+#slot-specific-ui .slot-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    height: 120px; 
+    position: relative;
+}
+
+/* Căn chỉnh cột */
+/* Cột Trái: % (Tăng nhẹ độ rộng) */
+#slot-specific-ui .slot-col-left {
+    flex: 0 0 90px; /* Tăng từ 80px -> 90px */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+/* Cột Phải: GIF (Tăng mạnh độ rộng để GIF to hơn) */
+#slot-specific-ui .slot-col-right {
+    flex: 0 0 120px; /* Tăng từ 80px -> 120px */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+#slot-specific-ui .slot-col-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    position: relative;
+    z-index: 10;
+    height: 100%; 
+}
+
+/* Các thành phần bên trong */
+#slot-specific-ui .progress-frame-container {
+    width: 80px;
+    height: 80px;
+    margin: 0;
+}
+#slot-specific-ui .progress-frame-value {
+    font-size: 1.2em;
+}
+
+#slot-specific-ui .robot-container {
+    width: auto; 
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0; 
+}
+#slot-specific-ui #robot-image {
+    max-width: 130px; 
+    animation: bot-float 3s infinite ease-in-out;
+    margin-top: 10px; 
+}
+
+/* --- GIF TO HƠN --- */
+#slot-specific-ui .gif-frame {
+    width: 100%; /* Tự giãn theo cột 120px */
+}
+#slot-specific-ui .gif-frame::before {
+    animation: none;
+    border: 1px solid var(--primary-red);
+}
+
+/* --- HÀNG 2: ẢNH GAME - SCANNER --- */
+#slot-specific-ui .slot-row-middle {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 10px;
+    height: 120px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(217, 4, 41, 0.3);
+    border-radius: 10px;
+    padding: 8px;
+    position: relative;
+}
+
+/* === KHUNG ẢNH GAME (Màu Đỏ) === */
+#slot-specific-ui .slot-game-image-box {
+    width: 45%;
+    position: relative;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 0, 0, 0.5); 
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 4px; 
+    overflow: hidden;
+}
+
+#slot-specific-ui .glitch-wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    border: none;
+    position: relative;
+}
+#slot-specific-ui #panel-game-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+#slot-specific-ui .glitch-layer { border-radius: 8px; }
+#slot-specific-ui .scan-impact-ripple { border-radius: 8px; }
+
+/* === KHUNG SCANNER (MÀU ĐỎ) === */
+#slot-specific-ui .slot-scanner-box {
+    width: 55%;
+    position: relative;
+    background: rgba(40, 0, 0, 0.6);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.2);
+}
+
+#slot-specific-ui .scanner-lines { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: space-evenly; padding: 5px; }
+#slot-specific-ui .scan-line-item { height: 2px; background: linear-gradient(90deg, transparent, #ff0000, transparent); width: 100%; opacity: 0.7; box-shadow: 0 0 8px #ff0000; }
+#slot-specific-ui .scan-line-item.s1 { animation: scan-move 2s infinite ease-in-out; width: 80%; align-self: center; }
+#slot-specific-ui .scan-line-item.s2 { animation: scan-move 2s infinite ease-in-out 0.3s; width: 60%; align-self: flex-start; margin-left: 10%; }
+#slot-specific-ui .scan-line-item.s3 { animation: scan-move 2s infinite ease-in-out 0.6s; width: 90%; align-self: center; }
+@keyframes scan-move { 0%, 100% { opacity: 0.3; transform: scaleX(0.8); } 50% { opacity: 1; transform: scaleX(1); box-shadow: 0 0 15px #ff0000; } }
+#slot-specific-ui .scan-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ff3333; font-size: 0.9em; font-family: monospace; letter-spacing: 2px; font-weight: bold; animation: blink-text 1s infinite; text-shadow: 0 0 8px #ff0000; z-index: 2; }
+@keyframes blink-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* === POST HACK INFO === */
+.post-hack-content { width: 100%; height: 100%; padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 5px; font-family: 'Courier New', monospace; animation: fadeInResult 0.5s ease-out; }
+.hack-item { font-size: 0.75em; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,0,0,0.3); padding-bottom: 2px; }
+.hack-item span { font-weight: bold; text-shadow: 0 0 5px currentColor; }
+.hack-status { margin-top: 5px; text-align: center; color: #ffd700; font-weight: bold; font-size: 0.9em; border: 1px solid #ffd700; padding: 2px; border-radius: 4px; background: rgba(255, 215, 0, 0.1); animation: pulse-status 1s infinite; }
+@keyframes pulse-status { 0%, 100% { opacity: 1; box-shadow: 0 0 5px #ffd700; } 50% { opacity: 0.7; box-shadow: 0 0 2px #ffd700; } }
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    #slot-specific-ui .slot-row-top { height: 100px; }
+    #slot-specific-ui #robot-image { max-width: 90px; }
+    #slot-specific-ui .progress-frame-container, #slot-specific-ui .gif-frame { width: 60px; height: 60px; }
+    #slot-specific-ui .progress-frame-value { font-size: 1em; }
+    /* Giảm size cột trên mobile để vừa màn hình */
+    #slot-specific-ui .slot-col-left, #slot-specific-ui .slot-col-right { flex: 0 0 70px; }
+    #slot-specific-ui .slot-row-middle { height: 100px; }
+    .hack-item { font-size: 0.7em; }
+    .hack-status { font-size: 0.8em; }
 }
