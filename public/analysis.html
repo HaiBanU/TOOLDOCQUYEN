@@ -1,4 +1,4 @@
-<!-- --- START OF FILE analysis.html (Đã thêm nút Kết Thúc) --- -->
+<!-- --- START OF FILE public/analysis.html --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,9 +23,6 @@
     <div id="grid-overlay"></div>
     <div class="video-overlay"></div>
     <div class="shooting-stars">
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
     
@@ -69,9 +66,12 @@
                             </div>
                         </div>
 
-                        <div id="progress-tag">
-                            <span id="progress-text">0%</span>
+                        <!-- === CẬP NHẬT: DÙNG KHUNG TRÒN MỚI (Giống Bắn Cá) === -->
+                        <div class="progress-frame-container">
+                             <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
+                             <span id="progress-value" class="progress-frame-value">0%</span>
                         </div>
+                        <!-- === KẾT THÚC CẬP NHẬT === -->
                     </div>
 
                     <div id="game-name-display-bottom"></div>
@@ -109,7 +109,6 @@
                     
                     <button id="analyze-button" class="btn-primary">HACK (10 TOKEN)</button>
                     
-                    <!-- === NÚT DỪNG HACK MỚI === -->
                     <button id="end-button" style="display: none;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v-4h-2v4zm0-6h2V7h-2v2z"/></svg>
                         DỪNG HACK NGAY
@@ -119,7 +118,6 @@
         </div>
     </main>
 
-    <!-- === POPUP XÁC NHẬN (MODAL) === -->
     <div id="custom-confirm-modal">
         <div class="confirm-box-content">
             <h3>⚠️ CẢNH BÁO</h3>

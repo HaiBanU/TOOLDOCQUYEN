@@ -1,9 +1,10 @@
+<!-- --- START OF FILE public/analysis-pilot.html --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Wukong Slot - HACK Phi Công Siêu Cấp</title>
+    <title>Wukong Slot - HACK Phi Công</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css">
@@ -13,9 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <script>
-    if (!localStorage.getItem('username')) {
-        window.location.href = '/';
-    }
+    if (!localStorage.getItem('username')) { window.location.href = '/'; }
 </script>
 <body class="analysis-page">
     <div id="page-background"></div>
@@ -24,7 +23,6 @@
     <div id="grid-overlay"></div>
     <div class="video-overlay"></div>
     <div class="shooting-stars">
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
 
@@ -65,9 +63,13 @@
                                 <div class="glitch-layer" style="background-image: url('/assets/images/phi-cong.jpg');"></div>
                             </div>
                         </div>
-                        <div id="progress-tag">
-                            <span id="progress-text">--%</span>
+                        
+                        <!-- === CẬP NHẬT: KHUNG TRÒN ĐỎ MỚI === -->
+                        <div class="progress-frame-container">
+                             <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
+                             <span id="progress-value" class="progress-frame-value">0%</span>
                         </div>
+                        <!-- === KẾT THÚC === -->
                     </div>
 
                     <div id="game-name-display-bottom">
@@ -84,7 +86,6 @@
                         </div>
                     </div>
 
-                    <!-- === ĐÃ SỬA: Xóa style="display: none;" để bảng hiện ra mặc định === -->
                     <div class="analysis-info-panel" id="pilot-analysis-info">
                         <div class="scan-effect-overlay"></div>
                         <div class="info-boxes-area">
@@ -93,7 +94,6 @@
                             <div id="info-box-3" class="led-info-box"><span>TẦN SUẤT CAO</span><small>Chưa có dữ liệu</small></div>
                         </div>
                     </div>
-                    <!-- === KẾT THÚC SỬA ĐỔI === -->
 
                     <div class="energy-separator"></div>
                 </div>

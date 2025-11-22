@@ -1,4 +1,8 @@
-/* analysis.css - Kế thừa nền từ user.css */
+/* --- START OF FILE public/css/analysis.css --- */
+
+/* ================================================== */
+/* === CSS CHO TRANG ANALYSIS (SLOT & BẮN CÁ) === */
+/* ================================================== */
 
 @property --angle {
   syntax: '<angle>';
@@ -13,18 +17,19 @@
   100% { transform: rotate(var(--angle)) translateY(calc(var(--radius) + 120px)) scaleY(1); opacity: 0; }
 }
 
+/* 1. Header & Layout */
 .analysis-page-header { width: 100%; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; position: relative; z-index: 5; }
 .analysis-page-header .back-button-user { position: static; transform: none; flex-shrink: 0; }
 .user-info-box { background: linear-gradient(90deg, var(--secondary-red), var(--primary-red)); color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; box-shadow: 0 0 15px rgba(217, 4, 41, 0.7); }
 
 .analysis-main { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 20px 15px; box-sizing: border-box; }
 
-/* <<<< ĐÃ SỬA: Thay đổi thuộc tính height >>>> */
+/* Khung chính */
 .analysis-frame { 
     width: 100%; 
     max-width: 400px;
-    height: auto; /* Chiều cao tự động theo nội dung */
-    min-height: 720px; /* Giữ chiều cao tối thiểu cho các trang ít nội dung */
+    height: auto;
+    min-height: 720px;
     background: transparent; 
     border: 2px solid var(--primary-red); 
     box-shadow: 0 0 15px var(--primary-red), inset 0 0 15px var(--primary-red); 
@@ -42,10 +47,6 @@
     animation: electric-spin 4s linear infinite;
 }
 
-.particle-burst { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
-.particle-burst > .particle { position: absolute; top: 50%; left: 50%; width: 2px; height: 30px; background: linear-gradient(to bottom, #ff4d4d, transparent); transform-origin: top center; opacity: 0; animation: shoot-out var(--duration) ease-out var(--delay) infinite; transform: rotate(var(--angle)) translateY(var(--radius)); }
-
-/* <<<< ĐÃ SỬA: Xóa overflow-y và padding-bottom >>>> */
 .analysis-frame-inner { 
     width: 100%; 
     height: 100%; 
@@ -57,8 +58,6 @@
     box-sizing: border-box;
 }
 
-#frame-wide-effects, #frame-wide-lightning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
-
 .analysis-content { 
     flex-grow: 1; 
     display: flex; 
@@ -69,43 +68,138 @@
     position: relative; 
     z-index: 2;
 }
-.analysis-footer { position: relative; z-index: 2; flex-shrink: 0; padding: 15px; box-sizing: border-box; margin-top: auto; } /* Thêm margin-top: auto để đẩy footer xuống dưới */
+.analysis-footer { position: relative; z-index: 2; flex-shrink: 0; padding: 15px; box-sizing: border-box; margin-top: auto; }
 
+/* 2. Hiệu ứng nền & Hạt */
+.particle-burst { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+.particle-burst > .particle { position: absolute; top: 50%; left: 50%; width: 2px; height: 30px; background: linear-gradient(to bottom, #ff4d4d, transparent); transform-origin: top center; opacity: 0; animation: shoot-out var(--duration) ease-out var(--delay) infinite; transform: rotate(var(--angle)) translateY(var(--radius)); }
+#frame-wide-effects, #frame-wide-lightning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+
+/* 3. Title Module */
 @keyframes scan-down { 0% { transform: translateY(-20px); opacity: 0; } 20% { opacity: 0.8; } 80% { opacity: 0.8; } 100% { transform: translateY(120%); opacity: 0; } }
 .analysis-title-module { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--primary-red); border-radius: 10px; padding: 10px 15px; text-align: center; box-shadow: 0 0 15px rgba(217, 4, 41, 0.4); position: relative; overflow: hidden; }
 .analysis-title-module .scanline { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, rgba(255, 100, 100, 0.8), transparent); box-shadow: 0 0 10px var(--primary-red); animation: scan-down 3s linear infinite; }
 .analysis-title-module h2 { margin: 0; color: #ffd700; font-size: 1.1em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px #ffd700; }
 
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes pulse-red-glow { 0%, 100% { box-shadow: 0 0 15px #ff0000, 0 0 5px #ff0000 inset; } 50% { box-shadow: 0 0 25px #ff0000, 0 0 10px #ff0000 inset; } }
+/* 4. Visuals (Robot, Scanner, Game Image) */
+.analysis-top-visuals { display: flex; justify-content: space-around; align-items: center; padding: 0 10px; position: relative; }
+.robot-container { width: 25%; flex-shrink: 0; z-index: 5; }
+#robot-image { width: 100%; max-width: 90px; animation: bot-float 3s infinite ease-in-out; }
+
+.main-game-display { width: 150px; height: 150px; border-radius: 50%; position: relative; display: grid; place-items: center; padding: 5px; background-color: rgba(0,0,0,.5); box-shadow: 0 0 15px rgba(255,0,242,.5), inset 0 0 15px rgba(135,0,255,.5); flex-shrink: 0; }
+.main-game-display::before { content: ''; position: absolute; inset: -3px; border-radius: 50%; background: conic-gradient(from var(--angle), #ff00f2, #8700ff, #00aaff, #00ffc3, #a2ff00, #ffd500, #ff00f2); animation: electric-spin 3s linear infinite; filter: blur(5px) drop-shadow(0 0 10px #8700ff); }
+
+/* Scanner Beams */
+.scanner-effects-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+.robot-to-game-scanner { position: absolute; height: 2px; background: linear-gradient(to right, #00ffff, rgba(0, 255, 255, 0)); box-shadow: 0 0 6px #00ffff; transform-origin: left center; overflow: hidden; }
+.robot-to-game-scanner::after { content: ''; position: absolute; top: 0; left: -20px; width: 15px; height: 100%; background: #fff; box-shadow: 0 0 8px #fff, 0 0 12px #00ffff; animation: pulse-along-beam 2.5s linear infinite; }
+@keyframes pulse-along-beam { from { left: -20px; } to { left: 110%; } }
+.scanner-1 { top: 55px; left: 80px; width: 75px; transform: rotate(-25deg); }
+.scanner-2 { top: 75px; left: 80px; width: 90px; transform: rotate(0deg); animation-delay: 0.3s; }
+.scanner-3 { top: 95px; left: 80px; width: 75px; transform: rotate(25deg); animation-delay: 0.6s; }
+.scanner-2::after, .scanner-3::after { animation-delay: inherit; }
+
+/* Glitch Image */
+.glitch-wrapper { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; position: relative; z-index: 2; border: 2px solid #fff; }
+#panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; }
+.glitch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; border-radius: 50%; z-index: 2; }
+.glitch-layer:nth-child(2) { background: repeating-linear-gradient(rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 1px, transparent 1px, transparent 4px); background-size: 100% 4px; opacity: 0.3; animation: scanlines-move 2s linear infinite; }
+.glitch-layer:nth-child(3) { background-color: rgba(217, 4, 41, 0.3); mix-blend-mode: color-dodge; animation: glitch-flicker 3s linear infinite; }
+@keyframes scanlines-move { from { background-position: 0 0; } to { background-position: 0 -8px; } }
+@keyframes glitch-flicker { 0%, 100% { clip-path: inset(0); } 10% { clip-path: inset(90% 0 5% 0); } 11% { clip-path: inset(0); } 40% { clip-path: inset(10% 0 85% 0); } 41% { clip-path: inset(0); } 70% { clip-path: inset(80% 0 10% 0); } 71% { clip-path: inset(0); } 94% { clip-path: inset(5% 0 90% 0); } 95% { clip-path: inset(0); } }
+.scan-impact-ripple { position: absolute; top: -5px; left: -5px; width: calc(100% + 10px); height: calc(100% + 10px); border: 2px solid #00ffff; border-radius: 50%; z-index: 5; opacity: 0; animation: ripple-effect 2.5s linear infinite; }
+.scan-impact-ripple::after { content: ''; position: absolute; top: -4px; left: -4px; width: calc(100% + 8px); height: calc(100% + 8px); border: 2px solid #00ffff; border-radius: 50%; animation-delay: 0.2s; }
+@keyframes ripple-effect { 0% { transform: scale(0.9); opacity: 0; } 80% { transform: scale(0.9); opacity: 0; } 90% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 0; } }
+
+
+/* ========================================= */
+/* === 5. PROGRESS FRAME (KHUNG % TRÒN) === */
+/* ========================================= */
+
+/* Container */
+.progress-frame-container {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 15px;
+    flex-shrink: 0;
+}
+
+/* Ảnh khung xoay - Màu Đỏ Lửa */
+.progress-frame-img {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: spin-frame 6s linear infinite;
+    /* Bộ lọc tạo màu đỏ cam rực */
+    filter: sepia(100%) saturate(500%) hue-rotate(-50deg) drop-shadow(0 0 10px #ff3300);
+    z-index: 1;
+    opacity: 0.95;
+}
+
+/* Số % - Đã thu nhỏ & Thêm hiệu ứng nhịp thở */
+.progress-frame-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.7em; /* Kích thước nhỏ hơn */
+    font-weight: 900;
+    color: #fff;
+    z-index: 2;
+    position: relative;
+    /* Mặc định: Nhịp thở đỏ */
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff4500;
+    animation: text-pulse-red 2s infinite ease-in-out;
+}
+
+/* Class này JS thêm vào khi Hack thành công */
+.progress-frame-value.success {
+    color: #00ff8c;
+    text-shadow: 0 0 10px #00ff8c, 0 0 20px #00b894;
+    animation: text-pulse-green 1s infinite ease-in-out;
+}
+
+/* Animation */
+@keyframes spin-frame { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@keyframes text-pulse-red {
+    0%, 100% { transform: scale(1); opacity: 0.9; text-shadow: 0 0 10px #ff0000; }
+    50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px #ff0000, 0 0 30px #ff4500; }
+}
+
+@keyframes text-pulse-green {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 10px #00ff8c; }
+    50% { transform: scale(1.15); text-shadow: 0 0 25px #00ff8c, 0 0 40px #fff; }
+}
+
+/* Hỗ trợ Progress Tag cũ cho các trang khác nếu cần */
 #progress-tag { width: 70px; height: 70px; background-color: rgba(0,0,0,0.5); border: 2px solid var(--primary-red); border-radius: 50%; display: grid; place-items: center; position: relative; animation: pulse-red-glow 3s infinite ease-in-out; transition: all 0.5s ease-in-out; flex-shrink: 0; }
 #progress-text { color: #fff; font-weight: bold; font-size: 1.4em; text-shadow: 0 0 8px var(--primary-red); transition: all 0.5s ease-in-out; }
 #progress-tag::before, #progress-tag::after { content: ''; position: absolute; top: -6px; left: -6px; width: calc(100% + 8px); height: calc(100% + 8px); border-radius: 50%; border: 2px solid transparent; transition: all 0.5s ease-in-out; }
 #progress-tag::before { border-top-color: #ffd700; animation: spin 2s linear infinite; }
 #progress-tag::after { border-left-color: var(--primary-red); animation: spin 3s linear infinite reverse; }
-@keyframes pulse-green-glow { 0%, 100% { box-shadow: 0 0 15px #00ffaa, 0 0 5px #00ffaa inset; } 50% { box-shadow: 0 0 30px #00ffaa, 0 0 15px #00ffaa inset; } }
-#progress-tag.result-state { border-color: #00ffaa; animation: pulse-green-glow 2s infinite ease-in-out; }
-#progress-tag.result-state #progress-text { color: #00ffaa; text-shadow: 0 0 10px #00ffaa; }
-#progress-tag.result-state::before { border-top-color: #00ffaa; animation-duration: 1.5s; }
-#progress-tag.result-state::after { border-left-color: #00ffff; animation-duration: 2s; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes pulse-red-glow { 0%, 100% { box-shadow: 0 0 15px #ff0000, 0 0 5px #ff0000 inset; } 50% { box-shadow: 0 0 25px #ff0000, 0 0 10px #ff0000 inset; } }
 
-@keyframes led-border-spin { 100% { transform: rotate(360deg); } }
-.gif-frame { position: relative; width: 120px; border-radius: 10px; overflow: hidden; background-color: #000; }
+
+/* 6. Info Panels & Text */
+#game-name-display-bottom { font-weight: bold; font-size: 1.1em; width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
+@keyframes marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes animated-text-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+.scrolling-text { display: inline-block; padding-left: 100%; background: linear-gradient(to right, #ffd700, #ff8c00, var(--primary-red), #ffd700); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: marquee-scroll 8s linear infinite, animated-text-gradient 3s linear infinite; }
+
+.gif-container { display: flex; justify-content: center; align-items: center; }
+.gif-frame { width: 120px; position: relative; border-radius: 10px; overflow: hidden; background-color: #000; }
 .gif-frame::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient( transparent, transparent, transparent, var(--primary-red), transparent ); animation: led-border-spin 2.5s linear infinite; }
+@keyframes led-border-spin { 100% { transform: rotate(360deg); } }
 .gif-frame-inner { position: relative; inset: 3px; background: #000; border-radius: 8px; z-index: 2; }
 .gif-frame-inner img { width: 100%; height: auto; display: block; border-radius: 8px; }
 
-@keyframes lightning-flicker { 0%,100%{opacity:.2} 5%{opacity:.8} 8%{opacity:.3} 15%{opacity:1} 20%{opacity:.2} 30%{opacity:.9} 40%{opacity:.1} 50%{opacity:.8} 60%{opacity:.3} 70%{opacity:1} }
-.lightning-field { position: absolute; top: 0; left: 0; width: 30%; height: 100%; }
-.lightning-field.right { left: auto; right: 0; transform: scaleX(-1); }
-.lightning-container { position: absolute; }
-.lightning-svg { width: 100%; height: auto; filter: drop-shadow(0 0 8px currentColor); animation: lightning-flicker 1.2s linear infinite; }
-.lightning-container:nth-child(1) { width: 40px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -.1s; color: #ffd700; }
-.lightning-container:nth-child(2) { width: 25px; top: 15%; left: 80%; transform: translate(-50%,-50%) rotate(15deg); animation-duration: .8s; animation-delay: -.5s; color: var(--primary-red); }
-.lightning-container:nth-child(3) { width: 30px; top: 85%; left: 30%; transform: translate(-50%,-50%) rotate(-10deg); animation-duration: 1.5s; animation-delay: -.8s; color: #ffd700; }
-@keyframes rain-fall { from { transform: translateY(-50px); opacity: 1; } to { transform: translateY(100vh); opacity: 0; } }
-#particle-field { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-#particle-field > .particle { position: absolute; top: 0; width: 2px; background: linear-gradient(to bottom, currentColor, transparent); animation: rain-fall linear infinite; filter: drop-shadow(0 0 6px currentColor); }
+@keyframes energy-pulse { 0%, 100% { box-shadow: 0 0 8px #ffc300, 0 0 4px #ffc300 inset; } 50% { box-shadow: 0 0 16px #ff8c00, 0 0 8px #ff8c00 inset; } }
+.energy-separator { width: 90%; height: 2px; background: linear-gradient(90deg, transparent, #ffc300, var(--primary-red), #ffc300, transparent); border-radius: 2px; margin: 0 auto; animation: energy-pulse 2s infinite ease-in-out; }
 
 .analysis-info-panel { display: flex; border: 1px solid rgba(217,4,41,.5); background: rgba(217,4,41,.1); padding: 10px; animation: pulse-panel 4s infinite ease-in-out; position: relative; overflow: hidden; margin: 0 auto; width: 100%; max-width: 350px; box-sizing: border-box; }
 @keyframes scan-line-vertical { 0% { top: -10%; } 100% { top: 110%; } }
@@ -123,17 +217,15 @@
 .led-info-box.result-highlight::after { background: linear-gradient(60deg, #a2ff00, #00ffc3, #ffd500, #a2ff00); background-size: 300% 300%; animation-duration: 2s; }
 .led-info-box.result-highlight span { color: #fff; text-shadow: 0 0 8px #a2ff00; }
 .led-info-box.result-highlight small { color: #fff; }
+.led-info-box.result-reveal { animation: result-pop-in .5s ease-out forwards; }
+@keyframes result-pop-in { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
 
+/* 7. Buttons & Footer */
 #analyze-button { width: 100%; padding: 15px; font-size: 1.2em; position: relative; overflow: hidden; z-index: 1; border-radius: 12px; animation: button-pulse 2s infinite ease-in-out; background: linear-gradient(45deg, #a40606, var(--primary-red)); }
 @keyframes button-pulse { 0% { box-shadow: 0 0 10px rgba(217,4,41,.5); } 50% { box-shadow: 0 0 25px rgba(217,4,41,.9); } 100% { box-shadow: 0 0 10px rgba(217,4,41,.5); } }
 #analyze-button::after { content: ''; position: absolute; top: 0; left: -150%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent); transform: skewX(-25deg); transition: 0s; }
 #analyze-button:hover::after { left: 150%; transition: .8s ease; }
 #analyze-button:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(217,4,41,1); animation-play-state: paused; }
-
-#game-name-display-bottom { font-weight: bold; font-size: 1.1em; width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
-@keyframes marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
-@keyframes animated-text-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-.scrolling-text { display: inline-block; padding-left: 100%; background: linear-gradient(to right, #ffd700, #ff8c00, var(--primary-red), #ffd700); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: marquee-scroll 8s linear infinite, animated-text-gradient 3s linear infinite; }
 
 #analysis-progress-container { width: 100%; text-align: center; padding: 10px 0; }
 .progress-status-text { color: #ffd700; font-size: .9em; margin-bottom: 10px; text-shadow: 0 0 5px #ffd700; height: 30px; line-height: 1.5; }
@@ -142,273 +234,57 @@
 .progress-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(-45deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.3) 40%, rgba(255,255,255,.3) 60%, rgba(255,255,255,0) 100%); background-size: 50px 50px; animation: progress-scan 1s linear infinite; opacity: .5; }
 @keyframes progress-scan { from { background-position: 0 0; } to { background-position: 50px 0; } }
 .progress-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #fff; font-weight: bold; text-shadow: 0 0 5px #000; }
-.analyzing #frame-wide-effects, .analyzing #frame-wide-lightning { animation-play-state: running !important; opacity: 1 !important; }
-.led-info-box.result-reveal { animation: result-pop-in .5s ease-out forwards; }
-@keyframes result-pop-in { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
 
-.analysis-top-visuals { display: flex; justify-content: space-around; align-items: center; padding: 0 10px; position: relative; }
-.robot-container { width: 25%; flex-shrink: 0; z-index: 5; }
-#robot-image { width: 100%; max-width: 90px; animation: bot-float 3s infinite ease-in-out; }
+/* End Button */
+#end-button { width: 100%; margin-top: 15px; padding: 12px; background: rgba(20, 0, 0, 0.6); border: 1px solid #555; color: #888; font-family: 'Poppins', sans-serif; font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 10px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: center; gap: 10px; backdrop-filter: blur(4px); position: relative; overflow: hidden; }
+#end-button:hover { border-color: #ff3333; color: #fff; background: rgba(255, 0, 0, 0.15); box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.2); transform: translateY(-2px); letter-spacing: 1px; }
+#end-button:active { transform: scale(0.98); box-shadow: 0 0 5px rgba(255, 0, 0, 0.8); }
+#end-button svg { width: 18px; height: 18px; fill: currentColor; transition: transform 0.3s ease; }
+#end-button:hover svg { transform: rotate(90deg); }
 
-.main-game-display { width: 150px; height: 150px; border-radius: 50%; position: relative; display: grid; place-items: center; padding: 5px; background-color: rgba(0,0,0,.5); box-shadow: 0 0 15px rgba(255,0,242,.5), inset 0 0 15px rgba(135,0,255,.5); flex-shrink: 0; }
-.main-game-display::before { content: ''; position: absolute; inset: -3px; border-radius: 50%; background: conic-gradient(from var(--angle), #ff00f2, #8700ff, #00aaff, #00ffc3, #a2ff00, #ffd500, #ff00f2); animation: electric-spin 3s linear infinite; filter: blur(5px) drop-shadow(0 0 10px #8700ff); }
-.gif-container { display: flex; justify-content: center; align-items: center; }
-.gif-frame { width: 120px; position: relative; }
+/* 8. Confirm Modal */
+#custom-confirm-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; animation: fadeIn 0.2s ease-out; }
+.confirm-box-content { background: linear-gradient(135deg, #1a0505, #000); border: 1px solid #ff3333; box-shadow: 0 0 30px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.1); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; transform: scale(0.9); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+@keyframes popIn { to { transform: scale(1); opacity: 1; } }
+.confirm-box-content h3 { color: #ff3333; font-family: 'Poppins', sans-serif; margin-top: 0; text-transform: uppercase; font-size: 1.4em; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+.confirm-box-content p { color: #ccc; font-size: 1em; margin: 15px 0 25px; line-height: 1.5; }
+.confirm-actions { display: flex; justify-content: center; gap: 15px; }
+.btn-modal { padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Roboto', sans-serif; transition: all 0.2s; border: none; }
+.btn-cancel { background: #333; color: #fff; border: 1px solid #555; }
+.btn-cancel:hover { background: #444; }
+.btn-confirm { background: linear-gradient(45deg, #d90429, #ff3333); color: #fff; box-shadow: 0 0 10px rgba(217, 4, 41, 0.5); }
+.btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(217, 4, 41, 0.8); }
 
-@keyframes energy-pulse { 0%, 100% { box-shadow: 0 0 8px #ffc300, 0 0 4px #ffc300 inset; } 50% { box-shadow: 0 0 16px #ff8c00, 0 0 8px #ff8c00 inset; } }
-.energy-separator { width: 90%; height: 2px; background: linear-gradient(90deg, transparent, #ffc300, var(--primary-red), #ffc300, transparent); border-radius: 2px; margin: 0 auto; animation: energy-pulse 2s infinite ease-in-out; }
+/* 9. Lightning & Misc Effects */
+@keyframes lightning-flicker { 0%,100%{opacity:.2} 5%{opacity:.8} 8%{opacity:.3} 15%{opacity:1} 20%{opacity:.2} 30%{opacity:.9} 40%{opacity:.1} 50%{opacity:.8} 60%{opacity:.3} 70%{opacity:1} }
+.lightning-field { position: absolute; top: 0; left: 0; width: 30%; height: 100%; }
+.lightning-field.right { left: auto; right: 0; transform: scaleX(-1); }
+.lightning-container { position: absolute; }
+.lightning-svg { width: 100%; height: auto; filter: drop-shadow(0 0 8px currentColor); animation: lightning-flicker 1.2s linear infinite; }
+.lightning-container:nth-child(1) { width: 40px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -.1s; color: #ffd700; }
+.lightning-container:nth-child(2) { width: 25px; top: 15%; left: 80%; transform: translate(-50%,-50%) rotate(15deg); animation-duration: .8s; animation-delay: -.5s; color: var(--primary-red); }
+.lightning-container:nth-child(3) { width: 30px; top: 85%; left: 30%; transform: translate(-50%,-50%) rotate(-10deg); animation-duration: 1.5s; animation-delay: -.8s; color: #ffd700; }
+@keyframes rain-fall { from { transform: translateY(-50px); opacity: 1; } to { transform: translateY(100vh); opacity: 0; } }
+#particle-field { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+#particle-field > .particle { position: absolute; top: 0; width: 2px; background: linear-gradient(to bottom, currentColor, transparent); animation: rain-fall linear infinite; filter: drop-shadow(0 0 6px currentColor); }
 
-/* === BẮT ĐẦU: HIỆU ỨNG LASER SCAN VÀ PING MỚI (V4) === */
-
-.scanner-effects-container {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 4;
-}
-
-.robot-to-game-scanner {
-    position: absolute;
-    height: 2px; /* Độ dày của tia laser */
-    background: linear-gradient(to right, #00ffff, rgba(0, 255, 255, 0));
-    box-shadow: 0 0 6px #00ffff;
-    transform-origin: left center; /* Xoay từ điểm bắt đầu bên trái */
-    overflow: hidden; /* Ẩn phần thừa của vạch quét */
-}
-
-/* Vạch quét di chuyển bên trong tia laser */
-.robot-to-game-scanner::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -20px; /* Bắt đầu bên ngoài */
-    width: 15px; /* Chiều rộng của vạch quét */
-    height: 100%;
-    background: #fff;
-    box-shadow: 0 0 8px #fff, 0 0 12px #00ffff;
-    animation: pulse-along-beam 2.5s linear infinite;
-}
-
-@keyframes pulse-along-beam {
-    from { left: -20px; } /* Bắt đầu bên ngoài */
-    to { left: 110%; } /* Kết thúc ở cuối tia */
-}
-
-/* Vị trí và góc xoay cho 3 tia trên Desktop */
-.scanner-1 { top: 55px; left: 80px; width: 75px; transform: rotate(-25deg); }
-.scanner-2 { top: 75px; left: 80px; width: 90px; transform: rotate(0deg); animation-delay: 0.3s; }
-.scanner-3 { top: 95px; left: 80px; width: 75px; transform: rotate(25deg); animation-delay: 0.6s; }
-
-.scanner-2::after, .scanner-3::after { animation-delay: inherit; }
-
-/* Hiệu ứng gợn sóng (ripple) khi tia quét "chạm" vào */
-.scan-impact-ripple {
-    position: absolute;
-    top: -5px; left: -5px;
-    width: calc(100% + 10px); height: calc(100% + 10px);
-    border: 2px solid #00ffff;
-    border-radius: 50%;
-    z-index: 5;
-    opacity: 0;
-    animation: ripple-effect 2.5s linear infinite;
-}
-.scan-impact-ripple::after {
-    content: '';
-    position: absolute;
-    top: -4px; left: -4px;
-    width: calc(100% + 8px); height: calc(100% + 8px);
-    border: 2px solid #00ffff;
-    border-radius: 50%;
-    animation-delay: 0.2s; /* gợn sóng thứ 2 trễ hơn */
-}
-
-@keyframes ripple-effect {
-    0% { transform: scale(0.9); opacity: 0; }
-    80% { transform: scale(0.9); opacity: 0; }
-    90% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(1.1); opacity: 0; }
-}
-
-/* Nâng cấp hiệu ứng Glitch trên vòng tròn */
-.glitch-wrapper { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; position: relative; z-index: 2; border: 2px solid #fff; }
-#panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; }
-.glitch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; border-radius: 50%; z-index: 2; }
-.glitch-layer:nth-child(2) { background: repeating-linear-gradient(rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 1px, transparent 1px, transparent 4px); background-size: 100% 4px; opacity: 0.3; animation: scanlines-move 2s linear infinite; }
-@keyframes scanlines-move { from { background-position: 0 0; } to { background-position: 0 -8px; } }
-.glitch-layer:nth-child(3) { background-color: rgba(217, 4, 41, 0.3); mix-blend-mode: color-dodge; animation: glitch-flicker 3s linear infinite; }
-@keyframes glitch-flicker { 0%, 100% { clip-path: inset(0); } 10% { clip-path: inset(90% 0 5% 0); } 11% { clip-path: inset(0); } 40% { clip-path: inset(10% 0 85% 0); } 41% { clip-path: inset(0); } 70% { clip-path: inset(80% 0 10% 0); } 71% { clip-path: inset(0); } 94% { clip-path: inset(5% 0 90% 0); } 95% { clip-path: inset(0); } }
-
-/* === KẾT THÚC CSS HIỆU ỨNG MỚI === */
-
+/* 10. Media Queries */
 @media (max-width: 480px) {
-    /* === BẮT ĐẦU: TỐI ƯU GIAO DIỆN DI ĐỘNG === */
-    .analysis-main {
-        align-items: flex-start; 
-        padding: 10px;
-    }
-
-    .analysis-frame {
-        height: auto; 
-        min-height: 95vh;
-        margin-top: 10px;
-        width: 100%;
-        max-width: none;
-    }
-
-    .analysis-content {
-        justify-content: flex-start; 
-        gap: 20px; 
-    }
-    
+    .analysis-main { align-items: flex-start; padding: 10px; }
+    .analysis-frame { height: auto; min-height: 95vh; margin-top: 10px; width: 100%; max-width: none; }
+    .analysis-content { justify-content: flex-start; gap: 20px; }
     .main-game-display { width: 120px; height: 120px; }
     #robot-image { max-width: 70px; }
-    #progress-tag { width: 60px; height: 60px; }
-    #progress-text { font-size: 1.2em; }
+    
+    /* Responsive cho khung tròn đỏ */
+    .progress-frame-container { width: 90px; height: 90px; }
+    .progress-frame-value { font-size: 1.4em; }
+    
     .gif-frame { width: 100px; }
     .led-info-box { padding: 8px; }
     .led-info-box span { font-size: .8em; }
-
-    /* Vị trí và góc xoay cho 3 tia trên Mobile */
     .scanner-1 { top: 40px; left: 65px; width: 55px; transform: rotate(-40deg); }
     .scanner-2 { top: 60px; left: 65px; width: 65px; transform: rotate(-10deg); }
     .scanner-3 { top: 80px; left: 65px; width: 55px; transform: rotate(20deg); }
-    
-    .scan-impact-ripple { /* Điều chỉnh hiệu ứng Ping cho khớp */
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-}
-/* --- BUTTON KẾT THÚC (Styling mới) --- */
-#end-button {
-    width: 100%;
-    margin-top: 15px;
-    padding: 12px;
-    background: rgba(20, 0, 0, 0.6); /* Nền đen đỏ nhạt */
-    border: 1px solid #555;
-    color: #888;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    backdrop-filter: blur(4px);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Hiệu ứng khi di chuột vào */
-#end-button:hover {
-    border-color: #ff3333;
-    color: #fff;
-    background: rgba(255, 0, 0, 0.15);
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.2);
-    transform: translateY(-2px);
-    letter-spacing: 1px; /* Chữ giãn ra nhẹ */
-}
-
-/* Hiệu ứng khi bấm xuống */
-#end-button:active {
-    transform: scale(0.98);
-    box-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
-}
-
-/* Icon SVG bên trong nút */
-#end-button svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
-    transition: transform 0.3s ease;
-}
-
-#end-button:hover svg {
-    transform: rotate(90deg); /* Xoay icon khi hover */
-}
-/* --- CUSTOM CONFIRM MODAL (Popup xác nhận đẹp) --- */
-#custom-confirm-modal {
-    display: none;
-    position: fixed;
-    z-index: 10000; /* Đè lên tất cả mọi thứ */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Nền tối mờ */
-    backdrop-filter: blur(5px); /* Làm mờ nền phía sau */
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.2s ease-out;
-}
-
-.confirm-box-content {
-    background: linear-gradient(135deg, #1a0505, #000);
-    border: 1px solid #ff3333;
-    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.1);
-    padding: 30px;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    transform: scale(0.9);
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes popIn {
-    to { transform: scale(1); opacity: 1; }
-}
-
-.confirm-box-content h3 {
-    color: #ff3333;
-    font-family: 'Poppins', sans-serif;
-    margin-top: 0;
-    text-transform: uppercase;
-    font-size: 1.4em;
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-}
-
-.confirm-box-content p {
-    color: #ccc;
-    font-size: 1em;
-    margin: 15px 0 25px;
-    line-height: 1.5;
-}
-
-.confirm-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-.btn-modal {
-    padding: 10px 25px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-family: 'Roboto', sans-serif;
-    transition: all 0.2s;
-    border: none;
-}
-
-.btn-cancel {
-    background: #333;
-    color: #fff;
-    border: 1px solid #555;
-}
-.btn-cancel:hover { background: #444; }
-
-.btn-confirm {
-    background: linear-gradient(45deg, #d90429, #ff3333);
-    color: #fff;
-    box-shadow: 0 0 10px rgba(217, 4, 41, 0.5);
-}
-.btn-confirm:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(217, 4, 41, 0.8);
+    .scan-impact-ripple { top: 0; left: 0; width: 100%; height: 100%; }
 }

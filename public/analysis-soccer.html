@@ -1,3 +1,4 @@
+<!-- --- START OF FILE public/analysis-soccer.html --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,9 +13,7 @@
     <link rel="manifest" href="/manifest.json">
 </head>
 <script>
-    if (!localStorage.getItem('username')) {
-        window.location.href = '/';
-    }
+    if (!localStorage.getItem('username')) { window.location.href = '/'; }
 </script>
 <body class="analysis-page">
     <div id="page-background"></div>
@@ -22,7 +21,6 @@
     <div id="grid-overlay"></div>
     <div class="video-overlay"></div>
     <div class="shooting-stars">
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
     
@@ -66,16 +64,17 @@
                             </div>
                         </div>
 
-                        <div id="progress-tag">
-                            <span id="progress-text">--%</span>
+                        <!-- === CẬP NHẬT: KHUNG TRÒN ĐỎ MỚI === -->
+                        <div class="progress-frame-container">
+                             <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
+                             <span id="progress-value" class="progress-frame-value">0%</span>
                         </div>
+                        <!-- === KẾT THÚC === -->
                     </div>
 
-                    <!-- === THÊM MỚI: Dòng chữ chạy tên game === -->
                     <div id="game-name-display-bottom">
                         <span class="scrolling-text">SOCCER STRIKER</span>
                     </div>
-                    <!-- === KẾT THÚC THÊM MỚI === -->
 
                     <div class="soccer-content-wrapper">
                         <div class="league-buttons-container">

@@ -1,4 +1,4 @@
-<!-- --- START OF FILE analysis-fish.html --- -->
+<!-- --- START OF FILE public/analysis-fish.html --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,13 +12,9 @@
     <link rel="manifest" href="/manifest.json">
 </head>
 <script>
-    // Kiểm tra đăng nhập
-    if (!localStorage.getItem('username')) {
-        window.location.href = '/';
-    }
+    if (!localStorage.getItem('username')) { window.location.href = '/'; }
 </script>
 <body class="analysis-page">
-    <!-- Các hiệu ứng nền -->
     <div id="page-background"></div>
     <div id="space-dust-overlay"></div>
     <div id="background-effects"></div>
@@ -26,11 +22,8 @@
     <div class="video-overlay"></div>
     <div class="shooting-stars">
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
     
-    <!-- Header: Nút quay lại và hiển thị Token -->
     <header class="analysis-page-header">
         <a href="javascript:history.back()" class="back-button-user">← Quay Lại</a>
         <div class="user-info-box">
@@ -41,19 +34,16 @@
     <main class="analysis-main">
         <div class="analysis-frame">
             <div class="analysis-frame-inner">
-                <!-- Hiệu ứng hạt nổ và sét -->
                 <div class="particle-burst"></div>
                 <div id="frame-wide-effects"><div id="particle-field"></div></div>
                 <div id="frame-wide-lightning"></div>
 
                 <div class="analysis-content">
-                    <!-- Tên Game -->
                     <div class="analysis-title-module">
                         <div class="scanline"></div>
                         <h2 id="module-game-name">Đang tải tên game...</h2>
                     </div>
 
-                    <!-- Phần hình ảnh Robot và Game -->
                     <div class="analysis-top-visuals">
                         <div class="robot-container">
                             <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
@@ -74,14 +64,17 @@
                             </div>
                         </div>
 
-                        <div id="progress-tag">
-                            <span id="progress-text">0%</span>
+                        <!-- === THAY ĐỔI: Cấu trúc khung tròn xoay mới === -->
+                        <div class="progress-frame-container">
+                             <!-- YÊU CẦU CÓ FILE ẢNH: public/assets/images/progress-frame.png -->
+                             <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
+                             <span id="progress-value" class="progress-frame-value">0%</span>
                         </div>
+                        <!-- === KẾT THÚC THAY ĐỔI === -->
                     </div>
 
                     <div id="game-name-display-bottom"></div>
                     
-                    <!-- Hình ảnh GIF (Đã cập nhật sang fish-bonus.gif) -->
                     <div class="gif-container">
                         <div class="gif-frame">
                             <div class="gif-frame-inner">
@@ -92,7 +85,6 @@
 
                     <div class="energy-separator"></div>
 
-                    <!-- Bảng thông tin kết quả (Đã cập nhật nội dung Bắn Cá) -->
                     <div class="analysis-info-panel" id="analysis-info-panel">
                         <div class="scan-effect-overlay"></div>
                         <div class="info-boxes-area">
@@ -105,7 +97,6 @@
                     <div class="energy-separator"></div>
                 </div>
 
-                <!-- Footer: Nút bấm và thanh tiến trình -->
                 <div class="analysis-footer">
                     <div id="analysis-progress-container" style="display: none;">
                         <p class="progress-status-text">Đang phân tích quỹ đạo cá...</p>
@@ -117,33 +108,15 @@
                     
                     <button id="analyze-button" class="btn-primary">HACK (10 TOKEN)</button>
                     
-                    <!-- Nút KẾT THÚC (Mặc định ẩn) -->
-                    <!-- Nút KẾT THÚC (Mặc định ẩn, Style mới trong CSS) -->
-<button id="end-button" style="display: none;">
-    <!-- Icon tắt nguồn -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v-4h-2v4zm0-6h2V7h-2v2z"/></svg>
-    DỪNG HACK NGAY
-</button>
+                    <button id="end-button" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v-4h-2v4zm0-6h2V7h-2v2z"/></svg>
+                        DỪNG HACK NGAY
+                    </button>
                 </div>
             </div>
         </div>
     </main>
     
-    <!-- Liên kết tới file Logic riêng cho Bắn Cá -->
-    <script src="/js/analysis-fish.js"></script>
-    
-    <script>
-        // Hiệu ứng chuột
-        const overlay = document.querySelector('.video-overlay');
-        if (overlay) { 
-            window.addEventListener('mousemove', (e) => { 
-                const { clientX, clientY } = e; 
-                overlay.style.setProperty('--mouse-x', `${clientX}px`); 
-                overlay.style.setProperty('--mouse-y', `${clientY}px`); 
-            }); 
-        }
-    </script>
-    <script src="/js/global.js"></script>
     <div id="custom-confirm-modal">
         <div class="confirm-box-content">
             <h3>⚠️ CẢNH BÁO</h3>
@@ -154,7 +127,18 @@
             </div>
         </div>
     </div>
-
+    
     <script src="/js/analysis-fish.js"></script>
+    <script>
+        const overlay = document.querySelector('.video-overlay');
+        if (overlay) { 
+            window.addEventListener('mousemove', (e) => { 
+                const { clientX, clientY } = e; 
+                overlay.style.setProperty('--mouse-x', `${clientX}px`); 
+                overlay.style.setProperty('--mouse-y', `${clientY}px`); 
+            }); 
+        }
+    </script>
+    <script src="/js/global.js"></script>
 </body>
 </html>

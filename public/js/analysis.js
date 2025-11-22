@@ -1,16 +1,15 @@
-// --- START OF FILE public/js/analysis.js (V2 - Có nút Kết Thúc) ---
+/* --- START OF FILE public/js/analysis.js --- */
 
 window.onload = () => {
     // === 1. LẤY CÁC PHẦN TỬ DOM ===
     const coinDisplay = document.getElementById('coin-display');
     const panelGameImage = document.getElementById('panel-game-image');
-    const progressTag = document.getElementById('progress-tag');
-    const progressText = document.getElementById('progress-text');
+    
+    // CẬP NHẬT: Lấy ID mới theo HTML vừa sửa
+    const progressValue = document.getElementById('progress-value'); 
     
     const analyzeButton = document.getElementById('analyze-button');
-    const endButton = document.getElementById('end-button'); // Nút Kết Thúc Mới
-
-    // Các phần tử Modal
+    const endButton = document.getElementById('end-button');
     const confirmModal = document.getElementById('custom-confirm-modal');
     const confirmYesBtn = document.getElementById('confirm-yes');
     const confirmNoBtn = document.getElementById('confirm-no');
@@ -26,7 +25,7 @@ window.onload = () => {
     const infoBox2 = document.getElementById('info-box-2');
     const infoBox3 = document.getElementById('info-box-3');
 
-    // === 2. LẤY DỮ LIỆU TỪ URL VÀ LOCALSTORAGE ===
+    // === 2. LẤY DỮ LIỆU ===
     const params = new URLSearchParams(window.location.search);
     const gameName = params.get('gameName');
     const imageUrl = params.get('imageUrl');
@@ -45,6 +44,7 @@ window.onload = () => {
     let isAnalyzing = false;
     let analysisTimerId = null;
     let countdownIntervalId = null;
+    let progressAnimationId = null;
     const ACTIVE_ANALYSIS_KEY = 'wukongActiveAnalysis';
 
     // === 4. CÁC HÀM TIỆN ÍCH ===
@@ -53,8 +53,6 @@ window.onload = () => {
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
 
-
-    // Lấy thông tin Token
     const fetchUserInfoFromServer = async () => {
         try {
             const res = await fetch(`/api/user-info?username=${username}`);
@@ -79,11 +77,12 @@ window.onload = () => {
     const stopAllTimers = () => {
         if (analysisTimerId) clearInterval(analysisTimerId);
         if (countdownIntervalId) clearInterval(countdownIntervalId);
+        if (progressAnimationId) cancelAnimationFrame(progressAnimationId);
         analysisTimerId = null;
         countdownIntervalId = null;
+        progressAnimationId = null;
     };
     
-    // Trừ token định kỳ
     const handleRecurringDeduction = async () => {
         try {
             const response = await fetch('/api/deduct-recurring-token', {
@@ -104,7 +103,7 @@ window.onload = () => {
         }
     };
 
-    // === 5. HÀM KHỞI TẠO GIAO DIỆN (RESET) ===
+    // === 5. HÀM KHỞI TẠO GIAO DIỆN (Hiển thị % ban đầu) ===
     function initializeUI() {
         if (moduleGameName) moduleGameName.textContent = gameName;
         createScrollingText(gameNameBottom, gameName);
@@ -116,23 +115,23 @@ window.onload = () => {
         createEnergyRain(document.getElementById('particle-field'));
         createParticleBurstEffect();
         
-        progressText.textContent = initialWinRate ? `${initialWinRate}%` : '0%';
-        progressTag.classList.remove('result-state');
+        // HIỂN THỊ % BAN ĐẦU
+        const startPercent = (initialWinRate && initialWinRate !== 'null') ? initialWinRate : 0;
+        progressValue.textContent = `${startPercent}%`;
+        progressValue.classList.remove('success'); // Về màu đỏ
+        progressValue.style.color = ''; 
+        progressValue.style.textShadow = '';
         
         [infoBox1, infoBox2, infoBox3].forEach(box => {
             box.classList.remove('result-reveal', 'result-highlight');
             const smallElement = box.querySelector('small');
-            if (smallElement) {
-                smallElement.textContent = 'Chưa có dữ liệu';
-            }
+            if (smallElement) smallElement.textContent = 'Chưa có dữ liệu';
         });
 
-        // Reset nút bấm
         analyzeButton.style.display = 'block';
         analyzeButton.disabled = false;
         analyzeButton.textContent = "HACK (10 TOKEN)";
         
-        // Ẩn nút kết thúc và modal
         endButton.style.display = 'none';
         confirmModal.style.display = 'none';
         analysisProgressContainer.style.display = 'none';
@@ -141,29 +140,63 @@ window.onload = () => {
         isAnalyzing = false;
     }
 
-    // === 6. HÀM HIỂN THỊ KẾT QUẢ ===
-    function displayResults(results) {
-        progressText.textContent = `${results.finalRate}%`;
-        progressTag.classList.add('result-state');
+    // === 6. HÀM HIỂN THỊ KẾT QUẢ (Số chạy) ===
+    function displayResults(results, isResuming = false) {
+        const targetVal = results.finalRate;
+
+        // Hiển thị thông tin vào Box
         infoBox1.innerHTML = `<span>QUAY MỒI</span><small>${results.quayMoiVong} vòng - Mức cược ${results.quayMoiMucCuoc}K</small>`;
         infoBox2.innerHTML = `<span>QUAY AUTO</span><small>${results.quayAutoVong} vòng - Mức cược ${results.quayAutoMucCuoc}K</small>`;
         infoBox3.innerHTML = `<span>KHUNG GIỜ VÀNG</span><small>${results.khungGio}</small>`;
         
         [infoBox1, infoBox2, infoBox3].forEach((box, index) => {
-            box.style.animationDelay = `${index * 0.15}s`;
+            if (isResuming) box.style.animationDelay = '0s';
+            else box.style.animationDelay = `${index * 0.15}s`;
             box.classList.add('result-reveal', 'result-highlight');
         });
         
         analysisProgressContainer.style.display = 'none';
         analyzeButton.style.display = 'block';
+
+        // Xử lý hiển thị %
+        if (isResuming) {
+            // Nếu Resume thì hiện ngay, màu xanh
+            progressValue.textContent = `${targetVal}%`;
+            progressValue.classList.add('success');
+            return;
+        }
+
+        // Nếu Hack mới, chạy số
+        const startVal = parseInt(initialWinRate) || 0;
+        const finalDisplayVal = targetVal < startVal ? startVal + 2 : targetVal;
+        const duration = 2500; 
+        let startTime = null;
+
+        function animationStep(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const currentValue = Math.floor(startVal + (progress * (finalDisplayVal - startVal)));
+            
+            progressValue.textContent = `${currentValue}%`;
+            
+            if (progress >= 0.8) {
+                progressValue.classList.add('success');
+            }
+
+            if (progress < 1) {
+                progressAnimationId = requestAnimationFrame(animationStep);
+            } else {
+                 progressValue.textContent = `${finalDisplayVal}%`;
+            }
+        }
+        progressAnimationId = requestAnimationFrame(animationStep);
     }
 
-    // === 7. HÀM ĐẾM NGƯỢC (SAU KHI HACK) ===
+    // === 7. HÀM ĐẾM NGƯỢC ===
     function startResultCountdown(durationInSeconds) {
         stopAllTimers();
         let timeLeft = durationInSeconds;
         
-        // HIỂN THỊ NÚT KẾT THÚC
         endButton.style.display = 'flex';
 
         const updateTimer = () => {
@@ -179,25 +212,24 @@ window.onload = () => {
             timeLeft--;
             updateTimer();
             if (timeLeft <= 0) {
-                resetToInitialState(); // Hết giờ tự động reset
+                resetToInitialState(); 
             }
         }, 1000);
         
-        // Chỉ giữ lại bộ đếm trừ token REAL mỗi phút
         analysisTimerId = setInterval(handleRecurringDeduction, 60000);
     }
 
-    // === 8. HÀM RESET (DỪNG HACK) ===
     function resetToInitialState() {
         stopAllTimers();
         cleanupSession();
         initializeUI();
     }
 
+    // Fix lỗi 0% khi resume
     const resumeAnalysis = (savedState) => {
         const remainingTime = Math.floor((savedState.expiresAt - Date.now()) / 1000);
         if (remainingTime > 0) {
-            displayResults(savedState.results);
+            displayResults(savedState.results, true); // TRUE = RESUME
             startResultCountdown(remainingTime);
             progressStatusText.textContent = `Đã khôi phục phiên phân tích. Đang duy trì...`;
         } else {
@@ -206,16 +238,16 @@ window.onload = () => {
         }
     };
 
-    // === 9. SỰ KIỆN CLICK NÚT HACK ===
+    // === 9. CLICK HACK ===
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
         stopAllTimers();
         cleanupSession();
         document.body.classList.remove('analyzing');
-        initializeUI();
         
-        // Ẩn nút hack, hiện loading
+        // Không gọi initializeUI() để giữ % ban đầu
+        
         analyzeButton.style.display = 'none';
         endButton.style.display = 'none';
         analysisProgressContainer.style.display = 'block';
@@ -252,48 +284,32 @@ window.onload = () => {
                         khungGio: `${formatTime(now)} - ${formatTime(future)}`
                     };
                     const expiresAt = Date.now() + 10 * 60 * 1000;
-                    const stateToSave = { gameName, expiresAt, results: analysisResults };
+                    // Lưu initialWinRate vào session
+                    const stateToSave = { gameName, expiresAt, results: analysisResults, initialWinRate: initialWinRate };
                     sessionStorage.setItem(ACTIVE_ANALYSIS_KEY, JSON.stringify(stateToSave));
                     
-                    displayResults(analysisResults);
+                    displayResults(analysisResults, false); // FALSE = HACK MỚI
                     startResultCountdown(600);
                 } else if (result.outOfTokens) {
                     handleInsufficientTokens(result.message);
                 } else {
                     progressStatusText.textContent = result.message;
-                    setTimeout(() => { analyzeButton.style.display = 'block'; isAnalyzing = false; }, 2000);
+                    setTimeout(() => { initializeUI(); }, 2000);
                 }
             } catch (error) {
                 progressStatusText.textContent = 'Lỗi kết nối máy chủ.';
-                isAnalyzing = false;
+                setTimeout(() => { initializeUI(); }, 2000);
             }
         }, 5000);
     });
 
-    // === 10. SỰ KIỆN CLICK NÚT KẾT THÚC ===
-    endButton.addEventListener('click', () => {
-        confirmModal.style.display = 'flex';
-    });
+    endButton.addEventListener('click', () => { confirmModal.style.display = 'flex'; });
+    confirmNoBtn.addEventListener('click', () => { confirmModal.style.display = 'none'; });
+    confirmYesBtn.addEventListener('click', () => { confirmModal.style.display = 'none'; resetToInitialState(); });
+    window.addEventListener('click', (e) => { if (e.target == confirmModal) { confirmModal.style.display = 'none'; } });
 
-    confirmNoBtn.addEventListener('click', () => {
-        confirmModal.style.display = 'none';
-    });
-
-    confirmYesBtn.addEventListener('click', () => {
-        confirmModal.style.display = 'none';
-        resetToInitialState();
-    });
-
-    window.addEventListener('click', (e) => {
-        if (e.target == confirmModal) {
-            confirmModal.style.display = 'none';
-        }
-    });
-
-    // === 11. KHỞI TẠO KHI LOAD ===
     (async () => {
         await fetchUserInfoFromServer();
-        
         const savedAnalysisJSON = sessionStorage.getItem(ACTIVE_ANALYSIS_KEY);
         if (savedAnalysisJSON) {
             const savedAnalysis = JSON.parse(savedAnalysisJSON);
@@ -307,9 +323,5 @@ window.onload = () => {
         }
     })();
     
-    window.addEventListener('pageshow', function(event) {
-        if (event.persisted) {
-            fetchUserInfoFromServer();
-        }
-    });
+    window.addEventListener('pageshow', function(event) { if (event.persisted) fetchUserInfoFromServer(); });
 };

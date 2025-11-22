@@ -1,7 +1,6 @@
-// public/js/analysis-pilot.js
+/* --- START OF FILE public/js/analysis-pilot.js --- */
 
 window.onload = () => {
-    // === LẤY CÁC PHẦN TỬ DOM ===
     const coinDisplay = document.getElementById('coin-display');
     const analyzeButton = document.getElementById('analyze-button');
     const analysisProgressContainer = document.getElementById('analysis-progress-container');
@@ -12,36 +11,36 @@ window.onload = () => {
     const chartResultOverlay = document.getElementById('chart-result-overlay');
     const chartResultText = document.getElementById('chart-result-text');
     const ctx = document.getElementById('pilotChart').getContext('2d');
-    const airplaneIcon = document.getElementById('chart-airplane-icon');
-    const progressText = document.getElementById('progress-text');
-    const pilotAnalysisInfo = document.getElementById('pilot-analysis-info');
+    
+    // CẬP NHẬT ID MỚI
+    const progressValue = document.getElementById('progress-value');
+    
     const infoBox1 = document.getElementById('info-box-1');
     const infoBox2 = document.getElementById('info-box-2');
     const infoBox3 = document.getElementById('info-box-3');
 
-
-    // === LẤY DỮ LIỆU TỪ LOCALSTORAGE ===
+    const params = new URLSearchParams(window.location.search);
+    // Pilot không có winRate trong URL từ trang chủ (vì là game đặc biệt), nên ta random
+    const initialWinRate = params.get('winRate') || (Math.floor(Math.random() * 15) + 75);
+    
     const username = localStorage.getItem('username');
     const selectedBrand = sessionStorage.getItem('selectedBrand');
 
     if (!username || !selectedBrand) {
-        alert("Lỗi: Thiếu thông tin người dùng hoặc SẢNH GAME.");
+        alert("Lỗi: Thiếu thông tin người dùng.");
         window.location.href = '/dashboard.html';
         return;
     }
 
-    // === BIẾN QUẢN LÝ TRẠNG THÁI & BIỂU ĐỒ ===
     let isAnalyzing = false;
     const ANALYSIS_COST = 10;
     let pilotChart;
     let chartUpdateInterval;
+    let progressAnimationId;
 
-    // === CÁC HÀM TIỆN ÍCH ĐỒ HỌA ===
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
 
-
-    // === HÀM LẤY THÔNG TIN TOKEN ===
     async function fetchUserInfoFromServer() {
         try {
             const res = await fetch(`/api/user-info?username=${username}`);
@@ -51,10 +50,9 @@ window.onload = () => {
                 const currentCoins = coinsByBrand[selectedBrand] || 0;
                 coinDisplay.textContent = currentCoins;
             }
-        } catch (e) { console.error("Lỗi fetch user info", e); }
+        } catch (e) { console.error(e); }
     }
 
-    // === CẤU HÌNH VÀ VẼ BIỂU ĐỒ ===
     function initializeChart() {
         if (pilotChart) pilotChart.destroy();
         pilotChart = new Chart(ctx, {
@@ -80,7 +78,6 @@ window.onload = () => {
         });
     }
 
-    // === HÀM CẬP NHẬT BIỂU ĐỒ ===
     function startRealtimeChart() {
         if (chartUpdateInterval) clearInterval(chartUpdateInterval);
         chartUpdateInterval = setInterval(() => {
@@ -89,21 +86,75 @@ window.onload = () => {
             const lastValue = data[data.length - 1] || 2;
             let newValue = lastValue + (Math.random() - 0.5) * 2;
             data.push(Math.max(1, newValue));
-            
             pilotChart.update('none');
-            
         }, 150);
     }
 
-    // === XỬ LÝ SỰ KIỆN CLICK NÚT "HACK" ===
+    // === HIỂN THỊ % SỐ CHẠY ===
+    function runProgressAnimation(isResuming) {
+        const startVal = parseInt(initialWinRate) || 75;
+        const targetVal = Math.min(99, startVal + Math.floor(Math.random() * 8) + 2);
+
+        if (isResuming) {
+            progressValue.textContent = `${targetVal}%`;
+            progressValue.classList.add('success');
+            return;
+        }
+
+        const duration = 2000; 
+        let startTime = null;
+
+        function animationStep(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const currentValue = Math.floor(startVal + (progress * (targetVal - startVal)));
+            
+            progressValue.textContent = `${currentValue}%`;
+            
+            if (progress >= 0.8) {
+                progressValue.classList.add('success');
+            }
+
+            if (progress < 1) {
+                progressAnimationId = requestAnimationFrame(animationStep);
+            } else {
+                 progressValue.textContent = `${targetVal}%`;
+            }
+        }
+        progressAnimationId = requestAnimationFrame(animationStep);
+    }
+
+    // === XỬ LÝ KẾT QUẢ ===
+    function showPilotResult(multiplier, resultData, isResuming) {
+        chartResultText.textContent = `${multiplier}x`;
+        pilotChartContainer.classList.add('highlight');
+        chartResultOverlay.style.display = 'flex';
+        
+        infoBox1.querySelector('small').textContent = resultData.start;
+        infoBox2.querySelector('small').textContent = resultData.stop;
+        infoBox3.querySelector('small').textContent = resultData.freq;
+
+        [infoBox1, infoBox2, infoBox3].forEach((box, index) => {
+            if(isResuming) box.style.animationDelay = '0s';
+            else box.style.animationDelay = `${100 + index * 150}ms`;
+            box.classList.add('result-reveal', 'result-highlight');
+        });
+
+        if(!isResuming) {
+            setTimeout(() => {
+                pilotChartContainer.classList.remove('highlight');
+                chartResultOverlay.style.display = 'none';
+            }, 4000);
+        }
+        
+        runProgressAnimation(isResuming);
+    }
+
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
         
-        // Reset hiệu ứng animation của các ô thông tin
-        [infoBox1, infoBox2, infoBox3].forEach(box => {
-             box.classList.remove('result-reveal', 'result-highlight');
-        });
+        [infoBox1, infoBox2, infoBox3].forEach(box => { box.classList.remove('result-reveal', 'result-highlight'); });
 
         analyzeButton.disabled = true;
         analyzeButton.style.display = 'none';
@@ -129,39 +180,31 @@ window.onload = () => {
 
                 if (result.success) {
                     coinDisplay.textContent = result.newCoinBalance;
+                    
+                    // Tạo kết quả giả lập
                     const randomMultiplier = (Math.random() * (20.05 - 1.01) + 1.01).toFixed(2);
-                    chartResultText.textContent = `${randomMultiplier}x`;
-                    
-                    pilotChartContainer.classList.add('highlight');
-                    chartResultOverlay.style.display = 'flex';
-                    
-                    // Tạo và hiển thị dữ liệu phân tích
-                    const startSignal = (Math.random() * (3.55 - 2.15) + 2.15).toFixed(2);
-                    const endSignal = (parseFloat(startSignal) + Math.random() * 2).toFixed(2);
-                    const safeStop = (Math.random() * 3 + 4).toFixed(2);
-                    const frequency = Math.floor(Math.random() * 3) + 2;
+                    const resultData = {
+                        start: `${(Math.random() * (3.55 - 2.15) + 2.15).toFixed(2)}x - ${(Math.random() * 5 + 3).toFixed(2)}x`,
+                        stop: `< ${(Math.random() * 3 + 4).toFixed(2)}x`,
+                        freq: `~${Math.floor(Math.random() * 3) + 2} phiên`
+                    };
 
-                    infoBox1.querySelector('small').textContent = `${startSignal}x - ${endSignal}x`;
-                    infoBox2.querySelector('small').textContent = `< ${safeStop}x`;
-                    infoBox3.querySelector('small').textContent = `~${frequency} phiên`;
+                    // Lưu session
+                    sessionStorage.setItem('wukongPilotState', JSON.stringify({
+                        multiplier: randomMultiplier,
+                        data: resultData,
+                        initialWinRate: initialWinRate
+                    }));
 
-                    // Kích hoạt hiệu ứng animation cho các ô thông tin
-                    [infoBox1, infoBox2, infoBox3].forEach((box, index) => {
-                        setTimeout(() => {
-                            box.classList.add('result-reveal', 'result-highlight');
-                        }, 100 + index * 150);
-                    });
+                    showPilotResult(randomMultiplier, resultData, false);
 
-                    setTimeout(() => {
-                        pilotChartContainer.classList.remove('highlight');
-                        chartResultOverlay.style.display = 'none';
-                    }, 4000);
                 } else {
-                    alert(result.message || "Có lỗi xảy ra, vui lòng thử lại.");
+                    alert(result.message);
                 }
             } catch (error) {
-                alert('Lỗi kết nối máy chủ. Vui lòng thử lại.');
+                alert('Lỗi kết nối máy chủ.');
             } finally {
+                clearInterval(progressInterval);
                 analysisProgressContainer.style.display = 'none';
                 analyzeButton.style.display = 'block';
                 analyzeButton.textContent = "CHỜ 2s";
@@ -174,10 +217,21 @@ window.onload = () => {
         }, 1600);
     });
 
-    // === KHỞI TẠO TRANG ===
     (async () => {
         await fetchUserInfoFromServer();
-        progressText.textContent = `${Math.floor(Math.random() * 6) + 90}%`;
+        
+        const savedState = sessionStorage.getItem('wukongPilotState');
+        if (savedState) {
+            const parsed = JSON.parse(savedState);
+            if(parsed.initialWinRate) progressValue.textContent = `${parsed.initialWinRate}%`; // Set số ban đầu
+            showPilotResult(parsed.multiplier, parsed.data, true); // Resume
+        } else {
+            progressValue.textContent = `${initialWinRate}%`;
+            progressValue.classList.remove('success');
+            progressValue.style.color = '';
+            progressValue.style.textShadow = '';
+        }
+
         initializeChart();
         startRealtimeChart();
         const frameLightning = document.getElementById('frame-wide-lightning');
