@@ -1,3 +1,4 @@
+<!-- --- START OF FILE analysis.html (Đã thêm nút Kết Thúc) --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -53,7 +54,6 @@
                             <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
                         </div>
                         
-                        <!-- === THAY ĐỔI: Thêm container và 3 tia laser === -->
                         <div class="scanner-effects-container">
                             <div class="robot-to-game-scanner scanner-1"></div>
                             <div class="robot-to-game-scanner scanner-2"></div>
@@ -62,8 +62,6 @@
                         
                         <div class="main-game-display">
                             <div class="scan-impact-ripple"></div>
-                            <!-- ============================================= -->
-
                             <div class="glitch-wrapper">
                                 <img id="panel-game-image" src="" alt="Game">
                                 <div class="glitch-layer"></div>
@@ -108,11 +106,31 @@
                             <span id="progress-bar-text" class="progress-bar-text">0%</span>
                         </div>
                     </div>
-                    <button id="analyze-button" class="btn-primary">HACK</button>
+                    
+                    <button id="analyze-button" class="btn-primary">HACK (10 TOKEN)</button>
+                    
+                    <!-- === NÚT DỪNG HACK MỚI === -->
+                    <button id="end-button" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-1-5h2v-4h-2v4zm0-6h2V7h-2v2z"/></svg>
+                        DỪNG HACK NGAY
+                    </button>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- === POPUP XÁC NHẬN (MODAL) === -->
+    <div id="custom-confirm-modal">
+        <div class="confirm-box-content">
+            <h3>⚠️ CẢNH BÁO</h3>
+            <p>Bạn có chắc chắn muốn <b>DỪNG HACK</b> và hủy kết quả hiện tại không?</p>
+            <div class="confirm-actions">
+                <button id="confirm-no" class="btn-modal btn-cancel">Hủy bỏ</button>
+                <button id="confirm-yes" class="btn-modal btn-confirm">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/analysis.js"></script>
     <script>
         const overlay = document.querySelector('.video-overlay');

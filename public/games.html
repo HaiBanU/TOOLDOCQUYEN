@@ -1,12 +1,11 @@
-
-
+<!-- --- START OF FILE games.html --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Wukong Slot</title> <!-- Đã sửa -->
-    <link rel="icon" type="image/png" href="/assets/images/favicon.png"> <!-- Đã thêm -->
+     <title>Wukong Slot - Danh Sách Game</title>
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css">
     <link rel="manifest" href="/manifest.json">
@@ -108,7 +107,7 @@
     <script>
         function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); const timeString = now.toLocaleTimeString('vi-VN'); const dateString = now.toLocaleDateString('vi-VN'); clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; }
         
-        // === NÂNG CẤP V4: HOÀN TOÀN MỚI NỘI DUNG TERMINAL ===
+        // === NỘI DUNG TERMINAL ===
         let terminalMessages = [];
         let lastMessageIndex = -1;
         let typingInterval;
@@ -120,7 +119,7 @@
                 "Hệ thống gợi ý Jackpot đã được kích hoạt.",
                 "Cross-referencing historical data to identify patterns...",
                 "Lọc các game có tín hiệu 'chuẩn bị nhả thưởng'...",
-                "Chọn một trò chơi để tiến hành HACK sâu bằng 4 Token.",
+                "Chọn một trò chơi để tiến hành HACK sâu bằng 10 Token.",
                 "Hãy nhớ, kiên nhẫn cũng là một chiến lược."
             ];
 
@@ -152,7 +151,6 @@
             const messageToShow = terminalMessages[randomIndex]; 
             typeMessage(messageEl, messageToShow); 
         }
-        // === KẾT THÚC NÂNG CẤP ===
 
         let allGames = [];
         const gameContainer = document.getElementById('game-container');
@@ -165,12 +163,24 @@
                     card.className = 'game-card-enhanced';
                     const colors = getColorScheme(game.winRate);
                     card.innerHTML = `<div class="game-card-inner-frame"><div class="card-image-wrapper"><img src="${game.image_url}" alt="${game.name}" loading="lazy"></div></div><div class="game-card-content"><div class="game-info"><h4 class="game-name">${game.name}</h4></div><div class="status-tag-wrapper"><span class="status-tag ${colors.className}">${colors.tag}</span></div><div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${game.winRate}%; background: ${colors.gradientColor};"></div></div><button class="action-button" style="background: ${colors.gradientColor};">${game.winRate}%</button></div>`;
+                    
+                    // === CẬP NHẬT LOGIC ĐIỀU HƯỚNG DỰA TRÊN CATEGORY ===
                     card.onclick = () => {
                         const params = new URLSearchParams(window.location.search);
                         const lobbyName = decodeURIComponent(params.get('lobby_name'));
-                        const url = `/analysis.html?gameName=${encodeURIComponent(game.name)}&imageUrl=${encodeURIComponent(game.image_url)}&winRate=${game.winRate}&lobbyName=${encodeURIComponent(lobbyName)}`;
+                        const category = params.get('category') || 'nohu'; // Mặc định là nohu
+
+                        // Chọn trang đích
+                        let targetPage = '/analysis.html';
+                        if (category === 'banca') {
+                            targetPage = '/analysis-fish.html';
+                        }
+
+                        const url = `${targetPage}?gameName=${encodeURIComponent(game.name)}&imageUrl=${encodeURIComponent(game.image_url)}&winRate=${game.winRate}&lobbyName=${encodeURIComponent(lobbyName)}`;
                         window.location.href = url;
                     };
+                    // ====================================================
+
                     gameContainer.appendChild(card);
                 });
             } else {
@@ -185,6 +195,7 @@
             const params = new URLSearchParams(window.location.search);
             const lobbyId = params.get('lobby_id');
             const lobbyName = decodeURIComponent(params.get('lobby_name'));
+            
             if (!lobbyId) { window.location.href = '/dashboard.html'; return; }
 
             document.getElementById('lobby-title').textContent = lobbyName;
@@ -195,7 +206,6 @@
                 allGames = data.games; 
                 renderGames(allGames); 
                 
-                // Cập nhật và kích hoạt Terminal với dữ liệu mới
                 terminalMessages = generateGameMessages(allGames);
                 showNextTerminalMessage();
                 setInterval(showNextTerminalMessage, 10000);

@@ -119,7 +119,7 @@
                 lobbyData.lobbies.forEach(lobby => {
                     const card = document.createElement('a');
                     // === THAY ĐỔI: Trỏ link về file games.html chung ===
-                    card.href = `/games.html?lobby_id=${lobby._id}&lobby_name=${encodeURIComponent(lobby.name)}`;
+                    card.href = `/games.html?lobby_id=${lobby._id}&lobby_name=${encodeURIComponent(lobby.name)}&category=banca`;
                     card.className = 'game-card-enhanced dashboard-lobby-card';
                     card.innerHTML = `
                     <div class="game-card-inner-frame">

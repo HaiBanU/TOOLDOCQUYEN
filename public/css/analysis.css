@@ -281,3 +281,134 @@
         height: 100%;
     }
 }
+/* --- BUTTON KẾT THÚC (Styling mới) --- */
+#end-button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(20, 0, 0, 0.6); /* Nền đen đỏ nhạt */
+    border: 1px solid #555;
+    color: #888;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hiệu ứng khi di chuột vào */
+#end-button:hover {
+    border-color: #ff3333;
+    color: #fff;
+    background: rgba(255, 0, 0, 0.15);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.2);
+    transform: translateY(-2px);
+    letter-spacing: 1px; /* Chữ giãn ra nhẹ */
+}
+
+/* Hiệu ứng khi bấm xuống */
+#end-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
+}
+
+/* Icon SVG bên trong nút */
+#end-button svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+}
+
+#end-button:hover svg {
+    transform: rotate(90deg); /* Xoay icon khi hover */
+}
+/* --- CUSTOM CONFIRM MODAL (Popup xác nhận đẹp) --- */
+#custom-confirm-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000; /* Đè lên tất cả mọi thứ */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Nền tối mờ */
+    backdrop-filter: blur(5px); /* Làm mờ nền phía sau */
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-box-content {
+    background: linear-gradient(135deg, #1a0505, #000);
+    border: 1px solid #ff3333;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    transform: scale(0.9);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+    to { transform: scale(1); opacity: 1; }
+}
+
+.confirm-box-content h3 {
+    color: #ff3333;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 0;
+    text-transform: uppercase;
+    font-size: 1.4em;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.confirm-box-content p {
+    color: #ccc;
+    font-size: 1em;
+    margin: 15px 0 25px;
+    line-height: 1.5;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-modal {
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-cancel {
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+}
+.btn-cancel:hover { background: #444; }
+
+.btn-confirm {
+    background: linear-gradient(45deg, #d90429, #ff3333);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(217, 4, 41, 0.5);
+}
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(217, 4, 41, 0.8);
+}
