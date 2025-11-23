@@ -10,7 +10,74 @@
     <link rel="stylesheet" href="/css/user.css">
     <link rel="manifest" href="/manifest.json">
     <style>
-        #filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        /* === FIX LỖI HEADER DESKTOP === */
+        body.games-page .header {
+            height: auto !important;
+            min-height: 80px;
+            padding-bottom: 15px;
+            align-items: flex-start;
+            padding-top: 15px;
+        }
+
+        .games-header #live-clock-container {
+            position: static !important;
+            transform: none !important;
+            margin-top: 4px;
+            font-size: 0.9em;
+            line-height: 1.2;
+            opacity: 0.9;
+        }
+
+        /* === FIX LỖI HEADER MOBILE (MỚI THÊM) === */
+        @media (max-width: 768px) {
+            body.games-page .header {
+                flex-wrap: wrap; /* Cho phép rớt dòng */
+                justify-content: space-between;
+                padding: 10px 15px !important;
+                gap: 5px;
+            }
+
+            /* 1. Nút Quay Lại (Trái) - Lên hàng đầu, chiếm 50% */
+            body.games-page .header-left {
+                flex-basis: 45%;
+                order: 1;
+                display: flex;
+                align-items: center;
+            }
+
+            /* 2. Token/Logout (Phải) - Lên hàng đầu, chiếm 50% */
+            body.games-page .header-right {
+                flex-basis: 45%;
+                order: 2;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+            
+            /* Thu nhỏ nút Token chút cho đỡ bị tràn */
+            .header-right-content {
+                transform: scale(0.9);
+                transform-origin: right center;
+            }
+
+            /* 3. User/VIP (Giữa) - Rớt xuống hàng dưới, chiếm 100% */
+            body.games-page .header-center {
+                flex-basis: 100%;
+                order: 3;
+                margin-top: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            /* Thu nhỏ khung VIP chút cho vừa màn hình */
+            .user-status-row {
+                transform: scale(0.95);
+            }
+        }
+
+        /* === CSS CHO BỘ LỌC === */
+        #filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
         .filter-btn { border: 2px solid transparent; color: #fff; padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: all 0.2s ease-in-out; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .filter-btn.filter-all, .filter-btn.filter-wait { background: linear-gradient(45deg, #a40606, #d90429); }
         .filter-btn.filter-jackpot { background: linear-gradient(45deg, #00b894, #00ff8c); }
@@ -32,15 +99,16 @@
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
 
+    <!-- === HEADER === -->
     <header class="header games-header fadeIn">
         <div class="header-left">
             <a href="javascript:history.back()" class="back-button-user" style="position: static; transform: none; text-decoration: none;">← Quay Lại</a>
         </div>
         
-        <!-- === THÊM PHẦN VIP VÀO HEADER === -->
+        <!-- Cột Giữa -->
         <div class="header-center">
             <div class="user-status-row">
-                <h2 id="lobby-title" style="margin: 0; font-size: 1.2em; text-shadow: 0 0 10px red;">Đang tải...</h2>
+                <div id="welcome-message">Chào, ...</div>
                 <div id="vip-badge-placeholder"></div>
             </div>
             
@@ -53,15 +121,23 @@
                     <span id="vip-target-money">3tr (VIP)</span>
                 </div>
             </div>
+            
+            <div id="live-clock-container"></div>
         </div>
-        <!-- ============================== -->
 
+        <!-- Cột Phải -->
         <div class="header-right">
-             <div id="live-clock-container"></div>
+            <div class="header-right-content">
+                <div id="coin-display">Token: ...</div>
+                <button class="logout-button">Đăng Xuất</button>
+            </div>
         </div>
     </header>
 
     <main class="main-content fadeIn" style="animation-delay: 0.2s;">
+        <!-- Tên Sảnh -->
+        <h2 class="main-title" id="lobby-title-display">Đang tải tên sảnh...</h2>
+
         <div id="filter-container">
             <button class="filter-btn filter-all active" data-filter="all">Tất Cả</button>
             <button class="filter-btn filter-jackpot" data-filter="jackpot">Jackpot</button>
@@ -87,8 +163,17 @@
     <script src="/js/global.js"></script>
     <script>
         const username = localStorage.getItem('username');
+        const coinDisplay = document.getElementById('coin-display');
+        const welcomeMessage = document.getElementById('welcome-message');
 
-        function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); const timeString = now.toLocaleTimeString('vi-VN'); const dateString = now.toLocaleDateString('vi-VN'); clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; }
+        function updateClock() { 
+            const clockContainer = document.getElementById('live-clock-container'); 
+            if (!clockContainer) return; 
+            const now = new Date(); 
+            const timeString = now.toLocaleTimeString('vi-VN'); 
+            const dateString = now.toLocaleDateString('vi-VN'); 
+            clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; 
+        }
         
         let terminalMessages = [];
         let lastMessageIndex = -1;
@@ -154,12 +239,29 @@
             }
         }
         
+        async function fetchUserData() {
+            if (!username) return;
+            try {
+                const res = await fetch(`/api/user-info?username=${username}`);
+                const data = await res.json();
+                if (data.success) {
+                    welcomeMessage.textContent = `Chào, ${data.userInfo.username}`;
+                    const brandName = sessionStorage.getItem('selectedBrand');
+                    const userCoinsByBrand = data.userInfo.coins_by_brand || {};
+                    const coinsForCurrentBrand = userCoinsByBrand[brandName] || 0;
+                    coinDisplay.textContent = `Token: ${coinsForCurrentBrand}`;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        document.querySelector('.logout-button').addEventListener('click', () => { 
+            localStorage.clear(); sessionStorage.clear(); window.location.href = '/'; 
+        });
+
         window.onload = async () => {
             updateClock(); setInterval(updateClock, 1000);
-            
-            // === GỌI HÀM CẬP NHẬT VIP ===
+            await fetchUserData();
             if (username) updateVipDisplay(username);
-            // ============================
 
             const params = new URLSearchParams(window.location.search);
             const lobbyId = params.get('lobby_id');
@@ -167,7 +269,8 @@
             
             if (!lobbyId) { window.location.href = '/dashboard.html'; return; }
 
-            document.getElementById('lobby-title').textContent = lobbyName;
+            document.getElementById('lobby-title-display').textContent = lobbyName;
+
             const response = await fetch(`/api/games-with-rates?lobby_id=${lobbyId}`);
             const data = await response.json();
             

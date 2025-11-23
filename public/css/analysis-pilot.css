@@ -1,6 +1,4 @@
-/* public/css/analysis-pilot.css */
-
-/* === BẮT ĐẦU: CSS RIÊNG CHO TRANG HACK PHI CÔNG (Bản sửa lỗi cuối cùng) === */
+/* --- START OF FILE public/css/analysis-pilot.css --- */
 
 /* 1. Container cho biểu đồ */
 #pilotChartContainer {
@@ -32,7 +30,7 @@
     height: 100% !important;
 }
 
-/* 3. Icon máy bay - SỬA ĐỔI LỚN */
+/* 3. Icon máy bay */
 @keyframes airplane-float {
     0%, 100% { transform: translate(-50%, -50%) translateY(0); }
     50% { transform: translate(-50%, -50%) translateY(-6px); }
@@ -41,16 +39,14 @@
 #chart-airplane-icon {
     position: absolute;
     z-index: 2;
-    width: 60px; /* <<<< ĐÃ TĂNG TỪ 40px LÊN 60px >>>> */
+    width: 60px;
     height: auto;
     pointer-events: none;
     filter: drop-shadow(0 0 8px #ffd700);
-    
-    /* === THAY ĐỔI: Dùng CSS để căn giữa tuyệt đối === */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    animation: airplane-float 3s ease-in-out infinite; /* Thêm hiệu ứng trôi nổi */
+    animation: airplane-float 3s ease-in-out infinite; 
 }
 
 /* 4. Lớp phủ kết quả */
@@ -72,9 +68,9 @@
 
 /* 5. Văn bản kết quả */
 #chart-result-text {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Orbitron', sans-serif; /* Dùng font số điện tử */
     font-size: 4em;
-    font-weight: 700;
+    font-weight: 900;
     color: #ffffff;
     text-shadow: 0 0 10px #fff, 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ff8c00;
     animation: pulseText 1.5s infinite ease-in-out;
@@ -83,4 +79,145 @@
 @keyframes pulseText {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+}
+
+/* ========================================= */
+/* === STYLE MỚI CHO NÚT TÍN HIỆU VIP (PREMIUM) === */
+/* ========================================= */
+
+.vip-signal-control {
+    position: relative;
+    width: 100%;
+    height: 70px; /* Chiều cao cố định */
+    margin-top: 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    transition: transform 0.2s, filter 0.2s;
+    overflow: hidden;
+    background: #000;
+}
+
+.vip-signal-control:active {
+    transform: scale(0.96);
+}
+
+/* Hiệu ứng viền RGB 7 màu chạy xung quanh */
+.rgb-glow-border {
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(
+        transparent, 
+        #ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0000ff, #8000ff, #ff0080, 
+        transparent 50%
+    );
+    animation: spin-rgb 3s linear infinite;
+    z-index: 1;
+}
+
+@keyframes spin-rgb {
+    100% { transform: rotate(360deg); }
+}
+
+/* Lớp nội dung bên trong */
+.vip-control-inner {
+    position: absolute;
+    inset: 3px; /* Tạo khoảng cách để lộ viền RGB */
+    background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
+    border-radius: 10px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 215, 0, 0.3); /* Viền vàng mờ */
+}
+
+/* Header nhỏ có vương miện */
+.vip-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.crown-icon {
+    font-size: 1em;
+    filter: drop-shadow(0 0 5px #ffd700);
+    animation: pulse-crown 1.5s infinite;
+}
+
+.vip-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7em;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Dòng trạng thái chính (CHẠM ĐỂ KÍCH HOẠT) */
+.vip-status-display {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+/* Đường kẻ trang trí */
+.vip-decor-line {
+    width: 50%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, transparent);
+    margin-top: 4px;
+    opacity: 0.6;
+}
+
+@keyframes pulse-crown {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* === HIỆU ỨNG KHI KẾT QUẢ VIP HIỆN TRÊN BIỂU ĐỒ === */
+/* Class này sẽ được JS thêm vào #pilotChartContainer */
+#pilotChartContainer.vip-active-display {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(255, 215, 0, 0.1) !important;
+    background: linear-gradient(135deg, rgba(40, 30, 0, 0.9), rgba(0, 0, 0, 0.95)) !important;
+}
+
+/* Làm chữ kết quả to hơn và vàng óng */
+#pilotChartContainer.vip-active-display #chart-result-text {
+    background: linear-gradient(to bottom, #fff 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 15px #ffd700);
+    font-size: 4.5em; 
+}
+
+/* === STYLE CHO MODAL VIP === */
+.custom-modal-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    z-index: 10000; justify-content: center; align-items: center;
+}
+.vip-modal-content {
+    background: linear-gradient(145deg, #1a1a1a, #000000);
+    border: 1px solid #ffd700; border-radius: 16px;
+    padding: 30px 25px; width: 90%; max-width: 350px;
+    text-align: center; position: relative;
+    animation: popInModal 0.3s ease-out;
+}
+@keyframes popInModal { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+.vip-modal-title { color: #ffd700; margin: 10px 0; font-weight: bold; font-size: 1.2em; }
+.vip-modal-message { color: #ccc; margin-bottom: 20px; line-height: 1.5; }
+.btn-vip-action {
+    background: linear-gradient(90deg, #d90429, #ff3333); color: white;
+    border: none; padding: 10px 30px; border-radius: 50px; font-weight: bold; cursor: pointer;
 }

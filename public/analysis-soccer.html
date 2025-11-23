@@ -11,6 +11,16 @@
     <link rel="stylesheet" href="/css/analysis.css">
     <link rel="stylesheet" href="/css/analysis-soccer.css">
     <link rel="manifest" href="/manifest.json">
+    <style>
+        /* CSS bổ sung để đảm bảo hiển thị tốt trên mobile giống các trang kia */
+        .analysis-page-header { justify-content: space-between; gap: 10px; }
+        .analysis-page-header .header-center { width: auto; flex: 1; }
+        @media (max-width: 480px) {
+            .analysis-page-header { flex-wrap: wrap; justify-content: center; }
+            .back-button-user { order: 1; width: 50%; }
+            .header-center { order: 3; width: 100%; margin-top: 10px; }
+        }
+    </style>
 </head>
 <script>
     if (!localStorage.getItem('username')) { window.location.href = '/'; }
@@ -24,12 +34,44 @@
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
     
-    <header class="analysis-page-header">
-        <a href="/dashboard.html" class="back-button-user">← Quay Lại Sảnh</a>
-        <div class="user-info-box">
-            <span>Tổng Token: <b id="coin-display">...</b></span>
+    <!-- === HEADER MỚI ĐÃ CẬP NHẬT (ĐỒNG BỘ VỚI NỔ HŨ/BẮN CÁ) === -->
+    <header class="header games-header fadeIn">
+        <!-- Cột Trái: Nút Quay Lại -->
+        <div class="header-left">
+            <a href="javascript:history.back()" class="back-button-user">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Quay Lại
+            </a>
+        </div>
+        
+        <!-- Cột Giữa: VIP Status & Progress -->
+        <div class="header-center">
+            <div class="user-status-row">
+                <div id="vip-badge-placeholder">
+                    <span class="vip-status-badge badge-normal">LOADING...</span>
+                </div>
+            </div>
+            <div class="vip-container" id="vip-progress-ui" style="display:none;">
+                <div class="vip-progress-track">
+                    <div class="vip-progress-fill" id="vip-fill-bar" style="width: 0%;"></div>
+                </div>
+                <div class="vip-text">
+                    <span id="vip-current-money">0</span>
+                    <span id="vip-target-money">3tr (VIP)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột Phải: Token -->
+        <div class="header-right">
+            <div class="header-right-content">
+                <span id="coin-display">Token: ...</span>
+            </div>
         </div>
     </header>
+    <!-- === KẾT THÚC HEADER MỚI === -->
 
     <main class="analysis-main">
         <div class="analysis-frame">
@@ -64,12 +106,10 @@
                             </div>
                         </div>
 
-                        <!-- === CẬP NHẬT: KHUNG TRÒN ĐỎ MỚI === -->
                         <div class="progress-frame-container">
                              <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
                              <span id="progress-value" class="progress-frame-value">0%</span>
                         </div>
-                        <!-- === KẾT THÚC === -->
                     </div>
 
                     <div id="game-name-display-bottom">
@@ -106,11 +146,45 @@
         </div>
     </main>
     
+    <script src="/js/global.js"></script>
     <script src="/js/analysis-soccer.js"></script>
     <script>
+        // Gọi hàm Update VIP khi trang load
+        const username = localStorage.getItem('username');
+        if (username) updateVipDisplay(username);
+
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }
     </script>
-    <script src="/js/global.js"></script>
+    <div id="vip-alert-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content">
+            <div class="vip-modal-icon">
+                <div class="lock-ring"></div>
+                <span class="lock-body">🔒</span>
+            </div>
+            <h3 class="vip-modal-title">TÍNH NĂNG VIP</h3>
+            <p class="vip-modal-message">
+                Nội dung này dành riêng cho thành viên <b>VIP</b>.<br>
+                Vui lòng nạp tích lũy <b>> 3.000.000đ</b> để mở khóa toàn bộ 9 lượt sút.
+            </p>
+            <button id="close-vip-modal" class="btn-vip-action">ĐÃ HIỂU</button>
+        </div>
+    </div>
+    <!-- === MODAL CẢNH BÁO CHƯA CHỌN GIẢI (MỚI) === -->
+    <div id="league-alert-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content">
+            <div class="vip-modal-icon">
+                <!-- Dùng lại hiệu ứng vòng tròn nhưng đổi icon thành dấu chấm than -->
+                <div class="lock-ring"></div> 
+                <span class="lock-body" style="font-size: 3em;">⚠️</span>
+            </div>
+            <h3 class="vip-modal-title" style="color: #ff4757;">THIẾU THÔNG TIN</h3>
+            <p class="vip-modal-message">
+                Bạn chưa chọn mục tiêu phân tích.<br>
+                Vui lòng chọn <b>GIẢI ĐẤU</b> hoặc <b>CÂU LẠC BỘ</b> trước khi bấm Hack!
+            </p>
+            <button id="close-league-modal" class="btn-vip-action">ĐÃ RÕ</button>
+        </div>
+    </div>
 </body>
 </html>

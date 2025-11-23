@@ -11,7 +11,18 @@
     <link rel="stylesheet" href="/css/analysis.css">
     <link rel="stylesheet" href="/css/analysis-pilot.css">
     <link rel="manifest" href="/manifest.json">
+    <!-- Thêm font Orbitron cho số liệu đẹp hơn -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .analysis-page-header { justify-content: space-between; gap: 10px; }
+        .analysis-page-header .header-center { width: auto; flex: 1; }
+        @media (max-width: 480px) {
+            .analysis-page-header { flex-wrap: wrap; justify-content: center; }
+            .back-button-user { order: 1; width: 50%; }
+            .header-center { order: 3; width: 100%; margin-top: 10px; }
+        }
+    </style>
 </head>
 <script>
     if (!localStorage.getItem('username')) { window.location.href = '/'; }
@@ -26,10 +37,38 @@
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
 
-    <header class="analysis-page-header">
-        <a href="/dashboard.html" class="back-button-user">← Quay Lại</a>
-        <div class="user-info-box">
-            <span>Tổng Token: <b id="coin-display">...</b></span>
+    <!-- === HEADER === -->
+    <header class="header games-header fadeIn">
+        <div class="header-left">
+            <a href="javascript:history.back()" class="back-button-user">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Quay Lại
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <div class="user-status-row">
+                <div id="vip-badge-placeholder">
+                    <span class="vip-status-badge badge-normal">LOADING...</span>
+                </div>
+            </div>
+            <div class="vip-container" id="vip-progress-ui" style="display:none;">
+                <div class="vip-progress-track">
+                    <div class="vip-progress-fill" id="vip-fill-bar" style="width: 0%;"></div>
+                </div>
+                <div class="vip-text">
+                    <span id="vip-current-money">0</span>
+                    <span id="vip-target-money">3tr (VIP)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="header-right-content">
+                <span id="coin-display">Token: ...</span>
+            </div>
         </div>
     </header>
 
@@ -64,12 +103,10 @@
                             </div>
                         </div>
                         
-                        <!-- === CẬP NHẬT: KHUNG TRÒN ĐỎ MỚI === -->
                         <div class="progress-frame-container">
                              <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
                              <span id="progress-value" class="progress-frame-value">0%</span>
                         </div>
-                        <!-- === KẾT THÚC === -->
                     </div>
 
                     <div id="game-name-display-bottom">
@@ -78,6 +115,7 @@
 
                     <div class="energy-separator"></div>
 
+                    <!-- KHUNG BIỂU ĐỒ CHÍNH -->
                     <div id="pilotChartContainer">
                         <canvas id="pilotChart"></canvas>
                         <img src="/assets/images/airplane-icon.png" id="chart-airplane-icon" alt="Airplane">
@@ -92,6 +130,26 @@
                             <div id="info-box-1" class="led-info-box"><span>TÍN HIỆU VÀO CẦU</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-2" class="led-info-box"><span>ĐIỂM DỪNG AN TOÀN</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-3" class="led-info-box"><span>TẦN SUẤT CAO</span><small>Chưa có dữ liệu</small></div>
+                            
+                            <!-- === START: DÒNG THỨ 4 - TÍN HIỆU VIP (NEW DESIGN) === -->
+                            <div id="vip-signal-box" class="vip-signal-control">
+                                <!-- Hiệu ứng nền RGB chạy -->
+                                <div class="rgb-glow-border"></div>
+                                
+                                <!-- Nội dung chính -->
+                                <div class="vip-control-inner">
+                                    <div class="vip-header">
+                                        <span class="crown-icon">👑</span>
+                                        <span class="vip-label">SERVER VIP 2.0</span>
+                                    </div>
+                                    <div class="vip-status-display" id="vip-status-text">
+                                        CHẠM ĐỂ KÍCH HOẠT
+                                    </div>
+                                    <div class="vip-decor-line"></div>
+                                </div>
+                            </div>
+                            <!-- === END: DÒNG THỨ 4 === -->
+
                         </div>
                     </div>
 
@@ -111,12 +169,31 @@
             </div>
         </div>
     </main>
+    
+    <!-- === MODAL CẢNH BÁO VIP === -->
+    <div id="vip-alert-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content">
+            <div class="vip-modal-icon">
+                <span class="lock-body" style="font-size: 3.5em;">🔒</span>
+            </div>
+            <h3 class="vip-modal-title">TÍNH NĂNG VIP</h3>
+            <p class="vip-modal-message">
+                Ô phân tích này dành riêng cho thành viên <b>VIP</b>.<br>
+                Tỷ lệ chính xác lên tới <b>98%</b>.<br>
+                Vui lòng nạp tích lũy để mở khóa.
+            </p>
+            <button id="close-vip-modal" class="btn-vip-action">ĐÃ HIỂU</button>
+        </div>
+    </div>
 
+    <script src="/js/global.js"></script>
     <script src="/js/analysis-pilot.js"></script>
     <script>
+        const username = localStorage.getItem('username');
+        if (username) updateVipDisplay(username);
+
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }
     </script>
-    <script src="/js/global.js"></script>
 </body>
 </html>

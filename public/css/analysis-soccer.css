@@ -1,11 +1,9 @@
-/* === BẮT ĐẦU: CSS RIÊNG CHO TRANG HACK SOCCER (V4 - Bố cục chuẩn) === */
+/* === BẮT ĐẦU: CSS RIÊNG CHO TRANG HACK SOCCER (Updated) === */
 
 /* Nới rộng khung HACK để có nhiều không gian hơn */
 .analysis-frame {
     max-width: 420px;
 }
-
-/* Các hiệu ứng top-visuals (robot, laser, progress-tag) sẽ được kế thừa từ file analysis.css chung */
 
 .soccer-content-wrapper {
     display: flex;
@@ -25,7 +23,7 @@
 .led-button {
     position: relative;
     background: transparent;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     padding: 14px;
     text-align: center;
@@ -36,43 +34,33 @@
     color: #fff;
     text-shadow: 0 0 8px currentColor;
     z-index: 1;
-    cursor: default;
-    transition: all 0.2s ease-in-out;
+    cursor: pointer; /* Con trỏ tay */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
 }
 
+/* Hiệu ứng nền tối mặc định */
 .led-button::before {
     content: '';
     position: absolute;
     z-index: -1;
-    top: 2px; left: 2px; right: 2px; bottom: 2px;
-    background: rgba(0,0,0,.8);
-    border-radius: 10px;
-}
-
-.led-button::after {
-    content: '';
-    position: absolute;
-    z-index: -2;
     top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: 12px;
-    background-size: 300% 300%;
-    animation: animated-gradient-flow 4s linear infinite;
+    background: rgba(0, 0, 0, 0.6);
+    transition: all 0.3s;
 }
 
-@keyframes animated-gradient-flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* --- HIỆU ỨNG KHI ĐƯỢC CHỌN (QUAN TRỌNG) --- */
+.led-button.selected-league {
+    border: 2px solid #ffd700 !important; /* Viền Vàng */
+    background: rgba(255, 215, 0, 0.15); /* Nền vàng nhẹ */
+    color: #ffd700;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2);
+    text-shadow: 0 0 10px #ffd700;
 }
 
-.led-button.league-amateur::after {
-    background-image: linear-gradient(60deg, #00ff8c, #0d6a2c, #2eff76, #00ff8c);
-}
-.led-button.league-club::after {
-    background-image: linear-gradient(60deg, #ffde8a, #e29c06, #ffc93d, #ffde8a);
-}
-.led-button.league-premier::after {
-    background-image: linear-gradient(60deg, #ff6b78, #a51320, #d92b3a, #ff6b78);
+.led-button.selected-league::before {
+    background: rgba(0, 0, 0, 0.2); /* Làm nền đen nhạt đi để màu vàng nổi lên */
 }
 
 /* 2. Khu vực kết quả */
@@ -82,6 +70,7 @@
     border-radius: 8px;
     padding: 10px;
     text-align: center;
+    min-height: 200px; /* Giữ chiều cao ổn định */
 }
 
 .results-header {
@@ -109,7 +98,9 @@
     opacity: 0;
     animation: result-fade-in 0.5s ease-out forwards;
     transition: all 0.2s ease-in-out;
+    position: relative; /* Để định vị ổ khóa */
 }
+
 .result-item:hover {
     background: rgba(255,255,255,0.1);
     border-color: var(--primary-red);
@@ -140,24 +131,137 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-/* === NÂNG CẤP: HIỆU ỨNG NỔI BẬT MẠNH MẼ HƠN === */
 
-/* Keyframes cho animation tỏa sáng dạng pulse */
-@keyframes active-glow-pulse {
-    0%, 100% { box-shadow: 0 0 25px currentColor; }
-    50% { box-shadow: 0 0 45px currentColor, 0 0 15px #fff; } /* Tăng độ sáng và thêm vầng sáng trắng */
+/* --- STYLE CHO KẾT QUẢ BỊ KHÓA (NON-VIP) --- */
+.result-item.locked {
+    border-color: #333;
+    background: #111;
+    cursor: not-allowed;
+    overflow: hidden;
 }
 
-.led-button.active-league {
-    /* Hiệu ứng scale để nút "nhô" ra */
-    transform: scale(1.05);
-    /* Chữ sáng rực hơn */
-    text-shadow: 0 0 15px #fff, 0 0 10px currentColor;
-    /* Animation tỏa sáng dạng pulse */
-    animation: active-glow-pulse 2s infinite ease-in-out;
+/* Làm mờ chữ bên trong */
+.result-item.locked .turn,
+.result-item.locked .direction {
+    filter: blur(5px); /* Mờ tịt */
+    opacity: 0.3;
+    pointer-events: none;
 }
 
-.led-button.active-league::after {
-    animation-duration: 1.5s; /* Viền chạy nhanh hơn nữa */
-    filter: brightness(1.8); /* Viền sáng hơn */
+/* Hiện ổ khóa */
+.result-item.locked::after {
+    content: '🔒 VIP';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-shadow: 0 0 5px #000;
+    z-index: 10;
+    animation: pulse-lock 2s infinite;
+}
+
+@keyframes pulse-lock {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+/* === BẮT ĐẦU: STYLE CHO MODAL VIP === */
+.custom-modal-overlay {
+    display: none; /* Mặc định ẩn */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Nền đen mờ đậm */
+    backdrop-filter: blur(8px); /* Làm mờ background phía sau */
+    z-index: 10000; /* Đè lên mọi thứ */
+    justify-content: center;
+    align-items: center;
+    animation: fadeInOverlay 0.3s ease-out;
+}
+
+.vip-modal-content {
+    background: linear-gradient(145deg, #1a1a1a, #000000);
+    border: 1px solid #ffd700; /* Viền vàng VIP */
+    border-radius: 16px;
+    padding: 30px 25px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.15), inset 0 0 20px rgba(255, 215, 0, 0.05);
+    transform: scale(0.8);
+    animation: popInModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    position: relative;
+}
+
+/* Icon ổ khóa */
+.vip-modal-icon {
+    position: relative;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.vip-modal-icon .lock-body {
+    font-size: 3.5em;
+    display: block;
+    filter: drop-shadow(0 0 10px #ffd700);
+    animation: shakeLock 2s infinite;
+}
+
+.vip-modal-title {
+    color: #ffd700;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5em;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.vip-modal-message {
+    color: #ccc;
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.vip-modal-message b {
+    color: #fff;
+}
+
+/* Nút bấm */
+.btn-vip-action {
+    background: linear-gradient(90deg, #d90429, #ff3333); /* Màu đỏ Wukong */
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(217, 4, 41, 0.4);
+    transition: all 0.3s ease;
+    width: 100%;
+    text-transform: uppercase;
+}
+
+.btn-vip-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(217, 4, 41, 0.6);
+    background: linear-gradient(90deg, #ff3333, #d90429);
+}
+
+/* Animation */
+@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popInModal { to { transform: scale(1); opacity: 1; } }
+@keyframes shakeLock {
+    0%, 100% { transform: rotate(0deg); }
+    10% { transform: rotate(-10deg); }
+    20% { transform: rotate(10deg); }
+    30% { transform: rotate(-10deg); }
+    40% { transform: rotate(10deg); }
+    50% { transform: rotate(0deg); }
 }
