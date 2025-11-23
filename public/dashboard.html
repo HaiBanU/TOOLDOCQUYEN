@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-     <title>Wukong Slot</title>
+     <title>Wukong Slot - Nổ Hũ</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css">
@@ -19,11 +19,8 @@
     <div id="space-dust-overlay"></div>
     <div id="background-effects"></div>
     <div id="grid-overlay"></div>
-
     <div class="video-overlay"></div>
     <div class="shooting-stars">
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
-        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
@@ -32,10 +29,28 @@
         <div class="header-left">
             <a href="/brand-selection.html" class="back-button-user" style="position: static; transform: none; text-decoration: none;">← Chọn Lại</a>
         </div>
+        
+        <!-- === CẬP NHẬT HEADER CENTER === -->
         <div class="header-center">
-            <div id="welcome-message">Chào, ...!</div>
+            <div class="user-status-row">
+                <div id="welcome-message">Chào, ...</div>
+                <div id="vip-badge-placeholder"></div>
+            </div>
+            
+            <div class="vip-container" id="vip-progress-ui" style="display:none;">
+                <div class="vip-progress-track">
+                    <div class="vip-progress-fill" id="vip-fill-bar"></div>
+                </div>
+                <div class="vip-text">
+                    <span id="vip-current-money">0</span>
+                    <span id="vip-target-money">3tr (VIP)</span>
+                </div>
+            </div>
+            
             <div id="live-clock-container"></div>
         </div>
+        <!-- ============================== -->
+
         <div class="header-right">
             <div class="header-right-content">
                 <div id="coin-display">Token: ...</div>
@@ -81,11 +96,11 @@
         </div>
     </div>
 
+    <script src="/js/global.js"></script>
     <script>
         const username = localStorage.getItem('username');
         const coinDisplay = document.getElementById('coin-display');
 
-        // Hàm duy nhất để lấy và cập nhật token
         async function updateTokenDisplay() {
             if (!username) return;
             try {
@@ -97,46 +112,35 @@
                     const coinsForCurrentBrand = userCoinsByBrand[brandName] || 0;
                     coinDisplay.textContent = `Token: ${coinsForCurrentBrand}`;
                 }
-            } catch (error) {
-                console.error("Lỗi cập nhật token:", error);
-            }
+            } catch (error) { console.error("Lỗi token:", error); }
         }
 
         document.querySelector('.logout-button').addEventListener('click', () => { 
-            localStorage.clear(); 
-            sessionStorage.clear();
-            window.location.href = '/'; 
+            localStorage.clear(); sessionStorage.clear(); window.location.href = '/'; 
         });
 
-        function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); const timeString = now.toLocaleTimeString('vi-VN'); const dateString = now.toLocaleDateString('vi-VN'); clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; }
+        function updateClock() { 
+            const clockContainer = document.getElementById('live-clock-container'); 
+            if (!clockContainer) return; 
+            const now = new Date(); 
+            clockContainer.innerHTML = `<span class="clock-time">${now.toLocaleTimeString('vi-VN')}</span><span class="clock-date">${now.toLocaleDateString('vi-VN')}</span>`; 
+        }
         
-        let terminalMessages = [];
-        let lastMessageIndex = -1;
-        let typingInterval;
-        function generateLobbyMessages(lobbies = []) { const messageTemplates = [ "Quét các sảnh game khả dụng trên toàn hệ thống...", "Phân tích luồng dữ liệu sảnh theo thời gian thực.", "Giám sát các biến động tỷ lệ RTP (Return-to-Player)...", "Đang tìm kiếm các 'cửa sổ' cơ hội có tỷ lệ cao...", "Calibrating predictive algorithms for current session.", "Tối ưu hóa thuật toán dự báo cho phiên làm việc hiện tại.", "Hệ thống đã sẵn sàng. Hãy chọn một sảnh để phân tích sâu." ]; if (lobbies.length > 0) { const randomLobby = lobbies[Math.floor(Math.random() * lobbies.length)]; messageTemplates.push(`Phát hiện tín hiệu Jackpot tại sảnh ${randomLobby.name}!`); messageTemplates.push(`Hệ thống khuyến nghị truy cập sảnh ${randomLobby.name} ngay.`); messageTemplates.push(`Dữ liệu cho thấy sảnh ${randomLobby.name} đang có biến động mạnh.`); } return messageTemplates; }
-        function typeMessage(element, message) { if (typingInterval) clearInterval(typingInterval); let i = 0; element.innerHTML = ''; typingInterval = setInterval(() => { if (i < message.length) { element.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); } }, 50); }
-        function showNextTerminalMessage() { const messageEl = document.getElementById('terminal-message'); if (!messageEl || terminalMessages.length === 0) return; let randomIndex; do { randomIndex = Math.floor(Math.random() * terminalMessages.length); } while (randomIndex === lastMessageIndex && terminalMessages.length > 1); lastMessageIndex = randomIndex; const messageToShow = terminalMessages[randomIndex]; typeMessage(messageEl, messageToShow); }
-        
-        // *** SỬA LỖI: Dùng 'pageshow' để fetch lại token mỗi khi quay lại trang ***
-        window.addEventListener('pageshow', function(event) {
-            updateTokenDisplay(); // Gọi hàm cập nhật token
-        });
+        window.addEventListener('pageshow', () => { updateTokenDisplay(); });
 
         window.onload = async () => {
-            updateClock();
-            setInterval(updateClock, 1000);
+            updateClock(); setInterval(updateClock, 1000);
+            
+            // === GỌI HÀM CẬP NHẬT VIP TỪ GLOBAL.JS ===
+            if (username) updateVipDisplay(username);
+            // ==========================================
 
             const brandName = sessionStorage.getItem('selectedBrand');
-            if (!brandName) {
-                alert("Lỗi: Vui lòng chọn một trang game.");
-                window.location.href = '/brand-selection.html';
-                return;
-            }
+            if (!brandName) { window.location.href = '/brand-selection.html'; return; }
             document.getElementById('main-title-header').textContent = `SẢNH GAME CỦA ${brandName.toUpperCase()}`;
 
             if (!username) { window.location.href = '/'; return; }
             
-            // Lấy thông tin user và sảnh game
             const [userRes, lobbyRes] = await Promise.all([
                 fetch(`/api/user-info?username=${username}`),
                 fetch('/api/lobbies?category=nohu') 
@@ -145,16 +149,12 @@
             const lobbyData = await lobbyRes.json();
 
             if (userData.success) {
-                document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}!`;
+                document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}`;
             }
 
             const lobbyContainer = document.getElementById('lobby-container');
             lobbyContainer.innerHTML = '';
             if (lobbyData.success && lobbyData.lobbies.length > 0) {
-                terminalMessages = generateLobbyMessages(lobbyData.lobbies);
-                showNextTerminalMessage();
-                setInterval(showNextTerminalMessage, 10000);
-
                 lobbyData.lobbies.forEach(lobby => {
                     const card = document.createElement('a');
                     card.href = `/games.html?lobby_id=${lobby._id}&lobby_name=${encodeURIComponent(lobby.name)}&category=nohu`;
@@ -166,28 +166,17 @@
                         </div>
                     </div>
                     <div class="game-card-content">
-                        <button class="action-button" style="background: linear-gradient(45deg, #d90429, #ef233c); margin-top: auto;">
-                            ${lobby.name}
-                        </button>
+                        <button class="action-button" style="background: linear-gradient(45deg, #d90429, #ef233c); margin-top: auto;">${lobby.name}</button>
                     </div>`;
                     lobbyContainer.appendChild(card);
                 });
             } else {
-                lobbyContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #fff;">Admin chưa tạo sảnh game.</p>`
+                lobbyContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #fff;">Chưa có sảnh game.</p>`
             }
         };
-    </script>
-    
-    <script>
+
         const overlay = document.querySelector('.video-overlay');
-        if (overlay) {
-            window.addEventListener('mousemove', (e) => {
-                const { clientX, clientY } = e;
-                overlay.style.setProperty('--mouse-x', `${clientX}px`);
-                overlay.style.setProperty('--mouse-y', `${clientY}px`);
-            });
-        }
+        if (overlay) { window.addEventListener('mousemove', (e) => { overlay.style.setProperty('--mouse-x', `${e.clientX}px`); overlay.style.setProperty('--mouse-y', `${e.clientY}px`); }); }
     </script>
-    <script src="/js/global.js"></script>
 </body>
 </html>

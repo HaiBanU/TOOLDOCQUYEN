@@ -48,7 +48,7 @@
     </div>
 
     <header class="header fadeIn">
-        <div class="header-left"><div id="welcome-message">Chào, ...!</div></div>
+        <div class="header-left"><div id="welcome-message">Chào, ...</div></div>
         <div class="header-center"><div id="live-clock-container"></div></div>
         <div class="header-right">
              <!-- === CẬP NHẬT: ĐÃ XÓA PHẦN HIỂN THỊ TOKEN === -->
@@ -148,7 +148,7 @@
                 
                 // Cập nhật lời chào
                 if (userData.success) {
-                    document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}!`;
+                    document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}`;
                 }
                 
                 if (!brandsData.success) { throw new Error(brandsData.message); }

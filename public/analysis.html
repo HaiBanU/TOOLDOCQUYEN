@@ -10,11 +10,21 @@
     <link rel="stylesheet" href="/css/user.css"> 
     <link rel="stylesheet" href="/css/analysis.css">
     <link rel="manifest" href="/manifest.json">
+    <!-- Thêm CSS nhỏ để chỉnh lại Header cho trang này -->
+    <style>
+        .analysis-page-header { justify-content: space-between; gap: 10px; }
+        .analysis-page-header .header-center { width: auto; flex: 1; }
+        .user-info-box { white-space: nowrap; font-size: 0.9em; }
+        @media (max-width: 480px) {
+            .analysis-page-header { flex-wrap: wrap; justify-content: center; }
+            .back-button-user { order: 1; width: 50%; }
+            .user-info-box { order: 2; width: 45%; text-align: right; }
+            .header-center { order: 3; width: 100%; margin-top: 10px; }
+        }
+    </style>
 </head>
 <script>
-    if (!localStorage.getItem('username')) {
-        window.location.href = '/';
-    }
+    if (!localStorage.getItem('username')) { window.location.href = '/'; }
 </script>
 <body class="analysis-page">
     <div id="page-background"></div>
@@ -28,13 +38,30 @@
     
     <header class="analysis-page-header">
         <a href="javascript:history.back()" class="back-button-user">← Quay Lại</a>
+        
+        <!-- === THÊM VIP BAR VÀO GIỮA === -->
+        <div class="header-center">
+             <div class="user-status-row">
+                 <div id="vip-badge-placeholder"></div>
+             </div>
+             <div class="vip-container" id="vip-progress-ui" style="display:none;">
+                 <div class="vip-progress-track">
+                     <div class="vip-progress-fill" id="vip-fill-bar"></div>
+                 </div>
+                 <div class="vip-text">
+                     <span id="vip-current-money">0</span>
+                     <span id="vip-target-money">3tr (VIP)</span>
+                 </div>
+             </div>
+        </div>
+        <!-- ============================= -->
+
         <div class="user-info-box">
-            <span>Tổng Token: <b id="coin-display">...</b></span>
+            <span>Token: <b id="coin-display">...</b></span>
         </div>
     </header>
 
     <main class="analysis-main">
-        <!-- ID slot-specific-ui dùng để cô lập CSS cho trang này -->
         <div class="analysis-frame" id="slot-specific-ui">
             <div class="analysis-frame-inner">
                 <div class="particle-burst"></div>
@@ -47,27 +74,19 @@
                         <h2 id="module-game-name">Đang tải tên game...</h2>
                     </div>
 
-                    <!-- === BỐ CỤC DASHBOARD MỚI === -->
                     <div class="slot-dashboard-layout">
-                        
-                        <!-- HÀNG 1: % (Trái) - ROBOT (Giữa) - GIF (Phải) -->
                         <div class="slot-row-top">
-                            <!-- Cột Trái -->
                             <div class="slot-col-left">
                                 <div class="progress-frame-container">
                                     <img src="/assets/images/progress-frame.png" class="progress-frame-img" alt="Progress Frame">
                                     <span id="progress-value" class="progress-frame-value">0%</span>
                                 </div>
                             </div>
-
-                            <!-- Cột Giữa -->
                             <div class="slot-col-center">
                                 <div class="robot-container">
                                     <img id="robot-image" src="/assets/images/robot-bg.png" alt="Analyzing...">
                                 </div>
                             </div>
-
-                            <!-- Cột Phải -->
                             <div class="slot-col-right">
                                 <div class="gif-frame">
                                     <div class="gif-frame-inner">
@@ -77,9 +96,7 @@
                             </div>
                         </div>
 
-                        <!-- HÀNG 2: ẢNH GAME (Trái) - SCANNER/THÔNG SỐ (Phải) -->
                         <div class="slot-row-middle">
-                            <!-- Khung Ảnh Game: Đã thêm hiệu ứng đẹp hơn -->
                             <div class="slot-game-image-box">
                                 <div class="glitch-wrapper">
                                     <div class="scan-impact-ripple"></div>
@@ -88,8 +105,6 @@
                                     <div class="glitch-layer"></div>
                                 </div>
                             </div>
-
-                            <!-- Khung Scanner: Sẽ đổi thành text sau khi hack -->
                             <div class="slot-scanner-box">
                                 <div class="scanner-lines">
                                     <div class="scan-line-item s1"></div>
@@ -100,10 +115,8 @@
                             </div>
                         </div>
                     </div>
-                    <!-- === KẾT THÚC BỐ CỤC === -->
 
                     <div id="game-name-display-bottom"></div>
-                    
                     <div class="energy-separator"></div>
 
                     <div class="analysis-info-panel" id="analysis-info-panel">
@@ -149,11 +162,15 @@
         </div>
     </div>
 
+    <script src="/js/global.js"></script> <!-- ĐẢM BẢO LOAD GLOBAL.JS TRƯỚC -->
     <script src="/js/analysis.js"></script>
     <script>
+        // Gọi hàm Update VIP khi trang load
+        const username = localStorage.getItem('username');
+        if (username) updateVipDisplay(username);
+
         const overlay = document.querySelector('.video-overlay');
-        if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }
+        if (overlay) { window.addEventListener('mousemove', (e) => { overlay.style.setProperty('--mouse-x', `${e.clientX}px`); overlay.style.setProperty('--mouse-y', `${e.clientY}px`); }); }
     </script>
-    <script src="/js/global.js"></script>
 </body>
 </html>
