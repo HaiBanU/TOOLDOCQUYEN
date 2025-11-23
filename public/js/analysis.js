@@ -79,15 +79,24 @@ window.onload = () => {
         }
     }
 
-    // === POPUP & RESET LOGIC ===
+    // === POPUP & RESET LOGIC (ĐÃ SỬA: DÙNG ẢNH PNG) ===
     function showScatterExplosion() {
         const frame = document.querySelector('.analysis-content');
         if(!frame) return;
         const overlay = document.createElement('div');
         overlay.className = 'scatter-popup-overlay';
-        overlay.innerHTML = `<div class="sunburst-bg"></div><div class="scatter-popup-content"><div class="scatter-icon">💎</div><div class="scatter-text-main">SCATTER<br>ĐÃ NỔ</div><div class="scatter-subtext">Vui lòng HACK lại lượt mới</div></div>`;
+        // Sử dụng ảnh PNG thay cho Emoji
+        overlay.innerHTML = `
+            <div class="sunburst-bg"></div>
+            <div class="scatter-popup-content">
+                <img src="/assets/images/scatter-icon.png" class="scatter-icon-img" alt="Scatter">
+                <div class="scatter-text-main">SCATTER<br>ĐÃ NỔ</div>
+                <div class="scatter-subtext">Vui lòng HACK lại lượt mới</div>
+            </div>
+        `;
         frame.appendChild(overlay);
     }
+    
     function hideScatterExplosion() { const overlay = document.querySelector('.scatter-popup-overlay'); if(overlay) overlay.remove(); }
 
     // === HÀM QUAN TRỌNG: RESET VỀ BAN ĐẦU ===
@@ -119,7 +128,7 @@ window.onload = () => {
         isAnalyzing = false;
     }
 
-    // === HÀM DỪNG HACK THỦ CÔNG (SỬA LỖI) ===
+    // === HÀM DỪNG HACK THỦ CÔNG ===
     function forceStopHack() {
         confirmModal.style.display = 'none';
         // Dừng mọi timer
@@ -201,7 +210,8 @@ window.onload = () => {
                 progressValue.textContent = "END";
                 progressValue.classList.remove('success');
                 progressValue.classList.add('end-state');
-                showScatterExplosion();
+                
+                showScatterExplosion(); // Gọi hàm hiển thị ảnh PNG
                 
                 setTimeout(() => {
                     hideScatterExplosion();
@@ -293,11 +303,10 @@ window.onload = () => {
         }, 5000);
     });
 
-    // --- XỬ LÝ SỰ KIỆN DỪNG HACK (FIX BUG) ---
+    // --- XỬ LÝ SỰ KIỆN DỪNG HACK ---
     endButton.addEventListener('click', () => { confirmModal.style.display = 'flex'; });
     confirmNoBtn.addEventListener('click', () => { confirmModal.style.display = 'none'; });
     
-    // QUAN TRỌNG: Gọi hàm forceStopHack đã định nghĩa ở trên
     confirmYesBtn.addEventListener('click', () => { 
         forceStopHack(); 
     });

@@ -493,3 +493,22 @@
     .hack-item { font-size: 0.7em; }
     .hack-status { font-size: 0.8em; }
 }
+/* --- SỬA ĐỔI: CSS CHO ẢNH POPUP SCATTER/BOSS --- */
+
+/* Class mới cho ảnh thay vì icon chữ */
+.scatter-icon-img {
+    width: 120px;            /* Kích thước ảnh */
+    height: auto;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)); /* Hiệu ứng tỏa sáng vàng */
+    animation: bounceIcon 1.5s infinite ease-in-out;      /* Hiệu ứng nảy */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Giữ nguyên animation cũ nhưng chỉnh lại chút cho mượt với ảnh */
+@keyframes bounceIcon { 
+    0%, 100% { transform: translateY(0) scale(1); } 
+    50% { transform: translateY(-15px) scale(1.1); } 
+}

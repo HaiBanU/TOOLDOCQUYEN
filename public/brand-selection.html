@@ -3,36 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Wukong Slot</title>
+     <title>Wukong Slot - Chọn Sảnh</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    
+    <!-- CSS Chung -->
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css"> 
+    <!-- CSS Gốc của trang này -->
     <link rel="stylesheet" href="/css/brand-selection-final.css">
+    <!-- CSS Mới tách ra (Hiệu ứng Popup & Icon) -->
+    <link rel="stylesheet" href="/css/brand-selection-ui.css">
+    
     <link rel="manifest" href="/manifest.json">
-
-    <!-- CSS NÂNG CẤP CHO POPUP VÀ HIỆU ỨNG ICON -->
-    <style>
-        #categoryChoiceModal .modal-content { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); border: none; position: relative; padding: 35px 45px; box-shadow: 0 0 40px rgba(217, 4, 41, 0.6), inset 0 0 20px rgba(217, 4, 41, 0.4); overflow: hidden; border-radius: 12px; }
-        #categoryChoiceModal .modal-content::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; padding: 2px; background: linear-gradient(135deg, var(--primary-red), #ffc300); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin-glow 4s linear infinite; pointer-events: none; }
-        @keyframes spin-glow { to { transform: rotate(360deg); } }
-        #categoryChoiceModal .modal-content::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, var(--primary-red), transparent 50%), linear-gradient(to bottom, var(--primary-red), transparent 50%), linear-gradient(to left, var(--primary-red), transparent 50%), linear-gradient(to bottom, var(--primary-red), transparent 50%), linear-gradient(to right, var(--primary-red), transparent 50%), linear-gradient(to top, var(--primary-red), transparent 50%), linear-gradient(to left, var(--primary-red), transparent 50%), linear-gradient(to top, var(--primary-red), transparent 50%); background-repeat: no-repeat; background-size: 30px 2px, 2px 30px; background-position: top left, top left, top right, top right, bottom left, bottom left, bottom right, bottom right; pointer-events: none; animation: pulse-corners-modal 3s infinite ease-in-out; }
-        @keyframes pulse-corners-modal { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-        #categoryChoiceModal h3 { font-size: 1.5em; letter-spacing: 2px; text-transform: uppercase; }
-        .category-button { display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 1.3em !important; padding: 18px 15px !important; border-radius: 10px; position: relative; overflow: hidden; border: 1px solid var(--secondary-red); }
-        .category-button:hover { box-shadow: 0 0 25px rgba(217, 4, 41, 0.8); border-color: var(--primary-red); }
-        .category-button::after { content: ''; position: absolute; top: -50%; left: -50%; width: 20%; height: 200%; background: rgba(255, 255, 255, 0.3); transform: rotate(45deg); opacity: 0; transition: all 0.5s ease; }
-        .category-button:hover::after { left: 130%; opacity: 1; }
-        .category-button img { height: 56px; width: auto; animation-name: icon-bounce-glow; animation-duration: 3s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
-        @keyframes icon-bounce-glow { 0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); } 50% { transform: translateY(-8px); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)); } }
-        #select-nohu-btn img { animation-delay: 0s; }
-        #select-banca-btn img { animation-delay: 1.5s; }
-    </style>
 </head>
-<script>
-    if (!localStorage.getItem('username')) {
-        window.location.href = '/';
-    }
-</script>
 <body class="brand-selection-page">
     <div id="page-background"></div>
     <div id="space-dust-overlay"></div>
@@ -51,7 +34,6 @@
         <div class="header-left"><div id="welcome-message">Chào, ...</div></div>
         <div class="header-center"><div id="live-clock-container"></div></div>
         <div class="header-right">
-             <!-- === CẬP NHẬT: ĐÃ XÓA PHẦN HIỂN THỊ TOKEN === -->
              <div class="header-right-content">
                 <button class="logout-button">Đăng Xuất</button>
             </div>
@@ -62,6 +44,7 @@
         <h2 class="main-title">CHỌN SẢNH GAME</h2>
         <div class="carousel-container">
             <div class="brand-slider" id="brand-slider">
+                <!-- Javascript sẽ render thẻ bài vào đây -->
             </div>
         </div>
         <div class="carousel-controls">
@@ -70,6 +53,7 @@
         </div>
     </main>
     
+    <!-- Modal Thông Báo Lỗi -->
     <div id="alertModal" class="modal">
         <div class="modal-content fadeIn">
             <span class="close-btn" id="closeAlertModal">&times;</span>
@@ -79,6 +63,7 @@
         </div>
     </div>
 
+    <!-- Modal Chọn Loại Game -->
     <div id="categoryChoiceModal" class="modal">
         <div class="modal-content fadeIn">
             <h3 style="color: #fff; font-family: 'Poppins', sans-serif; text-shadow: 0 0 10px var(--primary-red);">CHỌN LOẠI GAME</h3>
@@ -95,6 +80,7 @@
         </div>
     </div>
     
+    <!-- Terminal Bot -->
     <div class="terminal-notification fadeIn" style="animation-delay: 0.5s;">
         <div class="terminal-bot-icon"><img src="/assets/images/bot-icon.png" alt="Bot Icon"></div>
         <div class="terminal-content">
@@ -103,155 +89,9 @@
         </div>
     </div>
 
-    <script>
-        document.querySelector('.logout-button').addEventListener('click', () => { 
-            localStorage.clear(); 
-            sessionStorage.clear();
-            window.location.href = '/'; 
-        });
-
-        function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); const timeString = now.toLocaleTimeString('vi-VN'); const dateString = now.toLocaleDateString('vi-VN'); clockContainer.innerHTML = `<span class="clock-time">${timeString}</span><span class="clock-date">${dateString}</span>`; }
-        
-        const alertModal = document.getElementById('alertModal');
-        const alertModalMessage = document.getElementById('alertModalMessage');
-        const closeAlertModalBtn = document.getElementById('closeAlertModal');
-        const confirmAlertModalBtn = document.getElementById('confirmAlertModal');
-
-        function showAlertModal(message) { alertModalMessage.textContent = message; alertModal.style.display = 'flex'; }
-        function hideAlertModal() { alertModal.style.display = 'none'; }
-        closeAlertModalBtn.onclick = hideAlertModal;
-        confirmAlertModalBtn.onclick = hideAlertModal;
-        
-        window.onload = async () => {
-            updateClock();
-            setInterval(updateClock, 1000);
-            
-            const terminalMessages = [ "Khởi tạo Giao thức Wukong... Hoàn tất.", "Xác thực danh tính Chỉ Huy... Thành công.", "Đang tải danh sách các SẢNH GAME đối tác...", "Tất cả module phân tích đã được nạp.", "Kết nối an toàn tới máy chủ trung tâm đã được thiết lập.", "Hiệu suất hệ thống: 100%. Sẵn sàng nhận lệnh.", "Vui lòng chọn một mục tiêu để bắt đầu đồng bộ hóa dữ liệu.", "Dữ liệu là chìa khóa. Hãy chọn đúng cánh cửa." ];
-            let lastMessageIndex = -1; let typingInterval;
-            function typeMessage(element, message) { if (typingInterval) clearInterval(typingInterval); let i = 0; element.innerHTML = ''; typingInterval = setInterval(() => { if (i < message.length) { element.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); } }, 50); }
-            function showNextTerminalMessage() { const messageEl = document.getElementById('terminal-message'); if (!messageEl) return; let randomIndex; do { randomIndex = Math.floor(Math.random() * terminalMessages.length); } while (randomIndex === lastMessageIndex && terminalMessages.length > 1); lastMessageIndex = randomIndex; const messageToShow = terminalMessages[randomIndex]; typeMessage(messageEl, messageToShow); }
-            showNextTerminalMessage();
-            setInterval(showNextTerminalMessage, 8000);
-
-            const username = localStorage.getItem('username');
-            if (!username) { window.location.href = '/'; return; }
-
-            try {
-                // === CẬP NHẬT: Gộp 2 API call thành 1 để lấy tên user ===
-                const [userRes, brandsRes] = await Promise.all([
-                    fetch(`/api/user-info?username=${username}`),
-                    fetch(`/api/brands-with-rates?username=${username}`)
-                ]);
-
-                const userData = await userRes.json();
-                const brandsData = await brandsRes.json();
-                
-                // Cập nhật lời chào
-                if (userData.success) {
-                    document.getElementById('welcome-message').textContent = `Chào, ${userData.userInfo.username}`;
-                }
-                
-                if (!brandsData.success) { throw new Error(brandsData.message); }
-                
-                const sortedGameBrands = brandsData.brands;
-                const priorityBrand = brandsData.priorityBrand;
-                const slider = document.getElementById('brand-slider');
-                const prevBtn = document.getElementById('prev-btn');
-                const nextBtn = document.getElementById('next-btn');
-                
-                slider.innerHTML = sortedGameBrands.map(brand => {
-                    const percentageClass = brand.percentage < 70 ? 'low' : '';
-                    return `
-                    <div class="brand-card" data-brand-name="${brand.name}">
-                        <div class="brand-card-inner">
-                             <div class="logo-background">
-                                <img class="brand-logo" src="/assets/logos/${brand.logo}" alt="${brand.name}">
-                            </div>
-                            <div class="brand-name">${brand.name}</div>
-                            <div class="brand-percentage ${percentageClass}">${brand.percentage}%</div>
-                        </div>
-                    </div>`;
-                }).join('');
-
-                const cards = document.querySelectorAll('.brand-card');
-                let activeIndex = 0;
-
-                function updateCarousel() {
-                    cards.forEach((card, i) => {
-                        card.classList.remove('active', 'prev', 'next', 'prev2', 'next2');
-                        const prev2Index = (activeIndex - 2 + cards.length) % cards.length;
-                        const prevIndex = (activeIndex - 1 + cards.length) % cards.length;
-                        const nextIndex = (activeIndex + 1) % cards.length;
-                        const next2Index = (activeIndex + 2) % cards.length;
-                        
-                        if (i === activeIndex) card.classList.add('active');
-                        else if (i === prevIndex) card.classList.add('prev');
-                        else if (i === nextIndex) card.classList.add('next');
-                        else if (i === prev2Index) card.classList.add('prev2');
-                        else if (i === next2Index) card.classList.add('next2');
-                    });
-                }
-
-                nextBtn.addEventListener('click', () => { activeIndex = (activeIndex + 1) % cards.length; updateCarousel(); });
-                prevBtn.addEventListener('click', () => { activeIndex = (activeIndex - 1 + cards.length) % cards.length; updateCarousel(); });
-                
-                slider.addEventListener('click', (e) => {
-                    const clickedCard = e.target.closest('.brand-card');
-                    if (!clickedCard) return;
-
-                    if (!clickedCard.classList.contains('active')) {
-                        if (clickedCard.classList.contains('next') || clickedCard.classList.contains('next2')) { 
-                            activeIndex = (activeIndex + 1) % cards.length; 
-                        } else if (clickedCard.classList.contains('prev') || clickedCard.classList.contains('prev2')) { 
-                            activeIndex = (activeIndex - 1 + cards.length) % cards.length; 
-                        }
-                        updateCarousel(); return;
-                    }
-                    
-                    const brandName = clickedCard.dataset.brandName;
-                    const categoryModal = document.getElementById('categoryChoiceModal');
-                    const selectNohuBtn = document.getElementById('select-nohu-btn');
-                    const selectBancaBtn = document.getElementById('select-banca-btn');
-                    
-                    categoryModal.style.display = 'flex';
-
-                    const handleSelection = (category) => {
-                        if (priorityBrand && brandName !== priorityBrand) {
-                            showAlertModal(`Sảnh ${brandName} có tỷ lệ khá thấp. Vui lòng chọn sảnh ${priorityBrand} để có trải nghiệm tốt nhất!`);
-                        } else {
-                            sessionStorage.setItem('selectedBrand', brandName);
-                            window.location.href = category === 'nohu' ? '/dashboard.html' : '/dashboard-fish.html';
-                        }
-                    };
-
-                    selectNohuBtn.onclick = () => handleSelection('nohu');
-                    selectBancaBtn.onclick = () => handleSelection('banca');
-                });
-                
-                updateCarousel();
-
-                const categoryModal = document.getElementById('categoryChoiceModal');
-                window.onclick = (event) => { 
-                    if (event.target == alertModal) { hideAlertModal(); }
-                    if (event.target == categoryModal) { categoryModal.style.display = 'none'; }
-                }
-
-            } catch (e) { 
-                console.error("Lỗi khi tải dữ liệu trang chọn sảnh:", e);
-            }
-        };
-    </script>
-    
-    <script>
-        const overlay = document.querySelector('.video-overlay');
-        if (overlay) {
-            window.addEventListener('mousemove', (e) => {
-                const { clientX, clientY } = e;
-                overlay.style.setProperty('--mouse-x', `${clientX}px`);
-                overlay.style.setProperty('--mouse-y', `${clientY}px`);
-            });
-        }
-    </script>
+    <!-- Scripts -->
     <script src="/js/global.js"></script>
+    <!-- File JS mới tách ra -->
+    <script src="/js/brand-selection.js"></script>
 </body>
 </html>

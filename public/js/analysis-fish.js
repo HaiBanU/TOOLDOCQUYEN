@@ -44,7 +44,7 @@ window.onload = () => {
     const createParticleBurstEffect = () => { const container = document.querySelector('.particle-burst'); if (!container) return; container.innerHTML = ''; const particleCount = 40; const radius = 200; for (let i = 0; i < particleCount; i++) { const particle = document.createElement('div'); particle.className = 'particle'; const angle = Math.random() * 360; const duration = Math.random() * 1.5 + 1; const delay = Math.random() * 2.5; particle.style.setProperty('--angle', `${angle}deg`); particle.style.setProperty('--duration', `${duration}s`); particle.style.setProperty('--delay', `${delay}s`); particle.style.setProperty('--radius', `${radius}px`); container.appendChild(particle); } };
     const createScrollingText = (element, text) => { if (!element) return; element.innerHTML = `<span class="scrolling-text">${text}</span>`; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
-    const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
+    const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
 
     const fetchUserInfoFromServer = async () => { try { const res = await fetch(`/api/user-info?username=${username}`); const data = await res.json(); if (data.success) { const coinsByBrand = data.userInfo.coins_by_brand || {}; const currentCoins = coinsByBrand[selectedBrand] || 0; coinDisplay.textContent = `Token: ${currentCoins}`; } } catch (e) { console.error(e); } };
     const cleanupSession = () => { sessionStorage.removeItem(ACTIVE_ANALYSIS_KEY); };
@@ -57,14 +57,24 @@ window.onload = () => {
     };
     const handleRecurringDeduction = async () => { try { const response = await fetch('/api/deduct-recurring-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, brandName: selectedBrand }) }); const result = await response.json(); if (result.success) { coinDisplay.textContent = `Token: ${result.newCoinBalance}`; progressStatusText.textContent = `Đã trừ 10 Token để duy trì hack...`; } else if (result.outOfTokens) { handleInsufficientTokens(result.message); } } catch (error) { console.error(error); } };
     
+    // === POPUP BOSS (ĐÃ SỬA: DÙNG ẢNH PNG) ===
     function showBossExplosion() {
         const frame = document.querySelector('.analysis-content');
         if(!frame) return;
         const overlay = document.createElement('div');
         overlay.className = 'scatter-popup-overlay';
-        overlay.innerHTML = `<div class="sunburst-bg"></div><div class="scatter-popup-content"><div class="scatter-icon">🐠</div><div class="scatter-text-main">BOSS<br>ĐÃ NỔ</div><div class="scatter-subtext">Vui lòng HACK lại lượt mới</div></div>`;
+        // Sử dụng ảnh PNG thay cho Emoji
+        overlay.innerHTML = `
+            <div class="sunburst-bg"></div>
+            <div class="scatter-popup-content">
+                <img src="/assets/images/boss-icon.png" class="scatter-icon-img" alt="Boss">
+                <div class="scatter-text-main">BOSS<br>ĐÃ NỔ</div>
+                <div class="scatter-subtext">Vui lòng HACK lại lượt mới</div>
+            </div>
+        `;
         frame.appendChild(overlay);
     }
+
     function hideBossExplosion() { const overlay = document.querySelector('.scatter-popup-overlay'); if(overlay) overlay.remove(); }
 
     function setupVisuals() {
@@ -98,7 +108,7 @@ window.onload = () => {
         isAnalyzing = false;
     }
 
-    // === HÀM DỪNG HACK THỦ CÔNG (FIX) ===
+    // === HÀM DỪNG HACK THỦ CÔNG ===
     function forceStopHack() {
         confirmModal.style.display = 'none';
         stopAllTimers();
@@ -172,7 +182,7 @@ window.onload = () => {
                 progressValue.classList.remove('success');
                 progressValue.classList.add('end-state');
                 
-                showBossExplosion();
+                showBossExplosion(); // Gọi hàm hiển thị ảnh PNG
                 
                 setTimeout(() => {
                     hideBossExplosion();
