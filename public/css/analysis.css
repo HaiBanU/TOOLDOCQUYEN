@@ -1,7 +1,7 @@
 /* --- START OF FILE public/css/analysis.css --- */
 
 /* ================================================== */
-/* === CSS CHO TRANG ANALYSIS (SLOT & BẮN CÁ) === */
+/* === 1. CẤU HÌNH CƠ BẢN & ANIMATION GỐC === */
 /* ================================================== */
 
 @property --angle {
@@ -17,14 +17,115 @@
   100% { transform: rotate(var(--angle)) translateY(calc(var(--radius) + 120px)) scaleY(1); opacity: 0; }
 }
 
-/* 1. Header & Layout */
-.analysis-page-header { width: 100%; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; position: relative; z-index: 5; }
-.analysis-page-header .back-button-user { position: static; transform: none; flex-shrink: 0; }
-.user-info-box { background: linear-gradient(90deg, var(--secondary-red), var(--primary-red)); color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; box-shadow: 0 0 15px rgba(217, 4, 41, 0.7); }
+.analysis-page-header, 
+.header.games-header {
+    height: auto;
+    min-height: 70px;
+    padding: 10px 20px;
+    background: rgba(10, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 100;
+    margin-top: 0 !important;
+}
+
+/* --- CỘT TRÁI: Nút Quay Lại --- */
+.header-left { flex: 0 0 auto; }
+.back-button-user {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #eee;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 5px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+.back-button-user:hover {
+    background: var(--primary-red);
+    border-color: var(--primary-red);
+}
+
+/* --- CỘT PHẢI: Token --- */
+.header-right { flex: 0 0 auto; }
+.header-right-content {
+    background: linear-gradient(90deg, #a40606, #d90429);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 0.9em;
+    box-shadow: 0 0 10px rgba(217, 4, 41, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+}
+
+/* --- CỘT GIỮA: VIP --- */
+.header-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.user-status-row {
+    margin-bottom: 4px;
+    padding: 4px 15px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.vip-container {
+    width: 100%; max-width: 220px;
+    display: flex; flex-direction: column; gap: 3px;
+}
+.vip-progress-track { background: #222; border: 1px solid #444; height: 4px; border-radius: 2px; overflow: hidden; }
+.vip-progress-fill { height: 100%; background: linear-gradient(90deg, #00c6ff, #0072ff); box-shadow: 0 0 8px #0072ff; transition: width 0.5s ease; }
+.vip-text { display: flex; justify-content: space-between; font-size: 0.7em; color: #bbb; font-family: monospace; }
+
+/* ================================================== */
+/* === MOBILE LAYOUT HEADER === */
+/* ================================================== */
+@media (max-width: 768px) {
+    .analysis-page-header, 
+    .header.games-header {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 10px 0;
+        padding: 15px 10px !important;
+        height: auto !important;
+        box-sizing: border-box;
+    }
+    .header-left { grid-row: 1; grid-column: 1; justify-self: start; width: auto !important; display: flex; align-items: center; }
+    .header-right { grid-row: 1; grid-column: 2; justify-self: end; width: auto !important; display: flex; align-items: center; }
+    .header-center {
+        grid-row: 2; grid-column: 1 / span 2;
+        width: 100%; margin-top: 5px; padding-top: 10px;
+        border-top: 1px dashed rgba(255,255,255,0.15);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .back-button-user { position: static !important; transform: none !important; margin: 0 !important; font-size: 0.8em; padding: 6px 12px; height: 32px; box-sizing: border-box; }
+    .header-right-content { font-size: 0.8em; padding: 6px 12px; height: 32px; display: flex; align-items: center; margin: 0 !important; box-sizing: border-box; }
+    .user-status-row { margin-bottom: 5px; padding: 2px 15px; font-size: 0.9em; }
+    .vip-container { max-width: 90%; }
+}
+
+/* ================================================== */
+/* === 3. KHUNG PHÂN TÍCH CHÍNH (MAIN FRAME) === */
+/* ================================================== */
 
 .analysis-main { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 20px 15px; box-sizing: border-box; }
 
-/* Khung chính */
 .analysis-frame { 
     width: 100%; 
     max-width: 400px;
@@ -48,40 +149,36 @@
 }
 
 .analysis-frame-inner { 
-    width: 100%; 
-    height: 100%; 
+    width: 100%; height: 100%; 
     background: rgba(0, 0, 0, 0.7); 
-    display: flex; 
-    flex-direction: column; 
-    position: relative; 
-    border-radius: 10px; 
-    box-sizing: border-box;
+    display: flex; flex-direction: column; 
+    position: relative; border-radius: 10px; box-sizing: border-box;
 }
 
 .analysis-content { 
     flex-grow: 1; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: flex-start; 
-    gap: 15px; 
+    display: flex; flex-direction: column; 
+    justify-content: flex-start; gap: 15px; 
     padding: 15px; 
-    position: relative; 
-    z-index: 2;
+    position: relative; z-index: 2;
 }
 .analysis-footer { position: relative; z-index: 2; flex-shrink: 0; padding: 15px; box-sizing: border-box; margin-top: auto; }
 
-/* 2. Hiệu ứng nền & Hạt */
+/* Hiệu ứng nền & Hạt */
 .particle-burst { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 .particle-burst > .particle { position: absolute; top: 50%; left: 50%; width: 2px; height: 30px; background: linear-gradient(to bottom, #ff4d4d, transparent); transform-origin: top center; opacity: 0; animation: shoot-out var(--duration) ease-out var(--delay) infinite; transform: rotate(var(--angle)) translateY(var(--radius)); }
 #frame-wide-effects, #frame-wide-lightning { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
 
-/* 3. Title Module */
+/* Title Module */
 @keyframes scan-down { 0% { transform: translateY(-20px); opacity: 0; } 20% { opacity: 0.8; } 80% { opacity: 0.8; } 100% { transform: translateY(120%); opacity: 0; } }
 .analysis-title-module { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--primary-red); border-radius: 10px; padding: 10px 15px; text-align: center; box-shadow: 0 0 15px rgba(217, 4, 41, 0.4); position: relative; overflow: hidden; }
 .analysis-title-module .scanline { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, rgba(255, 100, 100, 0.8), transparent); box-shadow: 0 0 10px var(--primary-red); animation: scan-down 3s linear infinite; }
 .analysis-title-module h2 { margin: 0; color: #ffd700; font-size: 1.1em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px #ffd700; }
 
-/* 4. Visuals Cũ (Cho các trang khác) */
+/* ================================================== */
+/* === 4. CÁC THÀNH PHẦN VISUAL (ROBOT, SCANNER) === */
+/* ================================================== */
+
 .analysis-top-visuals { display: flex; justify-content: space-around; align-items: center; padding: 0 10px; position: relative; }
 .robot-container { width: 25%; flex-shrink: 0; z-index: 5; }
 #robot-image { width: 100%; max-width: 90px; animation: bot-float 3s infinite ease-in-out; }
@@ -111,55 +208,127 @@
 .scan-impact-ripple::after { content: ''; position: absolute; top: -4px; left: -4px; width: calc(100% + 8px); height: calc(100% + 8px); border: 2px solid #00ffff; border-radius: 50%; animation-delay: 0.2s; }
 @keyframes ripple-effect { 0% { transform: scale(0.9); opacity: 0; } 80% { transform: scale(0.9); opacity: 0; } 90% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 0; } }
 
+/* ================================================== */
+/* === 5. PROGRESS FRAME (ĐÃ CHỈNH SỬA KÍCH THƯỚC) === */
+/* ================================================== */
 
-/* ========================================= */
-/* === 5. PROGRESS FRAME (KHUNG % TRÒN) === */
-/* ========================================= */
-/* Container */
-.progress-frame-container {
-    width: 120px;
-    height: 120px;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 15px;
-    flex-shrink: 0;
-}
-/* Ảnh khung xoay */
-.progress-frame-img {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    animation: spin-frame 6s linear infinite;
-    filter: sepia(100%) saturate(500%) hue-rotate(-50deg) drop-shadow(0 0 10px #ff3300);
-    z-index: 1;
-    opacity: 0.95;
-}
-/* Số % */
-.progress-frame-value {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.7em; 
-    font-weight: 900;
-    color: #fff;
-    z-index: 2;
-    position: relative;
-    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff4500;
-    animation: text-pulse-red 2s infinite ease-in-out;
-}
-.progress-frame-value.success {
-    color: #00ff8c;
-    text-shadow: 0 0 10px #00ff8c, 0 0 20px #00b894;
-    animation: text-pulse-green 1s infinite ease-in-out;
+.progress-frame-container { 
+    /* Desktop: Điều chỉnh kích thước nhỏ lại */
+    width: 110px; 
+    height: 110px; 
+    position: relative; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    margin: 0 15px; 
+    flex-shrink: 0; 
 }
 
+.progress-frame-img { 
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    top: 0; left: 0; 
+    animation: spin-frame 6s linear infinite; 
+    /* Filter màu đỏ cơ khí */
+    filter: sepia(100%) saturate(500%) hue-rotate(-50deg) drop-shadow(0 0 10px #ff3300); 
+    z-index: 1; 
+    opacity: 0.95; 
+}
+
+/* --- STYLE CHO SỐ PHẦN TRĂM (%) --- */
+.progress-frame-value { 
+    font-family: 'Orbitron', sans-serif; 
+    /* Desktop: Cỡ chữ vừa phải */
+    font-size: 1.8em; 
+    font-weight: 900; 
+    
+    /* Màu xanh Neon nổi bật (Green) */
+    color: #00ff8c; 
+    
+    z-index: 2; 
+    position: relative; 
+    letter-spacing: 1px;
+    
+    /* Hiệu ứng bóng đổ xanh để nổi trên nền đỏ */
+    text-shadow: 
+        0 0 5px #fff,
+        0 0 15px #00ff8c, 
+        0 0 25px #00b894; 
+    
+    animation: text-pulse-green 2s infinite ease-in-out; 
+}
+
+/* Animation xoay vòng tròn */
 @keyframes spin-frame { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes text-pulse-red { 0%, 100% { transform: scale(1); opacity: 0.9; text-shadow: 0 0 10px #ff0000; } 50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px #ff0000, 0 0 30px #ff4500; } }
-@keyframes text-pulse-green { 0%, 100% { transform: scale(1); text-shadow: 0 0 10px #00ff8c; } 50% { transform: scale(1.15); text-shadow: 0 0 25px #00ff8c, 0 0 40px #fff; } }
 
-/* 6. Info Panels & Text */
+/* Animation số (Màu xanh) */
+@keyframes text-pulse-green { 
+    0%, 100% { transform: scale(1); opacity: 1; } 
+    50% { transform: scale(1.05); opacity: 1; } 
+}
+
+/* Khi kết thúc/Failed thì chuyển màu đỏ */
+.progress-frame-value.end-state { 
+    color: #ff0000 !important; 
+    text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000 !important; 
+    animation: alarm-pulse 0.4s infinite alternate !important; 
+}
+
+@keyframes alarm-pulse { 
+    from { transform: scale(1); filter: brightness(1); } 
+    to { transform: scale(1.1); filter: brightness(1.5); } 
+}
+
+/* ================================================== */
+/* === 6. POPUP 3D "SCATTER/BOSS ĐÃ NỔ" (MỚI) === */
+/* ================================================== */
+
+.scatter-popup-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 999; animation: fadeInOverlay 0.3s ease-out;
+    border-radius: 12px; overflow: hidden;
+}
+@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+/* Tia sáng xoay */
+.sunburst-bg {
+    position: absolute; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 215, 0, 0.1) 20deg, transparent 40deg, rgba(255, 215, 0, 0.1) 60deg, transparent 80deg, rgba(255, 215, 0, 0.1) 100deg, transparent 120deg, rgba(255, 215, 0, 0.1) 140deg, transparent 160deg, rgba(255, 215, 0, 0.1) 180deg, transparent 200deg, rgba(255, 215, 0, 0.1) 220deg, transparent 240deg, rgba(255, 215, 0, 0.1) 260deg, transparent 280deg, rgba(255, 215, 0, 0.1) 300deg, transparent 320deg, rgba(255, 215, 0, 0.1) 340deg, transparent 360deg);
+    animation: rotateSunburst 10s linear infinite; z-index: -1;
+}
+@keyframes rotateSunburst { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.scatter-popup-content {
+    background: radial-gradient(circle, #2b0505 0%, #000000 100%);
+    border: 2px solid #ffd700; padding: 30px 50px; border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 0, 0, 0.3);
+    transform: scale(0.8);
+    animation: popInScatter 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    position: relative;
+}
+@keyframes popInScatter { to { transform: scale(1); opacity: 1; } }
+
+.scatter-icon { font-size: 3em; margin-bottom: 10px; filter: drop-shadow(0 0 10px #ffd700); animation: bounceIcon 1s infinite; }
+@keyframes bounceIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.scatter-text-main {
+    font-family: 'Poppins', sans-serif; font-size: 2.2em; font-weight: 900;
+    text-transform: uppercase;
+    background: linear-gradient(to bottom, #fff 0%, #ffd700 50%, #ff8c00 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.8));
+    animation: textGlitch 0.1s infinite; line-height: 1.1;
+}
+.scatter-subtext { color: #fff; margin-top: 10px; font-size: 0.9em; opacity: 0.8; }
+
+/* ================================================== */
+/* === 7. INFO PANELS, BUTTONS, FOOTER === */
+/* ================================================== */
+
 #game-name-display-bottom { font-weight: bold; font-size: 1.1em; width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
 @keyframes marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 @keyframes animated-text-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -194,7 +363,7 @@
 .led-info-box.result-reveal { animation: result-pop-in .5s ease-out forwards; }
 @keyframes result-pop-in { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
 
-/* 7. Buttons & Footer */
+/* Buttons & Footer */
 #analyze-button { width: 100%; padding: 15px; font-size: 1.2em; position: relative; overflow: hidden; z-index: 1; border-radius: 12px; animation: button-pulse 2s infinite ease-in-out; background: linear-gradient(45deg, #a40606, var(--primary-red)); }
 @keyframes button-pulse { 0% { box-shadow: 0 0 10px rgba(217,4,41,.5); } 50% { box-shadow: 0 0 25px rgba(217,4,41,.9); } 100% { box-shadow: 0 0 10px rgba(217,4,41,.5); } }
 #analyze-button::after { content: ''; position: absolute; top: 0; left: -150%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent); transform: skewX(-25deg); transition: 0s; }
@@ -209,14 +378,12 @@
 @keyframes progress-scan { from { background-position: 0 0; } to { background-position: 50px 0; } }
 .progress-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #fff; font-weight: bold; text-shadow: 0 0 5px #000; }
 
-/* End Button */
 #end-button { width: 100%; margin-top: 15px; padding: 12px; background: rgba(20, 0, 0, 0.6); border: 1px solid #555; color: #888; font-family: 'Poppins', sans-serif; font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 10px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: center; gap: 10px; backdrop-filter: blur(4px); position: relative; overflow: hidden; }
 #end-button:hover { border-color: #ff3333; color: #fff; background: rgba(255, 0, 0, 0.15); box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.2); transform: translateY(-2px); letter-spacing: 1px; }
 #end-button:active { transform: scale(0.98); box-shadow: 0 0 5px rgba(255, 0, 0, 0.8); }
 #end-button svg { width: 18px; height: 18px; fill: currentColor; transition: transform 0.3s ease; }
 #end-button:hover svg { transform: rotate(90deg); }
 
-/* 8. Confirm Modal */
 #custom-confirm-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; animation: fadeIn 0.2s ease-out; }
 .confirm-box-content { background: linear-gradient(135deg, #1a0505, #000); border: 1px solid #ff3333; box-shadow: 0 0 30px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.1); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; transform: scale(0.9); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 @keyframes popIn { to { transform: scale(1); opacity: 1; } }
@@ -229,7 +396,6 @@
 .btn-confirm { background: linear-gradient(45deg, #d90429, #ff3333); color: #fff; box-shadow: 0 0 10px rgba(217, 4, 41, 0.5); }
 .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(217, 4, 41, 0.8); }
 
-/* 9. Lightning & Misc Effects */
 @keyframes lightning-flicker { 0%,100%{opacity:.2} 5%{opacity:.8} 8%{opacity:.3} 15%{opacity:1} 20%{opacity:.2} 30%{opacity:.9} 40%{opacity:.1} 50%{opacity:.8} 60%{opacity:.3} 70%{opacity:1} }
 .lightning-field { position: absolute; top: 0; left: 0; width: 30%; height: 100%; }
 .lightning-field.right { left: auto; right: 0; transform: scaleX(-1); }
@@ -242,7 +408,10 @@
 #particle-field { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 #particle-field > .particle { position: absolute; top: 0; width: 2px; background: linear-gradient(to bottom, currentColor, transparent); animation: rain-fall linear infinite; filter: drop-shadow(0 0 6px currentColor); }
 
-/* 10. Media Queries */
+/* ================================================== */
+/* === MOBILE & TABLET MEDIA QUERIES === */
+/* ================================================== */
+
 @media (max-width: 480px) {
     .analysis-main { align-items: flex-start; padding: 10px; }
     .analysis-frame { height: auto; min-height: 95vh; margin-top: 10px; width: 100%; max-width: none; }
@@ -250,8 +419,9 @@
     .main-game-display { width: 120px; height: 120px; }
     #robot-image { max-width: 70px; }
     
-    .progress-frame-container { width: 90px; height: 90px; }
-    .progress-frame-value { font-size: 1.4em; }
+    /* Mobile: Giữ size khung tròn 80px */
+    .progress-frame-container { width: 80px; height: 80px; }
+    .progress-frame-value { font-size: 1.3em; } 
     
     .gif-frame { width: 100px; }
     .led-info-box { padding: 8px; }
@@ -263,144 +433,33 @@
 }
 
 /* ================================================================= */
-/* === SLOT SPECIFIC UI (GIAO DIỆN RIÊNG CHO TRANG NỔ HŨ) === */
+/* === 8. SLOT SPECIFIC UI (GIAO DIỆN RIÊNG CHO TRANG NỔ HŨ) === */
 /* ================================================================= */
 
-#slot-specific-ui .slot-dashboard-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 10px;
-    width: 100%;
-}
+#slot-specific-ui .slot-dashboard-layout { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
+#slot-specific-ui .slot-row-top { display: flex; justify-content: space-between; align-items: center; height: 120px; position: relative; }
+#slot-specific-ui .slot-col-left { flex: 0 0 90px; display: flex; justify-content: center; align-items: center; z-index: 2; }
+#slot-specific-ui .slot-col-right { flex: 0 0 120px; display: flex; justify-content: center; align-items: center; z-index: 2; }
+#slot-specific-ui .slot-col-center { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; height: 100%; }
 
-/* --- HÀNG 1: % - ROBOT - GIF --- */
-#slot-specific-ui .slot-row-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; 
-    height: 120px; 
-    position: relative;
-}
-
-/* Căn chỉnh cột */
-/* Cột Trái: % (Tăng nhẹ độ rộng) */
-#slot-specific-ui .slot-col-left {
-    flex: 0 0 90px; /* Tăng từ 80px -> 90px */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-}
-
-/* Cột Phải: GIF (Tăng mạnh độ rộng để GIF to hơn) */
-#slot-specific-ui .slot-col-right {
-    flex: 0 0 120px; /* Tăng từ 80px -> 120px */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-}
-
-#slot-specific-ui .slot-col-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center; 
-    position: relative;
-    z-index: 10;
-    height: 100%; 
-}
-
-/* Các thành phần bên trong */
-#slot-specific-ui .progress-frame-container {
-    width: 80px;
-    height: 80px;
-    margin: 0;
-}
-#slot-specific-ui .progress-frame-value {
-    font-size: 1.2em;
-}
-
-#slot-specific-ui .robot-container {
-    width: auto; 
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Mobile cho Slot: Cân chỉnh lại */
+#slot-specific-ui .progress-frame-container { 
     margin: 0; 
 }
-#slot-specific-ui #robot-image {
-    max-width: 130px; 
-    animation: bot-float 3s infinite ease-in-out;
-    margin-top: 10px; 
-}
 
-/* --- GIF TO HƠN --- */
-#slot-specific-ui .gif-frame {
-    width: 100%; /* Tự giãn theo cột 120px */
-}
-#slot-specific-ui .gif-frame::before {
-    animation: none;
-    border: 1px solid var(--primary-red);
-}
+#slot-specific-ui .robot-container { width: auto; text-align: center; display: flex; justify-content: center; align-items: center; margin: 0; }
+#slot-specific-ui #robot-image { max-width: 130px; animation: bot-float 3s infinite ease-in-out; margin-top: 10px; }
+#slot-specific-ui .gif-frame { width: 100%; }
+#slot-specific-ui .gif-frame::before { animation: none; border: 1px solid var(--primary-red); }
 
-/* --- HÀNG 2: ẢNH GAME - SCANNER --- */
-#slot-specific-ui .slot-row-middle {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    gap: 10px;
-    height: 120px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(217, 4, 41, 0.3);
-    border-radius: 10px;
-    padding: 8px;
-    position: relative;
-}
-
-/* === KHUNG ẢNH GAME (Màu Đỏ) === */
-#slot-specific-ui .slot-game-image-box {
-    width: 45%;
-    position: relative;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 0, 0, 0.5); 
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.1);
-    border-radius: 12px;
-    padding: 4px; 
-    overflow: hidden;
-}
-
-#slot-specific-ui .glitch-wrapper {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    border: none;
-    position: relative;
-}
-#slot-specific-ui #panel-game-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-}
+#slot-specific-ui .slot-row-middle { display: flex; justify-content: space-between; align-items: stretch; gap: 10px; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(217, 4, 41, 0.3); border-radius: 10px; padding: 8px; position: relative; }
+#slot-specific-ui .slot-game-image-box { width: 45%; position: relative; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 0, 0, 0.5); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.1); border-radius: 12px; padding: 4px; overflow: hidden; }
+#slot-specific-ui .glitch-wrapper { width: 100%; height: 100%; border-radius: 8px; border: none; position: relative; }
+#slot-specific-ui #panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 #slot-specific-ui .glitch-layer { border-radius: 8px; }
 #slot-specific-ui .scan-impact-ripple { border-radius: 8px; }
 
-/* === KHUNG SCANNER (MÀU ĐỎ) === */
-#slot-specific-ui .slot-scanner-box {
-    width: 55%;
-    position: relative;
-    background: rgba(40, 0, 0, 0.6);
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 0, 0, 0.3);
-    box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.2);
-}
-
+#slot-specific-ui .slot-scanner-box { width: 55%; position: relative; background: rgba(40, 0, 0, 0.6); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 0, 0, 0.3); box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.2); }
 #slot-specific-ui .scanner-lines { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: space-evenly; padding: 5px; }
 #slot-specific-ui .scan-line-item { height: 2px; background: linear-gradient(90deg, transparent, #ff0000, transparent); width: 100%; opacity: 0.7; box-shadow: 0 0 8px #ff0000; }
 #slot-specific-ui .scan-line-item.s1 { animation: scan-move 2s infinite ease-in-out; width: 80%; align-self: center; }
@@ -410,21 +469,26 @@
 #slot-specific-ui .scan-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ff3333; font-size: 0.9em; font-family: monospace; letter-spacing: 2px; font-weight: bold; animation: blink-text 1s infinite; text-shadow: 0 0 8px #ff0000; z-index: 2; }
 @keyframes blink-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-/* === POST HACK INFO === */
 .post-hack-content { width: 100%; height: 100%; padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 5px; font-family: 'Courier New', monospace; animation: fadeInResult 0.5s ease-out; }
 .hack-item { font-size: 0.75em; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,0,0,0.3); padding-bottom: 2px; }
 .hack-item span { font-weight: bold; text-shadow: 0 0 5px currentColor; }
 .hack-status { margin-top: 5px; text-align: center; color: #ffd700; font-weight: bold; font-size: 0.9em; border: 1px solid #ffd700; padding: 2px; border-radius: 4px; background: rgba(255, 215, 0, 0.1); animation: pulse-status 1s infinite; }
 @keyframes pulse-status { 0%, 100% { opacity: 1; box-shadow: 0 0 5px #ffd700; } 50% { opacity: 0.7; box-shadow: 0 0 2px #ffd700; } }
 
-/* Mobile Responsive */
 @media (max-width: 480px) {
     #slot-specific-ui .slot-row-top { height: 100px; }
-    #slot-specific-ui #robot-image { max-width: 90px; }
-    #slot-specific-ui .progress-frame-container, #slot-specific-ui .gif-frame { width: 60px; height: 60px; }
-    #slot-specific-ui .progress-frame-value { font-size: 1em; }
-    /* Giảm size cột trên mobile để vừa màn hình */
-    #slot-specific-ui .slot-col-left, #slot-specific-ui .slot-col-right { flex: 0 0 70px; }
+    #slot-specific-ui #robot-image { max-width: 80px; }
+    
+    /* Mobile Slot specific override */
+    #slot-specific-ui .progress-frame-container { 
+        width: 80px; 
+        height: 80px; 
+    }
+    #slot-specific-ui .progress-frame-value { font-size: 1.4em; }
+    
+    #slot-specific-ui .gif-frame { width: 80px; }
+    
+    #slot-specific-ui .slot-col-left, #slot-specific-ui .slot-col-right { flex: 0 0 60px; }
     #slot-specific-ui .slot-row-middle { height: 100px; }
     .hack-item { font-size: 0.7em; }
     .hack-status { font-size: 0.8em; }

@@ -35,31 +35,42 @@
     <div class="shooting-stars">
         <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
     </div>
+<header class="header games-header fadeIn">
+    <!-- Cột Trái -->
+    <div class="header-left">
+        <a href="javascript:history.back()" class="back-button-user">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Quay Lại
+        </a>
+    </div>
     
-    <header class="analysis-page-header">
-        <a href="javascript:history.back()" class="back-button-user">← Quay Lại</a>
-        
-        <!-- === THÊM VIP BAR VÀO GIỮA === -->
-        <div class="header-center">
-             <div class="user-status-row">
-                 <div id="vip-badge-placeholder"></div>
-             </div>
-             <div class="vip-container" id="vip-progress-ui" style="display:none;">
-                 <div class="vip-progress-track">
-                     <div class="vip-progress-fill" id="vip-fill-bar"></div>
-                 </div>
-                 <div class="vip-text">
-                     <span id="vip-current-money">0</span>
-                     <span id="vip-target-money">3tr (VIP)</span>
-                 </div>
-             </div>
+    <!-- Cột Giữa (VIP) -->
+    <div class="header-center">
+        <div class="user-status-row">
+            <div id="vip-badge-placeholder">
+                <span class="vip-status-badge badge-normal">LOADING...</span>
+            </div>
         </div>
-        <!-- ============================= -->
+        <div class="vip-container" id="vip-progress-ui" style="display:none;">
+            <div class="vip-progress-track">
+                <div class="vip-progress-fill" id="vip-fill-bar" style="width: 0%;"></div>
+            </div>
+            <div class="vip-text">
+                <span id="vip-current-money">0</span>
+                <span id="vip-target-money">3tr (VIP)</span>
+            </div>
+        </div>
+    </div>
 
-        <div class="user-info-box">
-            <span>Token: <b id="coin-display">...</b></span>
+    <!-- Cột Phải (Chỉ Token) -->
+    <div class="header-right">
+        <div class="header-right-content">
+            <span id="coin-display">Token: ...</span>
         </div>
-    </header>
+    </div>
+</header>
 
     <main class="analysis-main">
         <div class="analysis-frame" id="slot-specific-ui">

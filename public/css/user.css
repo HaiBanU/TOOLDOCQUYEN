@@ -675,3 +675,57 @@ body:not(.login-page):not(.games-page) .header { display: flex; justify-content:
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     letter-spacing: 0.5px;
 }
+/* CSS cho dòng chạy thông báo */
+.fake-winner-marquee {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.9);
+    border-bottom: 1px solid var(--primary-red);
+    z-index: 9999; /* Cao hơn header */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.marquee-content {
+    display: flex;
+    gap: 50px;
+    animation: marquee-slide 20s linear infinite;
+    white-space: nowrap;
+    padding-left: 100%; /* Bắt đầu từ ngoài màn hình */
+}
+
+.marquee-content span {
+    color: #fff;
+    font-size: 0.85em;
+    font-family: 'Roboto', sans-serif;
+}
+
+.marquee-content span b {
+    color: #ffd700;
+}
+
+@keyframes marquee-slide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+/* --- FIX LỖI KHOẢNG CÁCH HEADER (BẢN CHUẨN) --- */
+body.dashboard-page .header, 
+body.games-page .header {
+    margin-top: 0 !important;   /* Xóa khoảng cách bên ngoài để Header dính sát lên trên */
+    padding-top: 40px !important; /* Đẩy nội dung bên trong xuống (30px cho chữ chạy + 10px khoảng hở đẹp) */
+    position: relative;
+    z-index: 10;
+}
+
+/* Chỉnh cho Mobile gọn hơn chút */
+@media (max-width: 768px) {
+    body.dashboard-page .header, 
+    body.games-page .header {
+        padding-top: 35px !important; /* Mobile thì cho sát hơn một chút */
+    }
+}

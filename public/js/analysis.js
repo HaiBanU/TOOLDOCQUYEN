@@ -1,7 +1,7 @@
 /* --- START OF FILE public/js/analysis.js --- */
 
 window.onload = () => {
-    // === 1. LẤY CÁC PHẦN TỬ DOM ===
+    // === 1. DOM ELEMENTS ===
     const coinDisplay = document.getElementById('coin-display');
     const panelGameImage = document.getElementById('panel-game-image');
     const progressValue = document.getElementById('progress-value'); 
@@ -22,11 +22,9 @@ window.onload = () => {
     const infoBox1 = document.getElementById('info-box-1');
     const infoBox2 = document.getElementById('info-box-2');
     const infoBox3 = document.getElementById('info-box-3');
-
-    // Lấy phần tử khung Scanner để thay đổi nội dung
     const scannerBox = document.querySelector('.slot-scanner-box');
 
-    // === 2. LẤY DỮ LIỆU TỪ URL ===
+    // === 2. GET URL PARAMS ===
     const params = new URLSearchParams(window.location.search);
     const gameName = params.get('gameName');
     const imageUrl = params.get('imageUrl');
@@ -36,7 +34,7 @@ window.onload = () => {
     const selectedBrand = sessionStorage.getItem('selectedBrand');
 
     if (!username || !gameName || !imageUrl || !lobbyName || !selectedBrand) {
-        alert("Lỗi: Thiếu thông tin game, sảnh hoặc SẢNH GAME.");
+        alert("Lỗi thông tin.");
         window.location.href = '/dashboard.html';
         return;
     }
@@ -47,103 +45,104 @@ window.onload = () => {
     let progressAnimationId = null;
     const ACTIVE_ANALYSIS_KEY = 'wukongActiveAnalysis';
 
-    // === 4. CÁC HÀM TIỆN ÍCH HIỆU ỨNG ===
+    // === 3. UTILS ===
     const createParticleBurstEffect = () => { const container = document.querySelector('.particle-burst'); if (!container) return; container.innerHTML = ''; const particleCount = 40; const radius = 200; for (let i = 0; i < particleCount; i++) { const particle = document.createElement('div'); particle.className = 'particle'; const angle = Math.random() * 360; const duration = Math.random() * 1.5 + 1; const delay = Math.random() * 2.5; particle.style.setProperty('--angle', `${angle}deg`); particle.style.setProperty('--duration', `${duration}s`); particle.style.setProperty('--delay', `${delay}s`); particle.style.setProperty('--radius', `${radius}px`); container.appendChild(particle); } };
     const createScrollingText = (element, text) => { if (!element) return; element.innerHTML = `<span class="scrolling-text">${text}</span>`; };
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
 
-    const fetchUserInfoFromServer = async () => { try { const res = await fetch(`/api/user-info?username=${username}`); const data = await res.json(); if (data.success) { const coinsByBrand = data.userInfo.coins_by_brand || {}; const currentCoins = coinsByBrand[selectedBrand] || 0; coinDisplay.textContent = currentCoins; } } catch (e) { console.error("Lỗi fetch user info", e); } };
+    const fetchUserInfoFromServer = async () => { try { const res = await fetch(`/api/user-info?username=${username}`); const data = await res.json(); if (data.success) { const coinsByBrand = data.userInfo.coins_by_brand || {}; const currentCoins = coinsByBrand[selectedBrand] || 0; coinDisplay.textContent = `Token: ${currentCoins}`; } } catch (e) { console.error(e); } };
     const cleanupSession = () => { sessionStorage.removeItem(ACTIVE_ANALYSIS_KEY); };
     const handleInsufficientTokens = (message) => { stopAllTimers(); cleanupSession(); alert(message); window.location.href = '/dashboard.html'; };
     const stopAllTimers = () => { 
         if (analysisTimerId) clearInterval(analysisTimerId); 
         if (countdownIntervalId) clearInterval(countdownIntervalId); 
         if (progressAnimationId) cancelAnimationFrame(progressAnimationId);
-        analysisTimerId = null; 
-        countdownIntervalId = null; 
-        progressAnimationId = null;
+        analysisTimerId = null; countdownIntervalId = null; progressAnimationId = null;
     };
-    const handleRecurringDeduction = async () => { try { const response = await fetch('/api/deduct-recurring-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, brandName: selectedBrand }) }); const result = await response.json(); if (result.success) { coinDisplay.textContent = result.newCoinBalance; progressStatusText.textContent = `Đã trừ 10 Token để duy trì phân tích...`; } else if (result.outOfTokens) { handleInsufficientTokens(result.message); } } catch (error) { console.error('Lỗi kết nối khi trừ Token định kỳ:', error); } };
+    const handleRecurringDeduction = async () => { try { const response = await fetch('/api/deduct-recurring-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, brandName: selectedBrand }) }); const result = await response.json(); if (result.success) { coinDisplay.textContent = `Token: ${result.newCoinBalance}`; progressStatusText.textContent = `Đã trừ 10 Token để duy trì phân tích...`; } else if (result.outOfTokens) { handleInsufficientTokens(result.message); } } catch (error) { console.error(error); } };
 
-    // === HÀM SETUP HÌNH ẢNH (Dùng chung) ===
     function setupVisuals() {
         if (moduleGameName) moduleGameName.textContent = gameName;
         createScrollingText(gameNameBottom, gameName);
         panelGameImage.src = imageUrl;
-        const glitchLayers = document.querySelectorAll('.glitch-layer');
-        glitchLayers.forEach(layer => { layer.style.backgroundImage = `url(${imageUrl})`; });
+        document.querySelectorAll('.glitch-layer').forEach(layer => { layer.style.backgroundImage = `url(${imageUrl})`; });
         const frameLightning = document.getElementById('frame-wide-lightning');
         if (frameLightning) { frameLightning.innerHTML = `<div class="lightning-field left">${createLightningField()}</div><div class="lightning-field right">${createLightningField()}</div>`; }
         createEnergyRain(document.getElementById('particle-field'));
         createParticleBurstEffect();
     }
 
-    // === HÀM RESET SCANNER VỀ MẶC ĐỊNH ===
     function resetScannerToDefault() {
         if (scannerBox) {
-            scannerBox.innerHTML = `
-                <div class="scanner-lines">
-                    <div class="scan-line-item s1"></div>
-                    <div class="scan-line-item s2"></div>
-                    <div class="scan-line-item s3"></div>
-                    <div class="scan-text">SCANNING...</div>
-                </div>
-            `;
+            scannerBox.innerHTML = `<div class="scanner-lines"><div class="scan-line-item s1"></div><div class="scan-line-item s2"></div><div class="scan-line-item s3"></div><div class="scan-text">SCANNING...</div></div>`;
         }
     }
 
-    // === 5. KHỞI TẠO GIAO DIỆN ===
+    // === POPUP & RESET LOGIC ===
+    function showScatterExplosion() {
+        const frame = document.querySelector('.analysis-content');
+        if(!frame) return;
+        const overlay = document.createElement('div');
+        overlay.className = 'scatter-popup-overlay';
+        overlay.innerHTML = `<div class="sunburst-bg"></div><div class="scatter-popup-content"><div class="scatter-icon">💎</div><div class="scatter-text-main">SCATTER<br>ĐÃ NỔ</div><div class="scatter-subtext">Vui lòng HACK lại lượt mới</div></div>`;
+        frame.appendChild(overlay);
+    }
+    function hideScatterExplosion() { const overlay = document.querySelector('.scatter-popup-overlay'); if(overlay) overlay.remove(); }
+
+    // === HÀM QUAN TRỌNG: RESET VỀ BAN ĐẦU ===
     function initializeUI() {
         setupVisuals();
-        resetScannerToDefault(); // Reset scanner về trạng thái quét
-        
-        // Hiển thị % ban đầu
+        resetScannerToDefault();
+        hideScatterExplosion();
+
+        // Reset % về ban đầu
         const startPercent = (initialWinRate && initialWinRate !== 'null') ? initialWinRate : 0;
         progressValue.textContent = `${startPercent}%`;
-        
-        // RESET: Xóa class success để về màu đỏ
-        progressValue.classList.remove('success'); 
+        progressValue.classList.remove('success', 'end-state');
         progressValue.style.color = ''; 
         progressValue.style.textShadow = '';
         
-        [infoBox1, infoBox2, infoBox3].forEach(box => { box.classList.remove('result-reveal', 'result-highlight'); const smallElement = box.querySelector('small'); if (smallElement) smallElement.textContent = 'Chưa có dữ liệu'; });
+        [infoBox1, infoBox2, infoBox3].forEach(box => { 
+            box.classList.remove('result-reveal', 'result-highlight'); 
+            const small = box.querySelector('small');
+            if(small) small.textContent = 'Chưa có dữ liệu'; 
+        });
+        
         analyzeButton.style.display = 'block';
         analyzeButton.disabled = false;
         analyzeButton.textContent = "HACK (10 TOKEN)";
         
         endButton.style.display = 'none';
-        confirmModal.style.display = 'none';
         analysisProgressContainer.style.display = 'none';
         progressStatusText.textContent = "";
-        
         isAnalyzing = false;
     }
 
-    // === 6. HÀM HIỂN THỊ KẾT QUẢ (ĐÃ SỬA: THAY ĐỔI NỘI DUNG SCANNER) ===
+    // === HÀM DỪNG HACK THỦ CÔNG (SỬA LỖI) ===
+    function forceStopHack() {
+        confirmModal.style.display = 'none';
+        // Dừng mọi timer
+        stopAllTimers();
+        cleanupSession();
+        // Reset giao diện về 0% ngay lập tức (Không hiện END, Không hiện Popup)
+        initializeUI();
+    }
+
+    // === DISPLAY RESULTS ===
     function displayResults(results, isResuming = false) {
         const targetVal = results.finalRate;
-
         infoBox1.innerHTML = `<span>QUAY MỒI</span><small>${results.quayMoiVong} vòng - Mức cược ${results.quayMoiMucCuoc}K</small>`;
         infoBox2.innerHTML = `<span>QUAY AUTO</span><small>${results.quayAutoVong} vòng - Mức cược ${results.quayAutoMucCuoc}K</small>`;
         infoBox3.innerHTML = `<span>KHUNG GIỜ VÀNG</span><small>${results.khungGio}</small>`;
         
         [infoBox1, infoBox2, infoBox3].forEach((box, index) => { 
-            if (isResuming) box.style.animationDelay = '0s'; 
-            else box.style.animationDelay = `${index * 0.15}s`;
+            if (isResuming) box.style.animationDelay = '0s'; else box.style.animationDelay = `${index * 0.15}s`;
             box.classList.add('result-reveal', 'result-highlight'); 
         });
 
-        // === CẬP NHẬT NỘI DUNG SCANNER SAU KHI HACK ===
         if (scannerBox) {
-            scannerBox.innerHTML = `
-                <div class="post-hack-content">
-                    <div class="hack-item">RNG: <span style="color:#00ff8c">BẺ KHÓA</span></div>
-                    <div class="hack-item">LATENCY: <span style="color:#00ff8c">12ms</span></div>
-                    <div class="hack-item">TỶ LỆ: <span style="color:#ff3333">BIẾN ĐỘNG CAO</span></div>
-                    <div class="hack-status">PHÂN TÍCH HOÀN TẤT</div>
-                </div>
-            `;
+            scannerBox.innerHTML = `<div class="post-hack-content"><div class="hack-item">RNG: <span style="color:#00ff8c">BẺ KHÓA</span></div><div class="hack-item">LATENCY: <span style="color:#00ff8c">12ms</span></div><div class="hack-item">TỶ LỆ: <span style="color:#ff3333">BIẾN ĐỘNG CAO</span></div><div class="hack-status">PHÂN TÍCH HOÀN TẤT</div></div>`;
         }
         
         analysisProgressContainer.style.display = 'none';
@@ -168,55 +167,78 @@ window.onload = () => {
             if (!startTime) startTime = timestamp;
             const progress = Math.min((timestamp - startTime) / duration, 1);
             const currentValue = Math.floor(startVal + (progress * (finalDisplayVal - startVal)));
-            
             progressValue.textContent = `${currentValue}%`;
-
-            if (progress < 1) {
-                progressAnimationId = requestAnimationFrame(animationStep);
-            } else {
-                 progressValue.textContent = `${finalDisplayVal}%`;
-            }
+            if (progress < 1) { progressAnimationId = requestAnimationFrame(animationStep); } else { progressValue.textContent = `${finalDisplayVal}%`; }
         }
         progressAnimationId = requestAnimationFrame(animationStep);
     }
 
+    // === COUNTDOWN LOGIC ===
     function startResultCountdown(durationInSeconds) {
         stopAllTimers();
         let timeLeft = durationInSeconds;
         endButton.style.display = 'flex'; 
-        const updateTimer = () => { const minutes = Math.floor(timeLeft / 60); const seconds = timeLeft % 60; analyzeButton.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; };
+        
+        const updateTimer = () => { 
+            const minutes = Math.floor(timeLeft / 60); 
+            const seconds = timeLeft % 60; 
+            analyzeButton.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; 
+        };
+        
         analyzeButton.disabled = true;
         updateTimer();
-        countdownIntervalId = setInterval(() => { timeLeft--; updateTimer(); if (timeLeft <= 0) { resetToInitialState(); } }, 1000);
+        
+        countdownIntervalId = setInterval(() => { 
+            timeLeft--; 
+            updateTimer(); 
+            
+            if (timeLeft <= 0) { 
+                clearInterval(countdownIntervalId);
+                if (analysisTimerId) clearInterval(analysisTimerId);
+                cleanupSession();
+                
+                // HẾT GIỜ TỰ ĐỘNG -> HIỆN END VÀ POPUP
+                progressValue.textContent = "END";
+                progressValue.classList.remove('success');
+                progressValue.classList.add('end-state');
+                showScatterExplosion();
+                
+                setTimeout(() => {
+                    hideScatterExplosion();
+                    analyzeButton.disabled = false;
+                    analyzeButton.textContent = "HACK (10 TOKEN)";
+                    endButton.style.display = 'none';
+                    isAnalyzing = false;
+                }, 4000);
+            } 
+        }, 1000);
+        
         analysisTimerId = setInterval(handleRecurringDeduction, 60000);
     }
 
-    function resetToInitialState() { stopAllTimers(); cleanupSession(); initializeUI(); }
-
-    const resumeAnalysis = (savedState) => {
+    function resumeAnalysis(savedState) {
         const remainingTime = Math.floor((savedState.expiresAt - Date.now()) / 1000);
         if (remainingTime > 0) { 
             setupVisuals();
             displayResults(savedState.results, true);
             startResultCountdown(remainingTime); 
-            progressStatusText.textContent = `Đã khôi phục phiên phân tích. Đang duy trì...`; 
+            progressStatusText.textContent = `Đã khôi phục phiên phân tích.`; 
         } else { cleanupSession(); initializeUI(); }
-    };
+    }
 
+    // === EVENTS ===
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
+        
+        initializeUI(); 
         stopAllTimers();
         cleanupSession();
-        document.body.classList.remove('analyzing');
         
         analyzeButton.style.display = 'none';
         endButton.style.display = 'none';
         analysisProgressContainer.style.display = 'block';
         progressStatusText.textContent = `Đang phân tích Sảnh "${lobbyName}" game "${gameName}"...`;
-        
-        // Reset scanner về trạng thái quét khi bắt đầu hack
-        resetScannerToDefault();
         
         let progress = 0;
         const progressInterval = setInterval(() => { progress += 2; progressBarFill.style.width = `${progress}%`; progressBarText.textContent = `${Math.floor(progress)}%`; if (progress >= 100) clearInterval(progressInterval); }, 100);
@@ -228,7 +250,7 @@ window.onload = () => {
                 const result = await response.json();
 
                 if (result.success) {
-                    coinDisplay.textContent = result.newCoinBalance;
+                    coinDisplay.textContent = `Token: ${result.newCoinBalance}`;
                     const now = new Date(), future = new Date(now.getTime() + 30 * 60 * 1000);
                     const formatTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
                     
@@ -236,12 +258,19 @@ window.onload = () => {
                     const increase = Math.floor(Math.random() * 3) + 3;
                     const calculatedRate = Math.min(99, startRate + increase);
 
+                    const quayMoiSteps = [0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0];
+                    const randomMoi = quayMoiSteps[Math.floor(Math.random() * quayMoiSteps.length)];
+                    const displayMoi = randomMoi.toFixed(1).replace('.0', ''); 
+
+                    const autoSteps = [4, 8, 12, 16, 20];
+                    const randomAuto = autoSteps[Math.floor(Math.random() * autoSteps.length)];
+
                     const analysisResults = {
                         finalRate: calculatedRate,
                         quayMoiVong: Math.floor(Math.random() * 21) + 20,
                         quayAutoVong: Math.floor(Math.random() * 21) + 20,
-                        quayMoiMucCuoc: Math.floor(Math.random() * 37) + 4,
-                        quayAutoMucCuoc: Math.floor(Math.random() * 19) + 2,
+                        quayMoiMucCuoc: displayMoi, 
+                        quayAutoMucCuoc: randomAuto, 
                         khungGio: `${formatTime(now)} - ${formatTime(future)}`
                     };
                     const expiresAt = Date.now() + 10 * 60 * 1000;
@@ -249,7 +278,8 @@ window.onload = () => {
                     sessionStorage.setItem(ACTIVE_ANALYSIS_KEY, JSON.stringify(stateToSave));
                     
                     displayResults(analysisResults, false);
-                    startResultCountdown(600);
+                    const randomTime = Math.floor(Math.random() * (300 - 180 + 1)) + 180;
+                    startResultCountdown(randomTime);
                 } else if (result.outOfTokens) {
                     handleInsufficientTokens(result.message);
                 } else {
@@ -263,9 +293,15 @@ window.onload = () => {
         }, 5000);
     });
 
+    // --- XỬ LÝ SỰ KIỆN DỪNG HACK (FIX BUG) ---
     endButton.addEventListener('click', () => { confirmModal.style.display = 'flex'; });
     confirmNoBtn.addEventListener('click', () => { confirmModal.style.display = 'none'; });
-    confirmYesBtn.addEventListener('click', () => { confirmModal.style.display = 'none'; resetToInitialState(); });
+    
+    // QUAN TRỌNG: Gọi hàm forceStopHack đã định nghĩa ở trên
+    confirmYesBtn.addEventListener('click', () => { 
+        forceStopHack(); 
+    });
+
     window.addEventListener('click', (e) => { if (e.target == confirmModal) { confirmModal.style.display = 'none'; } });
 
     (async () => {
