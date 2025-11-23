@@ -13,17 +13,29 @@ const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Đường dẫn lưu ảnh upload
-const UPLOADS_DIR = path.join(__dirname, 'public/uploads'); 
+// === CẤU HÌNH ĐƯỜNG DẪN ẢNH (QUAN TRỌNG) ===
+// Đường dẫn Disk bạn đã cấu hình trên Render
+const RENDER_DISK_PATH = '/var/data/uploads';
+// Đường dẫn trên máy tính cá nhân
+const LOCAL_DISK_PATH = path.join(__dirname, 'public/uploads');
 
-// Cache tỉ lệ game để tránh query nhiều
+// Logic: Nếu thư mục /var/data/uploads tồn tại (tức là đang trên Render) thì dùng nó
+// Nếu không thì dùng thư mục local
+let UPLOADS_DIR;
+if (fs.existsSync(RENDER_DISK_PATH)) {
+    UPLOADS_DIR = RENDER_DISK_PATH;
+    console.log('Running on Render. Using Disk Storage:', UPLOADS_DIR);
+} else {
+    UPLOADS_DIR = LOCAL_DISK_PATH;
+    // Tạo thư mục local nếu chưa có
+    if (!fs.existsSync(UPLOADS_DIR)){ fs.mkdirSync(UPLOADS_DIR, { recursive: true }); }
+    console.log('Running on Localhost. Using Local Storage:', UPLOADS_DIR);
+}
+
 let lobbyRatesCache = {};
 const ONE_HOUR_IN_MS = 60 * 60 * 1000;
-
-// CẤU HÌNH VIP: 3 Triệu VNĐ
 const VIP_THRESHOLD = 3000000; 
 
-// Danh sách các nhà cái
 const gameBrands = [ 
     { name: 'AU88', logo: 'au88.png' }, { name: 'MB66', logo: 'mb66.png' }, 
     { name: 'MM88', logo: 'mm88.png' }, { name: 'RR88', logo: 'rr88.png' }, 
@@ -37,18 +49,16 @@ const gameBrands = [
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// === QUAN TRỌNG: CẤU HÌNH ĐƯỜNG DẪN TĨNH (SỬA LỖI KHÔNG VÀO ĐƯỢC WEB) ===
-// 1. Phục vụ các file trong thư mục public (css, js, images)
+// === CẤU HÌNH STATIC FILES ===
 app.use(express.static(path.join(__dirname, 'public')));
-// 2. Phục vụ các file ở thư mục gốc (html files)
 app.use(express.static(__dirname));
-// 3. Đường dẫn riêng cho uploads
+
+// Quan trọng: Map đường dẫn /uploads vào đúng thư mục UPLOADS_DIR đã chọn ở trên
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-
-// Cấu hình Multer để upload file
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
+        // Đảm bảo thư mục tồn tại trước khi lưu
         if (!fs.existsSync(UPLOADS_DIR)){ fs.mkdirSync(UPLOADS_DIR, { recursive: true }); }
         cb(null, UPLOADS_DIR);
     },
@@ -58,7 +68,6 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage: storage });
-
 // Kết nối MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => { 
