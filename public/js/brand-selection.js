@@ -80,6 +80,33 @@ function showNextTerminalMessage() {
 
 // 6. MAIN LOGIC (On Load)
 window.onload = async () => {
+    
+    // === [MỚI] XỬ LÝ VOICE CHÀO MỪNG ===
+    const voiceAudio = document.getElementById('page-intro-voice');
+    if (voiceAudio) {
+        voiceAudio.volume = 1.0; // Âm lượng tối đa
+        
+        try {
+            // Cố gắng tự động phát
+            await voiceAudio.play();
+        } catch (err) {
+            // Nếu trình duyệt chặn (lỗi Autoplay), chờ click đầu tiên để phát
+            console.log("Trình duyệt chặn Autoplay. Đang chờ tương tác...");
+            
+            const enableAudio = () => {
+                voiceAudio.play();
+                // Xóa sự kiện sau khi đã phát để không lặp lại
+                document.removeEventListener('click', enableAudio);
+                document.removeEventListener('touchstart', enableAudio);
+            };
+
+            // Lắng nghe sự kiện chạm hoặc click bất kỳ đâu
+            document.addEventListener('click', enableAudio);
+            document.addEventListener('touchstart', enableAudio);
+        }
+    }
+    // === KẾT THÚC CODE VOICE ===
+
     updateClock();
     setInterval(updateClock, 1000);
     

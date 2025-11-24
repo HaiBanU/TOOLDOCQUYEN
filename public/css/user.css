@@ -729,3 +729,106 @@ body.games-page .header {
         padding-top: 35px !important; /* Mobile thì cho sát hơn một chút */
     }
 }
+/* ======================================================= */
+/* === NÂNG CẤP HIỂN THỊ CẤP BẬC (BADGE) === */
+/* ======================================================= */
+
+/* Style chung cho khung chứa */
+.user-status-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    padding: 6px 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.user-status-row:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Style chung cho chữ MEMBER/VIP */
+.vip-status-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px; /* Bo tròn hình viên thuốc */
+    font-family: 'Poppins', 'Roboto', sans-serif;
+    font-weight: 800; /* Chữ đậm */
+    font-size: 0.85em;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+/* === 1. STYLE CHO CẤP MEMBER (Mới: Phong cách Thép/Bạc) === */
+.badge-normal {
+    background: linear-gradient(180deg, #5e6d7e 0%, #2c3e50 100%); /* Màu thép xanh đen */
+    color: #eef2f3;
+    border: 1px solid #7f8fa6;
+    box-shadow: 
+        inset 0 1px 0 rgba(255,255,255,0.3), /* Line sáng trên đầu */
+        0 0 10px rgba(94, 109, 126, 0.4); /* Glow nhẹ màu bạc */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Hiệu ứng quét sáng nhẹ cho Member */
+.badge-normal::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-25deg);
+    animation: shine-normal 5s infinite;
+}
+
+/* === 2. STYLE CHO CẤP VIP (Mới: Phong cách Vàng ròng Luxury) === */
+.badge-vip {
+    background: linear-gradient(90deg, #FFD700, #ffaa00, #FFD700); /* Gradient vàng đậm */
+    background-size: 200% auto;
+    color: #422900; /* Chữ màu nâu đậm để dễ đọc trên nền vàng */
+    border: 1px solid #fff5c3;
+    box-shadow: 
+        0 0 15px rgba(255, 215, 0, 0.7), /* Glow vàng mạnh */
+        inset 0 0 10px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 1px 0px rgba(255, 255, 255, 0.4);
+    animation: vip-gradient-move 2s linear infinite; /* Màu nền chạy */
+}
+
+/* Hiệu ứng tia chớp lấp lánh cho VIP */
+.badge-vip::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(transparent, rgba(255,255,255,0.8), transparent 30%);
+    animation: vip-rotate-shine 3s linear infinite;
+    opacity: 0.3;
+}
+
+/* === ANIMATION === */
+@keyframes shine-normal {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+}
+
+@keyframes vip-gradient-move {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+@keyframes vip-rotate-shine {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
