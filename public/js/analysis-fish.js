@@ -169,8 +169,17 @@ window.onload = () => {
     }
 
     function resumeAnalysis(savedState) {
+        // CẬP NHẬT: Tính toán thời gian còn lại chính xác dựa trên expiresAt
         const remainingTime = Math.floor((savedState.expiresAt - Date.now()) / 1000);
-        if (remainingTime > 0) { setupVisuals(); displayResults(savedState.results, true); startResultCountdown(remainingTime); progressStatusText.textContent = `Đã khôi phục phiên phân tích.`; } else { cleanupSession(); initializeUI(); }
+        if (remainingTime > 0) { 
+            setupVisuals(); 
+            displayResults(savedState.results, true); 
+            startResultCountdown(remainingTime); 
+            progressStatusText.textContent = `Đã khôi phục phiên phân tích.`; 
+        } else { 
+            cleanupSession(); 
+            initializeUI(); 
+        }
     }
 
     // === MONEY INPUT LOGIC ===
@@ -228,12 +237,21 @@ window.onload = () => {
                         banAuto: `${svResult.quayAutoVong} lượt`, 
                         banBoss: `${Math.floor(Math.random() * 20) + 10} lượt (Đạn ${danBoss})` 
                     };
-                    const expiresAt = Date.now() + 10 * 60 * 1000;
+                    
+                    // === CẬP NHẬT LOGIC THỜI GIAN TẠI ĐÂY ===
+                    // 1. Random từ 120s (2 phút) đến 180s (3 phút)
+                    const randomTime = Math.floor(Math.random() * (180 - 120 + 1)) + 120;
+                    
+                    // 2. Tính thời gian hết hạn chính xác dựa trên randomTime
+                    const expiresAt = Date.now() + (randomTime * 1000);
+                    
                     const stateToSave = { gameName, expiresAt, results: analysisResults, initialWinRate: initialWinRate };
                     sessionStorage.setItem(ACTIVE_ANALYSIS_KEY, JSON.stringify(stateToSave));
+                    
                     displayResults(analysisResults, false);
-                    const randomTime = Math.floor(Math.random() * (300 - 180 + 1)) + 180;
                     startResultCountdown(randomTime);
+                    // =========================================
+
                 } else if (result.outOfTokens) {
                     handleInsufficientTokens(result.message);
                 } else {

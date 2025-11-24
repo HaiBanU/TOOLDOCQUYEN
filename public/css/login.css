@@ -192,3 +192,40 @@ input:focus { outline: none; border-color: var(--primary-red); box-shadow: 0 0 1
         padding: 30px 25px 40px;
     }
 }
+/* --- THÊM VÀO CUỐI FILE login.css --- */
+
+/* Đảm bảo khung chứa input có thể định vị icon con mắt */
+.form-group {
+    position: relative; 
+}
+
+/* Style cho nút con mắt */
+.toggle-password-btn {
+    position: absolute;
+    top: 50%;
+    right: 15px; /* Cách lề phải */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary-red);
+}
+
+.toggle-password-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Đẩy text trong input sang trái để không đè lên con mắt */
+input[type="password"], input[type="text"].password-shown {
+    padding-right: 45px; 
+}

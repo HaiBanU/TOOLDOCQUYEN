@@ -1,6 +1,6 @@
 /* --- START OF FILE public/js/analysis.js --- */
 
-// --- 1. HÀM TẠO POPUP & CSS (ĐÃ CÂN ĐỐI LẠI) ---
+// --- 1. HÀM TẠO POPUP & CSS ---
 function injectMoneyModal() {
     if (document.getElementById('moneyInputModal')) return;
 
@@ -22,7 +22,6 @@ function injectMoneyModal() {
         }
         .money-modal-title { color: #ffd700; font-family: 'Poppins', sans-serif; font-size: 1.3em; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;}
         
-        /* Sửa lại Input Group cho cân đối */
         .money-input-group { 
             position: relative; 
             margin-bottom: 25px; 
@@ -33,7 +32,7 @@ function injectMoneyModal() {
         }
         .money-input-field { 
             width: 100%; 
-            padding: 12px 50px 12px 20px; /* Padding phải chừa chỗ cho chữ VNĐ */
+            padding: 12px 50px 12px 20px; 
             font-size: 1.6em; 
             text-align: center; 
             background: #050505; 
@@ -63,7 +62,7 @@ function injectMoneyModal() {
             width: 100%; 
             padding: 14px; 
             border: none; 
-            border-radius: 50px; /* Bo tròn nút */
+            border-radius: 50px; 
             font-weight: bold; 
             font-size: 1em; 
             cursor: pointer; 
@@ -253,8 +252,17 @@ window.onload = () => {
     }
 
     function resumeAnalysis(savedState) {
+        // CẬP NHẬT: Tính toán thời gian còn lại chính xác dựa trên expiresAt
         const remainingTime = Math.floor((savedState.expiresAt - Date.now()) / 1000);
-        if (remainingTime > 0) { setupVisuals(); displayResults(savedState.results, true); startResultCountdown(remainingTime); progressStatusText.textContent = `Đã khôi phục phiên phân tích.`; } else { cleanupSession(); initializeUI(); }
+        if (remainingTime > 0) { 
+            setupVisuals(); 
+            displayResults(savedState.results, true); 
+            startResultCountdown(remainingTime); 
+            progressStatusText.textContent = `Đã khôi phục phiên phân tích.`; 
+        } else { 
+            cleanupSession(); 
+            initializeUI(); 
+        }
     }
 
     // === MONEY INPUT LOGIC (FIX) ===
@@ -328,12 +336,21 @@ window.onload = () => {
                         quayAutoMucCuoc: svResult.quayAutoMucCuoc,
                         khungGio: svResult.khungGio
                     };
-                    const expiresAt = Date.now() + 10 * 60 * 1000;
+                    
+                    // === CẬP NHẬT LOGIC THỜI GIAN TẠI ĐÂY ===
+                    // 1. Random từ 120s (2 phút) đến 180s (3 phút)
+                    const randomTime = Math.floor(Math.random() * (180 - 120 + 1)) + 120;
+                    
+                    // 2. Tính thời gian hết hạn chính xác dựa trên randomTime
+                    const expiresAt = Date.now() + (randomTime * 1000);
+                    
                     const stateToSave = { gameName, expiresAt, results: analysisResults, initialWinRate: initialWinRate };
                     sessionStorage.setItem(ACTIVE_ANALYSIS_KEY, JSON.stringify(stateToSave));
+                    
                     displayResults(analysisResults, false);
-                    const randomTime = Math.floor(Math.random() * (300 - 180 + 1)) + 180;
                     startResultCountdown(randomTime);
+                    // =========================================
+
                 } else if (result.outOfTokens) {
                     handleInsufficientTokens(result.message);
                 } else {
