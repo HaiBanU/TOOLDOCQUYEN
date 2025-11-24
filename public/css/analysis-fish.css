@@ -1,0 +1,149 @@
+/* --- public/css/analysis-fish.css --- */
+
+/* QUAY VỀ MÀU ĐỎ CHỦ ĐẠO (GIỐNG SLOT) */
+:root {
+    --fish-theme-color: #d90429;  /* Đỏ Wukong */
+    --fish-glow-color: #ffd700;   /* Vàng Gold */
+}
+
+/* 1. Viền khung chính - Ép về màu đỏ */
+.analysis-frame {
+    border-color: var(--fish-theme-color) !important;
+    box-shadow: 0 0 15px var(--fish-theme-color), inset 0 0 15px var(--fish-theme-color) !important;
+}
+
+/* 2. Hiệu ứng viền xoay (Dùng màu đỏ) */
+.analysis-frame::before {
+    background: conic-gradient(from var(--angle), transparent 0%, transparent 90%, #ff0000, transparent 100%) !important;
+}
+
+/* 3. Tiêu đề (Module Name) */
+.analysis-title-module {
+    border-color: var(--fish-theme-color) !important;
+    box-shadow: 0 0 15px rgba(217, 4, 41, 0.4) !important;
+}
+.analysis-title-module .scanline {
+    background: linear-gradient(to right, transparent, rgba(255, 100, 100, 0.8), transparent) !important;
+    box-shadow: 0 0 10px var(--fish-theme-color) !important;
+}
+
+/* 4. Nút HACK - Chuyển từ Xanh về Đỏ Gradient */
+#analyze-button {
+    background: linear-gradient(45deg, #a40606, var(--fish-theme-color)) !important;
+    animation: button-pulse-red 2s infinite ease-in-out !important;
+    box-shadow: 0 0 10px rgba(217,4,41,.5) !important;
+    color: #fff !important;
+}
+
+@keyframes button-pulse-red {
+    0% { box-shadow: 0 0 10px rgba(217,4,41,.5); }
+    50% { box-shadow: 0 0 25px rgba(217,4,41,.9); }
+    100% { box-shadow: 0 0 10px rgba(217,4,41,.5); }
+}
+
+/* 5. Khung ảnh game (Vòng tròn) - Giữ hiệu ứng RGB hoặc chuyển đỏ tùy ý */
+/* Ở đây tôi giữ hiệu ứng 7 màu giống Nổ Hũ cho đẹp, nhưng viền ngoài là đỏ */
+.main-game-display {
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5), inset 0 0 15px rgba(255, 0, 0, 0.5) !important;
+}
+
+/* 6. Chữ chạy (Scrolling Text) - Quay về màu Vàng/Đỏ */
+.scrolling-text {
+    background: linear-gradient(to right, #ffd700, #ff8c00, var(--fish-theme-color), #ffd700) !important;
+    background-size: 200% auto !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+/* 7. Các Box thông tin (Info Box) - Ép viền đỏ */
+.led-info-box {
+    border: 1px solid rgba(217, 4, 41, 0.3) !important;
+}
+
+/* 8. Tinh chỉnh Responsive riêng cho Bắn Cá */
+@media (max-width: 480px) {
+    .analysis-top-visuals {
+        padding: 0;
+    }
+    /* Mobile: Giữ size khung tròn 75px cho cân đối */
+    .progress-frame-container {
+        width: 75px !important;
+        height: 75px !important;
+    }
+}
+/* --- TRONG FILE css/analysis-fish.css (Thêm vào cuối) --- */
+
+/* 1. Dùng lại style nút bấm VIP từ Slot (Copy lại để đảm bảo hiển thị) */
+.slot-vip-btn {
+    margin-top: 5px;
+    height: 60px;
+    background: #000;
+    position: relative;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #ffd700;
+    transition: transform 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.slot-vip-btn:active { transform: scale(0.98); }
+
+.rgb-glow-border {
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, #ff0000, #ffd700, #fff, #ffd700, #ff0000, transparent 50%);
+    animation: spin-rgb 3s linear infinite; z-index: 1;
+}
+@keyframes spin-rgb { 100% { transform: rotate(360deg); } }
+
+.vip-control-inner {
+    position: absolute; inset: 2px;
+    background: linear-gradient(180deg, #2b1100 0%, #000 100%);
+    border-radius: 6px; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: auto; height: auto;
+}
+.vip-header { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+.crown-icon { font-size: 1.2em; animation: pulse 1s infinite; }
+.vip-label { font-size: 0.7em; font-weight: bold; color: #ffd700; letter-spacing: 1px; }
+.vip-status-display { font-size: 0.9em; font-weight: bold; color: #fff; text-transform: uppercase; text-align: center; }
+
+/* 2. Style cho Modal Kết Quả Bắn Cá */
+.slot-result-content {
+    background: linear-gradient(145deg, #051a1a, #000); /* Màu xanh đen biển sâu */
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+    width: 90%; max-width: 380px;
+    padding: 25px 20px;
+}
+
+.slot-result-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 255, 255, 0.3); padding-bottom: 10px; }
+.slot-result-header h3 { color: #fff; margin: 0 0 5px 0; font-size: 1.4em; text-shadow: 0 0 10px #00ffff; }
+.bet-recommendation { font-size: 1.1em; color: #ccc; font-weight: bold; background: rgba(255,255,255,0.1); display: inline-block; padding: 5px 15px; border-radius: 20px; }
+
+.slot-win-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.win-item {
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    padding: 10px 5px;
+    text-align: center;
+    border: 1px solid #444;
+    display: flex; flex-direction: column; gap: 5px;
+}
+.win-label { font-size: 0.65em; font-weight: bold; color: #aaa; }
+.win-percent { font-size: 1.1em; font-weight: 900; font-family: 'Orbitron', sans-serif; }
+
+/* --- MÀU SẮC CÁC LOẠI ĐẠN --- */
+/* Đạn Thường: Màu Trắng/Xám */
+.win-item.normal-bullet { border-color: #aaa; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
+.win-item.normal-bullet .win-percent { color: #fff; text-shadow: 0 0 5px #fff; }
+
+/* Đạn Trung Bình: Màu Xanh Dương */
+.win-item.medium-bullet { border-color: #00c6ff; box-shadow: 0 0 10px rgba(0, 198, 255, 0.1); }
+.win-item.medium-bullet .win-percent { color: #00c6ff; text-shadow: 0 0 5px #00c6ff; }
+
+/* Đạn Đặc Biệt: Màu Đỏ/Cam (Sát thương cao) */
+.win-item.special-bullet { border-color: #ff4757; box-shadow: 0 0 10px rgba(255, 71, 87, 0.2); background: rgba(255, 71, 87, 0.1); }
+.win-item.special-bullet .win-percent { color: #ff4757; text-shadow: 0 0 8px #ff4757; font-size: 1.2em; }

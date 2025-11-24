@@ -209,7 +209,7 @@
 @keyframes ripple-effect { 0% { transform: scale(0.9); opacity: 0; } 80% { transform: scale(0.9); opacity: 0; } 90% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 0; } }
 
 /* ================================================== */
-/* === 5. PROGRESS FRAME (ĐÃ CHỈNH SỬA KÍCH THƯỚC) === */
+/* === 5. PROGRESS FRAME === */
 /* ================================================== */
 
 .progress-frame-container { 
@@ -239,23 +239,16 @@
 /* --- STYLE CHO SỐ PHẦN TRĂM (%) --- */
 .progress-frame-value { 
     font-family: 'Orbitron', sans-serif; 
-    /* Desktop: Cỡ chữ vừa phải */
     font-size: 1.8em; 
     font-weight: 900; 
-    
-    /* Màu xanh Neon nổi bật (Green) */
     color: #00ff8c; 
-    
     z-index: 2; 
     position: relative; 
     letter-spacing: 1px;
-    
-    /* Hiệu ứng bóng đổ xanh để nổi trên nền đỏ */
     text-shadow: 
         0 0 5px #fff,
         0 0 15px #00ff8c, 
         0 0 25px #00b894; 
-    
     animation: text-pulse-green 2s infinite ease-in-out; 
 }
 
@@ -281,7 +274,7 @@
 }
 
 /* ================================================== */
-/* === 6. POPUP 3D "SCATTER/BOSS ĐÃ NỔ" (MỚI) === */
+/* === 6. POPUP 3D "SCATTER/BOSS ĐÃ NỔ" === */
 /* ================================================== */
 
 .scatter-popup-overlay {
@@ -312,8 +305,20 @@
 }
 @keyframes popInScatter { to { transform: scale(1); opacity: 1; } }
 
-.scatter-icon { font-size: 3em; margin-bottom: 10px; filter: drop-shadow(0 0 10px #ffd700); animation: bounceIcon 1s infinite; }
-@keyframes bounceIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.scatter-icon-img {
+    width: 120px;
+    height: auto;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+    animation: bounceIcon 1.5s infinite ease-in-out;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+@keyframes bounceIcon { 
+    0%, 100% { transform: translateY(0) scale(1); } 
+    50% { transform: translateY(-15px) scale(1.1); } 
+}
 
 .scatter-text-main {
     font-family: 'Poppins', sans-serif; font-size: 2.2em; font-weight: 900;
@@ -418,12 +423,6 @@
     .analysis-content { justify-content: flex-start; gap: 20px; }
     .main-game-display { width: 120px; height: 120px; }
     #robot-image { max-width: 70px; }
-    
-    /* Mobile: Giữ size khung tròn 80px */
-    .progress-frame-container { width: 80px; height: 80px; }
-    .progress-frame-value { font-size: 1.3em; } 
-    
-    .gif-frame { width: 100px; }
     .led-info-box { padding: 8px; }
     .led-info-box span { font-size: .8em; }
     .scanner-1 { top: 40px; left: 65px; width: 55px; transform: rotate(-40deg); }
@@ -432,43 +431,6 @@
     .scan-impact-ripple { top: 0; left: 0; width: 100%; height: 100%; }
 }
 
-/* ================================================================= */
-/* === 8. SLOT SPECIFIC UI (GIAO DIỆN RIÊNG CHO TRANG NỔ HŨ) === */
-/* ================================================================= */
-
-#slot-specific-ui .slot-dashboard-layout { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
-#slot-specific-ui .slot-row-top { display: flex; justify-content: space-between; align-items: center; height: 120px; position: relative; }
-#slot-specific-ui .slot-col-left { flex: 0 0 90px; display: flex; justify-content: center; align-items: center; z-index: 2; }
-#slot-specific-ui .slot-col-right { flex: 0 0 120px; display: flex; justify-content: center; align-items: center; z-index: 2; }
-#slot-specific-ui .slot-col-center { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; height: 100%; }
-
-/* Mobile cho Slot: Cân chỉnh lại */
-#slot-specific-ui .progress-frame-container { 
-    margin: 0; 
-}
-
-#slot-specific-ui .robot-container { width: auto; text-align: center; display: flex; justify-content: center; align-items: center; margin: 0; }
-#slot-specific-ui #robot-image { max-width: 130px; animation: bot-float 3s infinite ease-in-out; margin-top: 10px; }
-#slot-specific-ui .gif-frame { width: 100%; }
-#slot-specific-ui .gif-frame::before { animation: none; border: 1px solid var(--primary-red); }
-
-#slot-specific-ui .slot-row-middle { display: flex; justify-content: space-between; align-items: stretch; gap: 10px; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(217, 4, 41, 0.3); border-radius: 10px; padding: 8px; position: relative; }
-#slot-specific-ui .slot-game-image-box { width: 45%; position: relative; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 0, 0, 0.5); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.1); border-radius: 12px; padding: 4px; overflow: hidden; }
-#slot-specific-ui .glitch-wrapper { width: 100%; height: 100%; border-radius: 8px; border: none; position: relative; }
-#slot-specific-ui #panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-#slot-specific-ui .glitch-layer { border-radius: 8px; }
-#slot-specific-ui .scan-impact-ripple { border-radius: 8px; }
-
-#slot-specific-ui .slot-scanner-box { width: 55%; position: relative; background: rgba(40, 0, 0, 0.6); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 0, 0, 0.3); box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.2); }
-#slot-specific-ui .scanner-lines { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: space-evenly; padding: 5px; }
-#slot-specific-ui .scan-line-item { height: 2px; background: linear-gradient(90deg, transparent, #ff0000, transparent); width: 100%; opacity: 0.7; box-shadow: 0 0 8px #ff0000; }
-#slot-specific-ui .scan-line-item.s1 { animation: scan-move 2s infinite ease-in-out; width: 80%; align-self: center; }
-#slot-specific-ui .scan-line-item.s2 { animation: scan-move 2s infinite ease-in-out 0.3s; width: 60%; align-self: flex-start; margin-left: 10%; }
-#slot-specific-ui .scan-line-item.s3 { animation: scan-move 2s infinite ease-in-out 0.6s; width: 90%; align-self: center; }
-@keyframes scan-move { 0%, 100% { opacity: 0.3; transform: scaleX(0.8); } 50% { opacity: 1; transform: scaleX(1); box-shadow: 0 0 15px #ff0000; } }
-#slot-specific-ui .scan-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ff3333; font-size: 0.9em; font-family: monospace; letter-spacing: 2px; font-weight: bold; animation: blink-text 1s infinite; text-shadow: 0 0 8px #ff0000; z-index: 2; }
-@keyframes blink-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
 .post-hack-content { width: 100%; height: 100%; padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 5px; font-family: 'Courier New', monospace; animation: fadeInResult 0.5s ease-out; }
 .hack-item { font-size: 0.75em; color: #ccc; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,0,0,0.3); padding-bottom: 2px; }
 .hack-item span { font-weight: bold; text-shadow: 0 0 5px currentColor; }
@@ -476,39 +438,107 @@
 @keyframes pulse-status { 0%, 100% { opacity: 1; box-shadow: 0 0 5px #ffd700; } 50% { opacity: 0.7; box-shadow: 0 0 2px #ffd700; } }
 
 @media (max-width: 480px) {
-    #slot-specific-ui .slot-row-top { height: 100px; }
-    #slot-specific-ui #robot-image { max-width: 80px; }
-    
-    /* Mobile Slot specific override */
-    #slot-specific-ui .progress-frame-container { 
-        width: 80px; 
-        height: 80px; 
-    }
-    #slot-specific-ui .progress-frame-value { font-size: 1.4em; }
-    
-    #slot-specific-ui .gif-frame { width: 80px; }
-    
-    #slot-specific-ui .slot-col-left, #slot-specific-ui .slot-col-right { flex: 0 0 60px; }
-    #slot-specific-ui .slot-row-middle { height: 100px; }
     .hack-item { font-size: 0.7em; }
     .hack-status { font-size: 0.8em; }
 }
-/* --- SỬA ĐỔI: CSS CHO ẢNH POPUP SCATTER/BOSS --- */
+/* 1. Style cho Nút VIP trong danh sách */
+.slot-vip-btn {
+    margin-top: 5px;
+    height: 60px; /* Chiều cao vừa phải */
+    background: #000;
+    position: relative;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid #ffd700;
+    transition: transform 0.2s;
+    display: flex; /* Đảm bảo căn giữa nội dung */
+    justify-content: center;
+    align-items: center;
+}
+.slot-vip-btn:active { transform: scale(0.98); }
 
-/* Class mới cho ảnh thay vì icon chữ */
-.scatter-icon-img {
-    width: 120px;            /* Kích thước ảnh */
-    height: auto;
-    margin-bottom: 15px;
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)); /* Hiệu ứng tỏa sáng vàng */
-    animation: bounceIcon 1.5s infinite ease-in-out;      /* Hiệu ứng nảy */
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+/* Hiệu ứng viền chạy 7 màu */
+.rgb-glow-border {
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, #ff0000, #ffd700, #fff, #ffd700, #ff0000, transparent 50%);
+    animation: spin-rgb 3s linear infinite; z-index: 1;
+}
+@keyframes spin-rgb { 100% { transform: rotate(360deg); } }
+
+.vip-control-inner {
+    position: absolute; inset: 2px;
+    background: linear-gradient(180deg, #2b1100 0%, #000 100%); /* Nền nâu vàng sang trọng */
+    border-radius: 6px; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: auto; height: auto;
+}
+.vip-header { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+.crown-icon { font-size: 1.2em; animation: pulse 1s infinite; }
+.vip-label { font-size: 0.7em; font-weight: bold; color: #ffd700; letter-spacing: 1px; }
+.vip-status-display { font-size: 0.9em; font-weight: bold; color: #fff; text-transform: uppercase; text-align: center; }
+
+/* 2. Style cho Modal Cảnh Báo & Kết Quả */
+.custom-modal-overlay {
+    display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    justify-content: center; align-items: center; animation: fadeIn 0.2s ease-out;
 }
 
-/* Giữ nguyên animation cũ nhưng chỉnh lại chút cho mượt với ảnh */
-@keyframes bounceIcon { 
-    0%, 100% { transform: translateY(0) scale(1); } 
-    50% { transform: translateY(-15px) scale(1.1); } 
+.vip-modal-content {
+    background: linear-gradient(145deg, #1a1a1a, #000000);
+    border: 1px solid #ffd700; border-radius: 16px;
+    padding: 30px 25px; width: 90%; max-width: 350px;
+    text-align: center; position: relative;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+.vip-modal-icon .lock-body { display: block; animation: shakeLock 2s infinite; filter: drop-shadow(0 0 10px #ffd700); }
+@keyframes shakeLock { 0%, 100% { transform: rotate(0deg); } 10% { transform: rotate(-10deg); } 20% { transform: rotate(10deg); } 30% { transform: rotate(-10deg); } 40% { transform: rotate(10deg); } 50% { transform: rotate(0deg); } }
+
+.vip-modal-title { color: #ffd700; margin: 10px 0; font-weight: bold; font-size: 1.2em; }
+.vip-modal-message { color: #ccc; margin-bottom: 20px; line-height: 1.5; }
+.vip-modal-message b { color: #fff; }
+
+.btn-vip-action {
+    background: linear-gradient(90deg, #d90429, #ff3333); color: white;
+    border: none; padding: 10px 30px; border-radius: 50px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 5px 15px rgba(217, 4, 41, 0.4); text-transform: uppercase;
+}
+
+/* 3. Style Riêng cho Modal Kết Quả (Popup Mua Free Spin) */
+.slot-result-content {
+    background: linear-gradient(145deg, #1a0505, #000);
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+    width: 90%; max-width: 380px;
+    padding: 25px 20px;
+}
+
+.slot-result-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 215, 0, 0.3); padding-bottom: 10px; }
+.slot-result-header h3 { color: #fff; margin: 0 0 5px 0; font-size: 1.4em; text-shadow: 0 0 10px #ff0000; }
+.bet-recommendation { font-size: 1.1em; color: #ccc; font-weight: bold; background: rgba(255,255,255,0.1); display: inline-block; padding: 5px 15px; border-radius: 20px; }
+
+.slot-win-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.win-item {
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    padding: 10px 5px;
+    text-align: center;
+    border: 1px solid #444;
+    display: flex; flex-direction: column; gap: 5px;
+}
+
+.win-label { font-size: 0.65em; font-weight: bold; color: #aaa; }
+.win-percent { font-size: 1.1em; font-weight: 900; font-family: 'Orbitron', sans-serif; }
+
+/* Màu sắc từng ô */
+.win-item.big-win { border-color: #00ff8c; box-shadow: 0 0 10px rgba(0, 255, 140, 0.1); }
+.win-item.big-win .win-percent { color: #00ff8c; text-shadow: 0 0 5px #00ff8c; }
+
+.win-item.mega-win { border-color: #d600ff; box-shadow: 0 0 10px rgba(214, 0, 255, 0.1); }
+.win-item.mega-win .win-percent { color: #d600ff; text-shadow: 0 0 5px #d600ff; }
+
+.win-item.super-mega-win { border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.1); background: rgba(255, 215, 0, 0.1); }
+.win-item.super-mega-win .win-percent { color: #ffd700; text-shadow: 0 0 8px #ffd700; font-size: 1.2em; }

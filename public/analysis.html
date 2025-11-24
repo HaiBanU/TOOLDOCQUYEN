@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Wukong Slot - HACK Game</title>
+    <title>IronxSlot - HACK Game</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css"> 
     <link rel="stylesheet" href="/css/analysis.css">
+    <link rel="stylesheet" href="/css/analysis-slot.css">
     <link rel="manifest" href="/manifest.json">
-    <!-- Thêm CSS nhỏ để chỉnh lại Header cho trang này -->
     <style>
         .analysis-page-header { justify-content: space-between; gap: 10px; }
         .analysis-page-header .header-center { width: auto; flex: 1; }
@@ -136,6 +136,21 @@
                             <div id="info-box-1" class="led-info-box"><span>QUAY MỒI</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-2" class="led-info-box"><span>QUAY AUTO</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-3" class="led-info-box"><span>KHUNG GIỜ</span><small>Chưa có dữ liệu</small></div>
+
+                            <!-- === THÊM MỚI: NÚT VIP FEATURE === -->
+                            <div id="vip-slot-feature-btn" class="slot-vip-btn">
+                                <div class="rgb-glow-border"></div>
+                                <div class="vip-control-inner">
+                                    <div class="vip-header">
+                                        <span class="crown-icon">👑</span>
+                                        <span class="vip-label">VIP FEATURE</span>
+                                    </div>
+                                    <div class="vip-status-display" id="vip-slot-status-text">
+                                        PHÂN TÍCH MUA FREE SPIN
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- === KẾT THÚC THÊM MỚI === -->
                         </div>
                     </div>
 
@@ -173,7 +188,55 @@
         </div>
     </div>
 
-    <script src="/js/global.js"></script> <!-- ĐẢM BẢO LOAD GLOBAL.JS TRƯỚC -->
+    <!-- === POPUP CẢNH BÁO NẠP VIP === -->
+    <div id="vip-alert-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content">
+            <div class="vip-modal-icon">
+                <span class="lock-body" style="font-size: 3.5em;">🔒</span>
+            </div>
+            <h3 class="vip-modal-title">TÍNH NĂNG VIP</h3>
+            <p class="vip-modal-message">
+                Tính năng <b>Mua Free Spin</b> chỉ dành cho thành viên <b>VIP</b>.<br>
+                Vui lòng nạp tích lũy để mở khóa.
+            </p>
+            <button id="close-vip-alert" class="btn-vip-action">ĐÃ HIỂU</button>
+        </div>
+    </div>
+
+    <!-- === POPUP KẾT QUẢ MUA FEATURE (DÀNH CHO VIP) === -->
+    <div id="vip-result-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content slot-result-content">
+            <span class="close-btn" id="close-vip-result" style="position: absolute; top: 10px; right: 15px; color: #fff;">&times;</span>
+            
+            <div class="slot-result-header">
+                <h3>GỢI Ý MUA FEATURE</h3>
+                <div class="bet-recommendation">
+                    MỨC CƯỢC: <span id="vip-bet-value" style="color: #ffd700;">...</span>
+                </div>
+            </div>
+
+            <div class="slot-win-grid">
+                <div class="win-item big-win">
+                    <span class="win-label">BIG WIN</span>
+                    <span class="win-percent" id="vip-big-win">...%</span>
+                </div>
+                <div class="win-item mega-win">
+                    <span class="win-label">MEGA WIN</span>
+                    <span class="win-percent" id="vip-mega-win">...%</span>
+                </div>
+                <div class="win-item super-mega-win">
+                    <span class="win-label">SUPER MEGA</span>
+                    <span class="win-percent" id="vip-super-win">...%</span>
+                </div>
+            </div>
+            
+            <p style="color: #ccc; font-size: 0.8em; margin-top: 15px; font-style: italic;">
+                *Dữ liệu được giải mã từ máy chủ game. Tỷ lệ chính xác 98%.
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/global.js"></script> 
     <script src="/js/analysis.js"></script>
     <script>
         // Gọi hàm Update VIP khi trang load

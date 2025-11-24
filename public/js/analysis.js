@@ -24,6 +24,23 @@ window.onload = () => {
     const infoBox3 = document.getElementById('info-box-3');
     const scannerBox = document.querySelector('.slot-scanner-box');
 
+    // === DOM ELEMENTS CHO VIP FEATURE (NEW) ===
+    const vipSlotBtn = document.getElementById('vip-slot-feature-btn');
+    const vipSlotStatusText = document.getElementById('vip-slot-status-text');
+    
+    const vipResultModal = document.getElementById('vip-result-modal');
+    const closeVipResultBtn = document.getElementById('close-vip-result');
+    
+    const vipAlertModal = document.getElementById('vip-alert-modal');
+    const closeVipAlertBtn = document.getElementById('close-vip-alert');
+
+    const vipBetValue = document.getElementById('vip-bet-value');
+    const vipBigWin = document.getElementById('vip-big-win');
+    const vipMegaWin = document.getElementById('vip-mega-win');
+    const vipSuperWin = document.getElementById('vip-super-win');
+
+    let isUserVip = false;
+
     // === 2. GET URL PARAMS ===
     const params = new URLSearchParams(window.location.search);
     const gameName = params.get('gameName');
@@ -51,7 +68,27 @@ window.onload = () => {
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
 
-    const fetchUserInfoFromServer = async () => { try { const res = await fetch(`/api/user-info?username=${username}`); const data = await res.json(); if (data.success) { const coinsByBrand = data.userInfo.coins_by_brand || {}; const currentCoins = coinsByBrand[selectedBrand] || 0; coinDisplay.textContent = `Token: ${currentCoins}`; } } catch (e) { console.error(e); } };
+    const fetchUserInfoFromServer = async () => { 
+        try { 
+            const res = await fetch(`/api/user-info?username=${username}`); 
+            const data = await res.json(); 
+            if (data.success) { 
+                const coinsByBrand = data.userInfo.coins_by_brand || {}; 
+                const currentCoins = coinsByBrand[selectedBrand] || 0; 
+                coinDisplay.textContent = `Token: ${currentCoins}`; 
+                
+                // CẬP NHẬT TRẠNG THÁI VIP
+                if (data.vipData && data.vipData.isVip) {
+                    isUserVip = true;
+                    if(vipSlotStatusText) {
+                        vipSlotStatusText.textContent = "KÍCH HOẠT NGAY";
+                        vipSlotStatusText.style.color = "#ffd700";
+                    }
+                }
+            } 
+        } catch (e) { console.error(e); } 
+    };
+
     const cleanupSession = () => { sessionStorage.removeItem(ACTIVE_ANALYSIS_KEY); };
     const handleInsufficientTokens = (message) => { stopAllTimers(); cleanupSession(); alert(message); window.location.href = '/dashboard.html'; };
     const stopAllTimers = () => { 
@@ -79,13 +116,12 @@ window.onload = () => {
         }
     }
 
-    // === POPUP & RESET LOGIC (ĐÃ SỬA: DÙNG ẢNH PNG) ===
+    // === POPUP & RESET LOGIC ===
     function showScatterExplosion() {
         const frame = document.querySelector('.analysis-content');
         if(!frame) return;
         const overlay = document.createElement('div');
         overlay.className = 'scatter-popup-overlay';
-        // Sử dụng ảnh PNG thay cho Emoji
         overlay.innerHTML = `
             <div class="sunburst-bg"></div>
             <div class="scatter-popup-content">
@@ -99,13 +135,11 @@ window.onload = () => {
     
     function hideScatterExplosion() { const overlay = document.querySelector('.scatter-popup-overlay'); if(overlay) overlay.remove(); }
 
-    // === HÀM QUAN TRỌNG: RESET VỀ BAN ĐẦU ===
     function initializeUI() {
         setupVisuals();
         resetScannerToDefault();
         hideScatterExplosion();
 
-        // Reset % về ban đầu
         const startPercent = (initialWinRate && initialWinRate !== 'null') ? initialWinRate : 0;
         progressValue.textContent = `${startPercent}%`;
         progressValue.classList.remove('success', 'end-state');
@@ -128,17 +162,13 @@ window.onload = () => {
         isAnalyzing = false;
     }
 
-    // === HÀM DỪNG HACK THỦ CÔNG ===
     function forceStopHack() {
         confirmModal.style.display = 'none';
-        // Dừng mọi timer
         stopAllTimers();
         cleanupSession();
-        // Reset giao diện về 0% ngay lập tức (Không hiện END, Không hiện Popup)
         initializeUI();
     }
 
-    // === DISPLAY RESULTS ===
     function displayResults(results, isResuming = false) {
         const targetVal = results.finalRate;
         infoBox1.innerHTML = `<span>QUAY MỒI</span><small>${results.quayMoiVong} vòng - Mức cược ${results.quayMoiMucCuoc}K</small>`;
@@ -182,7 +212,6 @@ window.onload = () => {
         progressAnimationId = requestAnimationFrame(animationStep);
     }
 
-    // === COUNTDOWN LOGIC ===
     function startResultCountdown(durationInSeconds) {
         stopAllTimers();
         let timeLeft = durationInSeconds;
@@ -206,12 +235,11 @@ window.onload = () => {
                 if (analysisTimerId) clearInterval(analysisTimerId);
                 cleanupSession();
                 
-                // HẾT GIỜ TỰ ĐỘNG -> HIỆN END VÀ POPUP
                 progressValue.textContent = "END";
                 progressValue.classList.remove('success');
                 progressValue.classList.add('end-state');
                 
-                showScatterExplosion(); // Gọi hàm hiển thị ảnh PNG
+                showScatterExplosion();
                 
                 setTimeout(() => {
                     hideScatterExplosion();
@@ -236,7 +264,69 @@ window.onload = () => {
         } else { cleanupSession(); initializeUI(); }
     }
 
-    // === EVENTS ===
+    // === XỬ LÝ SỰ KIỆN CLICK NÚT VIP (LOGIC MỚI) ===
+    if (vipSlotBtn) {
+        vipSlotBtn.addEventListener('click', () => {
+            // Nếu đang chạy hack chính thì không cho bấm
+            if (isAnalyzing) return;
+
+            // KIỂM TRA QUYỀN VIP
+            if (!isUserVip) {
+                // CHƯA VIP -> HIỆN CẢNH BÁO
+                vipAlertModal.style.display = 'flex';
+            } else {
+                // ĐÃ VIP -> CHẠY LOGIC 3 GIÂY
+                
+                // Đổi text nút thành đang chạy
+                const originalText = vipSlotStatusText.textContent;
+                vipSlotStatusText.textContent = "ĐANG GIẢI MÃ...";
+                vipSlotStatusText.style.color = "#fff";
+                
+                let dots = 0;
+                const loadingInterval = setInterval(() => {
+                    dots = (dots + 1) % 4;
+                    vipSlotStatusText.textContent = "ĐANG GIẢI MÃ" + ".".repeat(dots);
+                }, 400);
+
+                // Sau 3 giây thì hiện kết quả
+                setTimeout(() => {
+                    clearInterval(loadingInterval);
+                    vipSlotStatusText.textContent = "HOÀN TẤT!";
+                    vipSlotStatusText.style.color = "#00ff8c";
+
+                    // 1. Random mức cược: 4k, 8k, 12k, 16k, 20k
+                    const bets = [4, 8, 12, 16, 20];
+                    const randomBet = bets[Math.floor(Math.random() * bets.length)];
+                    vipBetValue.textContent = `${randomBet}K`;
+
+                    // 2. Random tỷ lệ % (80% - 95%)
+                    const percent1 = Math.floor(Math.random() * (90 - 80 + 1)) + 80; // 80-90
+                    const percent2 = Math.floor(Math.random() * (95 - 85 + 1)) + 85; // 85-95
+                    const percent3 = Math.floor(Math.random() * (98 - 90 + 1)) + 90; // 90-98
+
+                    vipBigWin.textContent = `${percent1}%`;
+                    vipMegaWin.textContent = `${percent2}%`;
+                    vipSuperWin.textContent = `${percent3}%`;
+
+                    // Hiện Modal Kết Quả
+                    vipResultModal.style.display = 'flex';
+
+                    // Reset nút sau 2s
+                    setTimeout(() => {
+                        vipSlotStatusText.textContent = "KÍCH HOẠT LẠI";
+                        vipSlotStatusText.style.color = "#ffd700";
+                    }, 2000);
+
+                }, 3000);
+            }
+        });
+    }
+
+    // XỬ LÝ ĐÓNG CÁC MODAL VIP
+    if(closeVipResultBtn) closeVipResultBtn.onclick = () => vipResultModal.style.display = 'none';
+    if(closeVipAlertBtn) closeVipAlertBtn.onclick = () => vipAlertModal.style.display = 'none';
+    
+    // === CÁC SỰ KIỆN KHÁC GIỮ NGUYÊN ===
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
@@ -303,15 +393,15 @@ window.onload = () => {
         }, 5000);
     });
 
-    // --- XỬ LÝ SỰ KIỆN DỪNG HACK ---
     endButton.addEventListener('click', () => { confirmModal.style.display = 'flex'; });
     confirmNoBtn.addEventListener('click', () => { confirmModal.style.display = 'none'; });
-    
-    confirmYesBtn.addEventListener('click', () => { 
-        forceStopHack(); 
-    });
+    confirmYesBtn.addEventListener('click', () => { forceStopHack(); });
 
-    window.addEventListener('click', (e) => { if (e.target == confirmModal) { confirmModal.style.display = 'none'; } });
+    window.addEventListener('click', (e) => { 
+        if (e.target == confirmModal) { confirmModal.style.display = 'none'; } 
+        if (e.target == vipResultModal) vipResultModal.style.display = 'none';
+        if (e.target == vipAlertModal) vipAlertModal.style.display = 'none';
+    });
 
     (async () => {
         await fetchUserInfoFromServer();

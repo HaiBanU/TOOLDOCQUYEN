@@ -1,0 +1,75 @@
+/* --- public/css/analysis-slot.css --- */
+
+/* Màu chủ đạo cho Nổ Hũ: Đỏ & Vàng */
+:root {
+    --slot-theme-color: #d90429;
+    --slot-accent-color: #ffd700;
+}
+
+/* === GIAO DIỆN RIÊNG CHO NỔ HŨ === */
+
+#slot-specific-ui .slot-dashboard-layout { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
+#slot-specific-ui .slot-row-top { display: flex; justify-content: space-between; align-items: center; height: 120px; position: relative; }
+#slot-specific-ui .slot-col-left { flex: 0 0 90px; display: flex; justify-content: center; align-items: center; z-index: 2; }
+#slot-specific-ui .slot-col-right { flex: 0 0 120px; display: flex; justify-content: center; align-items: center; z-index: 2; }
+#slot-specific-ui .slot-col-center { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; height: 100%; }
+
+#slot-specific-ui .progress-frame-container { margin: 0; }
+#slot-specific-ui .robot-container { width: auto; text-align: center; display: flex; justify-content: center; align-items: center; margin: 0; }
+
+/* --- ĐÃ CHỈNH SỬA: Robot nhỏ lại (90px) --- */
+#slot-specific-ui #robot-image { 
+    max-width: 90px; 
+    animation: bot-float 3s infinite ease-in-out; 
+    margin-top: 10px; 
+}
+
+#slot-specific-ui .gif-frame { width: 100%; }
+#slot-specific-ui .gif-frame::before { animation: none; border: 1px solid var(--slot-theme-color); }
+
+/* Hàng giữa chứa ảnh game và thông số scan */
+#slot-specific-ui .slot-row-middle { display: flex; justify-content: space-between; align-items: stretch; gap: 10px; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(217, 4, 41, 0.3); border-radius: 10px; padding: 8px; position: relative; }
+#slot-specific-ui .slot-game-image-box { width: 45%; position: relative; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 0, 0, 0.5); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2), inset 0 0 20px rgba(255, 0, 0, 0.1); border-radius: 12px; padding: 4px; overflow: hidden; }
+#slot-specific-ui .glitch-wrapper { width: 100%; height: 100%; border-radius: 8px; border: none; position: relative; }
+#slot-specific-ui #panel-game-image { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+#slot-specific-ui .glitch-layer { border-radius: 8px; }
+#slot-specific-ui .scan-impact-ripple { border-radius: 8px; }
+
+/* Khu vực Scan Text bên phải */
+#slot-specific-ui .slot-scanner-box { width: 55%; position: relative; background: rgba(40, 0, 0, 0.6); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 0, 0, 0.3); box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.2); }
+#slot-specific-ui .scanner-lines { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: space-evenly; padding: 5px; }
+#slot-specific-ui .scan-line-item { height: 2px; background: linear-gradient(90deg, transparent, #ff0000, transparent); width: 100%; opacity: 0.7; box-shadow: 0 0 8px #ff0000; }
+#slot-specific-ui .scan-line-item.s1 { animation: scan-move 2s infinite ease-in-out; width: 80%; align-self: center; }
+#slot-specific-ui .scan-line-item.s2 { animation: scan-move 2s infinite ease-in-out 0.3s; width: 60%; align-self: flex-start; margin-left: 10%; }
+#slot-specific-ui .scan-line-item.s3 { animation: scan-move 2s infinite ease-in-out 0.6s; width: 90%; align-self: center; }
+@keyframes scan-move { 0%, 100% { opacity: 0.3; transform: scaleX(0.8); } 50% { opacity: 1; transform: scaleX(1); box-shadow: 0 0 15px #ff0000; } }
+#slot-specific-ui .scan-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ff3333; font-size: 0.9em; font-family: monospace; letter-spacing: 2px; font-weight: bold; animation: blink-text 1s infinite; text-shadow: 0 0 8px #ff0000; z-index: 2; }
+
+/* --- TIA LAZE MÀU VÀNG (SLOT) --- */
+.robot-to-game-scanner {
+    /* Gradient từ Vàng sang Trong suốt */
+    background: linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0)) !important;
+    /* Bóng đổ sáng màu vàng */
+    box-shadow: 0 0 8px #ffd700 !important;
+}
+
+.robot-to-game-scanner::after {
+    /* Tâm tia sáng màu trắng */
+    background: #fff !important;
+    /* Tỏa sáng ra xung quanh màu vàng */
+    box-shadow: 0 0 8px #fff, 0 0 15px #ffd700 !important;
+}
+
+/* Mobile Responsive riêng cho Slot */
+@media (max-width: 480px) {
+    #slot-specific-ui .slot-row-top { height: 100px; }
+    
+    /* --- ĐÃ CHỈNH SỬA: Robot nhỏ lại trên Mobile (70px) --- */
+    #slot-specific-ui #robot-image { max-width: 70px; }
+    
+    #slot-specific-ui .progress-frame-container { width: 80px; height: 80px; }
+    #slot-specific-ui .progress-frame-value { font-size: 1.4em; }
+    #slot-specific-ui .gif-frame { width: 80px; }
+    #slot-specific-ui .slot-col-left, #slot-specific-ui .slot-col-right { flex: 0 0 60px; }
+    #slot-specific-ui .slot-row-middle { height: 100px; }
+}

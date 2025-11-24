@@ -1,7 +1,7 @@
 /* --- START OF FILE public/js/analysis-fish.js --- */
 
 window.onload = () => {
-    // === DOM ===
+    // === DOM ELEMENTS ===
     const coinDisplay = document.getElementById('coin-display');
     const panelGameImage = document.getElementById('panel-game-image');
     const progressValue = document.getElementById('progress-value');
@@ -20,6 +20,23 @@ window.onload = () => {
     const infoBox2 = document.getElementById('info-box-2');
     const infoBox3 = document.getElementById('info-box-3');
 
+    // === DOM ELEMENTS CHO VIP FEATURE ===
+    const vipFishBtn = document.getElementById('vip-fish-feature-btn');
+    const vipFishStatusText = document.getElementById('vip-fish-status-text');
+    
+    const vipFishResultModal = document.getElementById('vip-fish-result-modal');
+    const closeVipFishResultBtn = document.getElementById('close-vip-fish-result');
+    
+    const vipAlertModal = document.getElementById('vip-alert-modal');
+    const closeVipAlertBtn = document.getElementById('close-vip-alert'); // Nếu nút này có trong HTML
+
+    const fishNormalRate = document.getElementById('fish-normal-rate');
+    const fishMediumRate = document.getElementById('fish-medium-rate');
+    const fishSpecialRate = document.getElementById('fish-special-rate');
+
+    let isUserVip = false;
+
+    // === PARAMS ===
     const params = new URLSearchParams(window.location.search);
     const gameName = params.get('gameName');
     const imageUrl = params.get('imageUrl');
@@ -46,7 +63,28 @@ window.onload = () => {
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
 
-    const fetchUserInfoFromServer = async () => { try { const res = await fetch(`/api/user-info?username=${username}`); const data = await res.json(); if (data.success) { const coinsByBrand = data.userInfo.coins_by_brand || {}; const currentCoins = coinsByBrand[selectedBrand] || 0; coinDisplay.textContent = `Token: ${currentCoins}`; } } catch (e) { console.error(e); } };
+    // === FETCH USER INFO & VIP STATUS ===
+    const fetchUserInfoFromServer = async () => { 
+        try { 
+            const res = await fetch(`/api/user-info?username=${username}`); 
+            const data = await res.json(); 
+            if (data.success) { 
+                const coinsByBrand = data.userInfo.coins_by_brand || {}; 
+                const currentCoins = coinsByBrand[selectedBrand] || 0; 
+                coinDisplay.textContent = `Token: ${currentCoins}`; 
+                
+                // CHECK VIP
+                if (data.vipData && data.vipData.isVip) {
+                    isUserVip = true;
+                    if(vipFishStatusText) {
+                        vipFishStatusText.textContent = "KÍCH HOẠT NGAY";
+                        vipFishStatusText.style.color = "#ffd700";
+                    }
+                }
+            } 
+        } catch (e) { console.error(e); } 
+    };
+
     const cleanupSession = () => { sessionStorage.removeItem(ACTIVE_ANALYSIS_KEY); };
     const handleInsufficientTokens = (message) => { stopAllTimers(); cleanupSession(); alert(message); window.location.href = '/dashboard-fish.html'; };
     const stopAllTimers = () => { 
@@ -57,13 +95,12 @@ window.onload = () => {
     };
     const handleRecurringDeduction = async () => { try { const response = await fetch('/api/deduct-recurring-token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, brandName: selectedBrand }) }); const result = await response.json(); if (result.success) { coinDisplay.textContent = `Token: ${result.newCoinBalance}`; progressStatusText.textContent = `Đã trừ 10 Token để duy trì hack...`; } else if (result.outOfTokens) { handleInsufficientTokens(result.message); } } catch (error) { console.error(error); } };
     
-    // === POPUP BOSS (ĐÃ SỬA: DÙNG ẢNH PNG) ===
+    // === POPUP BOSS ===
     function showBossExplosion() {
         const frame = document.querySelector('.analysis-content');
         if(!frame) return;
         const overlay = document.createElement('div');
         overlay.className = 'scatter-popup-overlay';
-        // Sử dụng ảnh PNG thay cho Emoji
         overlay.innerHTML = `
             <div class="sunburst-bg"></div>
             <div class="scatter-popup-content">
@@ -108,7 +145,6 @@ window.onload = () => {
         isAnalyzing = false;
     }
 
-    // === HÀM DỪNG HACK THỦ CÔNG ===
     function forceStopHack() {
         confirmModal.style.display = 'none';
         stopAllTimers();
@@ -182,7 +218,7 @@ window.onload = () => {
                 progressValue.classList.remove('success');
                 progressValue.classList.add('end-state');
                 
-                showBossExplosion(); // Gọi hàm hiển thị ảnh PNG
+                showBossExplosion();
                 
                 setTimeout(() => {
                     hideBossExplosion();
@@ -207,6 +243,72 @@ window.onload = () => {
         } else { cleanupSession(); initializeUI(); }
     }
 
+    // === VIP FEATURE CLICK EVENT ===
+    if (vipFishBtn) {
+        vipFishBtn.addEventListener('click', () => {
+            if (isAnalyzing) return;
+
+            if (!isUserVip) {
+                // CHƯA VIP -> HIỆN MODAL CẢNH BÁO
+                if(vipAlertModal) vipAlertModal.style.display = 'flex';
+                else alert("Tính năng VIP. Vui lòng nạp tích lũy!");
+            } else {
+                // ĐÃ VIP -> CHẠY 3 GIÂY
+                const originalText = vipFishStatusText.textContent;
+                vipFishStatusText.textContent = "ĐANG QUÉT MỤC TIÊU...";
+                vipFishStatusText.style.color = "#fff";
+
+                let dots = 0;
+                const loadingInterval = setInterval(() => {
+                    dots = (dots + 1) % 4;
+                    vipFishStatusText.textContent = "ĐANG QUÉT" + ".".repeat(dots);
+                }, 400);
+
+                setTimeout(() => {
+                    clearInterval(loadingInterval);
+                    vipFishStatusText.textContent = "HOÀN TẤT!";
+                    vipFishStatusText.style.color = "#00ff8c";
+
+                    // === RANDOM TỶ LỆ ===
+                    // 1. Đạn Thường: 10 - 30%
+                    const rate1 = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+                    // 2. Đạn Trung Bình: 35 - 70%
+                    const rate2 = Math.floor(Math.random() * (70 - 35 + 1)) + 35;
+                    // 3. Đạn Đặc Biệt: 80 - 95%
+                    const rate3 = Math.floor(Math.random() * (95 - 80 + 1)) + 80;
+
+                    fishNormalRate.textContent = `${rate1}%`;
+                    fishMediumRate.textContent = `${rate2}%`;
+                    fishSpecialRate.textContent = `${rate3}%`;
+
+                    // Hiện Modal Kết Quả
+                    vipFishResultModal.style.display = 'flex';
+
+                    // Reset nút
+                    setTimeout(() => {
+                        vipFishStatusText.textContent = "KÍCH HOẠT LẠI";
+                        vipFishStatusText.style.color = "#ffd700";
+                    }, 2000);
+
+                }, 3000); // Chờ 3s
+            }
+        });
+    }
+
+    // XỬ LÝ ĐÓNG MODAL
+    if(closeVipFishResultBtn) closeVipFishResultBtn.onclick = () => vipFishResultModal.style.display = 'none';
+    if(vipAlertModal) {
+        const closeAlert = vipAlertModal.querySelector('.btn-vip-action');
+        if(closeAlert) closeAlert.onclick = () => vipAlertModal.style.display = 'none';
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target == vipFishResultModal) vipFishResultModal.style.display = 'none';
+        if (e.target == vipAlertModal) vipAlertModal.style.display = 'none';
+        if (e.target == confirmModal) confirmModal.style.display = 'none';
+    });
+
+    // === MAIN HACK BUTTON ===
     analyzeButton.addEventListener('click', async () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
@@ -271,8 +373,6 @@ window.onload = () => {
     confirmYesBtn.addEventListener('click', () => { 
         forceStopHack(); 
     });
-
-    window.addEventListener('click', (e) => { if (e.target == confirmModal) { confirmModal.style.display = 'none'; } });
 
     (async () => {
         await fetchUserInfoFromServer();

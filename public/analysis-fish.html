@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Wukong Slot - HACK Bắn Cá</title>
+    <title>IronxSlot - HACK Bắn Cá</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/css/user.css"> 
     <link rel="stylesheet" href="/css/analysis.css">
+    <link rel="stylesheet" href="/css/analysis-fish.css">
     <link rel="manifest" href="/manifest.json">
     <style>
         .analysis-page-header { justify-content: space-between; gap: 10px; }
@@ -128,6 +129,21 @@
                             <div id="info-box-1" class="led-info-box"><span>BẮN MỒI CÁ NHỎ</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-2" class="led-info-box"><span>BẮN AUTO CÁ LỚN</span><small>Chưa có dữ liệu</small></div>
                             <div id="info-box-3" class="led-info-box"><span>BẮN BOSS ĐẠN LỚN</span><small>Chưa có dữ liệu</small></div>
+
+                            <!-- === THÊM MỚI: NÚT VIP FEATURE BẮN CÁ === -->
+                            <div id="vip-fish-feature-btn" class="slot-vip-btn">
+                                <div class="rgb-glow-border"></div>
+                                <div class="vip-control-inner">
+                                    <div class="vip-header">
+                                        <span class="crown-icon">👑</span>
+                                        <span class="vip-label">VIP SCANNER</span>
+                                    </div>
+                                    <div class="vip-status-display" id="vip-fish-status-text">
+                                        PHÂN TÍCH DIỆT BOSS
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- === KẾT THÚC NÚT VIP === -->
                         </div>
                     </div>
 
@@ -154,6 +170,7 @@
         </div>
     </main>
     
+    <!-- === MODAL DỪNG HACK === -->
     <div id="custom-confirm-modal">
         <div class="confirm-box-content">
             <h3>⚠️ CẢNH BÁO</h3>
@@ -162,6 +179,57 @@
                 <button id="confirm-no" class="btn-modal btn-cancel">Hủy bỏ</button>
                 <button id="confirm-yes" class="btn-modal btn-confirm">Đồng ý</button>
             </div>
+        </div>
+    </div>
+
+    <!-- === MODAL CẢNH BÁO VIP (DÙNG CHUNG) === -->
+    <div id="vip-alert-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content">
+            <div class="vip-modal-icon">
+                <span class="lock-body" style="font-size: 3.5em;">🔒</span>
+            </div>
+            <h3 class="vip-modal-title">TÍNH NĂNG VIP</h3>
+            <p class="vip-modal-message">
+                Tính năng này chỉ dành cho thành viên <b>VIP</b>.<br>
+                Vui lòng nạp tích lũy để mở khóa.
+            </p>
+            <button id="close-vip-alert" class="btn-vip-action">ĐÃ HIỂU</button>
+        </div>
+    </div>
+
+    <!-- === MODAL KẾT QUẢ VIP BẮN CÁ === -->
+    <div id="vip-fish-result-modal" class="custom-modal-overlay">
+        <div class="vip-modal-content slot-result-content">
+            <span class="close-btn" id="close-vip-fish-result" style="position: absolute; top: 10px; right: 15px; color: #fff;">&times;</span>
+            
+            <div class="slot-result-header">
+                <h3>TỶ LỆ DIỆT BOSS</h3>
+                <div class="bet-recommendation">
+                    MỤC TIÊU: <span style="color: #ffd700;">BOSS RỒNG/VÀNG</span>
+                </div>
+            </div>
+
+            <div class="slot-win-grid">
+                <!-- Ô 1: Đạn Thường -->
+                <div class="win-item normal-bullet">
+                    <span class="win-label">ĐẠN THƯỜNG</span>
+                    <span class="win-percent" id="fish-normal-rate">...%</span>
+                </div>
+                <!-- Ô 2: Đạn Trung Bình -->
+                <div class="win-item medium-bullet">
+                    <span class="win-label">ĐẠN TRUNG BÌNH</span>
+                    <span class="win-percent" id="fish-medium-rate">...%</span>
+                </div>
+                <!-- Ô 3: Đạn Đặc Biệt -->
+                <div class="win-item special-bullet">
+                    <span class="win-label">ĐẠN ĐẶC BIỆT</span>
+                    <span class="win-percent" id="fish-special-rate">...%</span>
+                </div>
+            </div>
+            
+            <p style="color: #ccc; font-size: 0.8em; margin-top: 15px; font-style: italic;">
+                *Khuyên dùng Đạn Đặc Biệt để tối ưu sát thương.
+            </p>
         </div>
     </div>
     
