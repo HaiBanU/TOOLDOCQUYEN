@@ -52,20 +52,21 @@
                 <p class="slogan-text">TOOL HỖ TRỢ TẤT CẢ CÁC SẢNH</p>
                 
                 <div class="form-group">
-                    <input type="text" id="register-username" placeholder="Tên đăng nhập" required>
+                    <!-- Cập nhật: Thêm minlength và maxlength -->
+                    <input type="text" id="register-username" placeholder="Tên đăng nhập (6-20 ký tự)" required minlength="6" maxlength="20">
                 </div>
                 
                 <div class="form-group">
-                    <input type="password" id="register-password" placeholder="Mật khẩu" required>
-                    <!-- Nút Mắt -->
+                    <!-- Cập nhật: Thêm minlength và maxlength -->
+                    <input type="password" id="register-password" placeholder="Mật khẩu (6-20 ký tự)" required minlength="6" maxlength="20">
                     <span class="toggle-password-btn" onclick="togglePasswordVisibility('register-password', this)">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
                     </span>
                 </div>
                 
                 <div class="form-group">
-                    <input type="password" id="register-password-confirm" placeholder="Nhập lại mật khẩu" required>
-                    <!-- Nút Mắt -->
+                    <!-- Cập nhật: Thêm minlength và maxlength -->
+                    <input type="password" id="register-password-confirm" placeholder="Nhập lại mật khẩu" required minlength="6" maxlength="20">
                     <span class="toggle-password-btn" onclick="togglePasswordVisibility('register-password-confirm', this)">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
                     </span>
@@ -100,7 +101,7 @@
             }
         });
 
-        /* === LOGIC HIỆN/ẨN MẬT KHẨU (MỚI THÊM) === */
+        /* === LOGIC HIỆN/ẨN MẬT KHẨU === */
         const eyeOpenSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`;
         const eyeClosedSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`;
 
@@ -117,7 +118,7 @@
             }
         }
 
-        // Xử lý Đăng Ký
+        // Xử lý Đăng Ký (Đã cập nhật logic kiểm tra độ dài)
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('register-username').value;
@@ -125,9 +126,19 @@
             const confirmPassword = document.getElementById('register-password-confirm').value;
 
             let errors = [];
-            if (username.length <= 4) errors.push('Tên đăng nhập phải có nhiều hơn 4 ký tự!');
-            if (password.length <= 6) errors.push('Mật khẩu phải có nhiều hơn 6 ký tự!');
-            if (password !== confirmPassword) errors.push('Mật khẩu nhập lại không khớp!');
+            
+            // CẬP NHẬT: Kiểm tra độ dài 6-20 ký tự
+            if (username.length < 6 || username.length > 20) {
+                errors.push('Tên đăng nhập phải từ 6 đến 20 ký tự!');
+            }
+            
+            if (password.length < 6 || password.length > 20) {
+                errors.push('Mật khẩu phải từ 6 đến 20 ký tự!');
+            }
+            
+            if (password !== confirmPassword) {
+                errors.push('Mật khẩu nhập lại không khớp!');
+            }
 
             if (errors.length > 0) {
                 messageEl.textContent = errors[0];
