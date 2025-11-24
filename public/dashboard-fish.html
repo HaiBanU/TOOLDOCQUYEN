@@ -181,17 +181,7 @@
         if (overlay) { window.addEventListener('mousemove', (e) => { overlay.style.setProperty('--mouse-x', `${e.clientX}px`); overlay.style.setProperty('--mouse-y', `${e.clientY}px`); }); }
     </script>
     <!-- POPUP NHẬP SỐ DƯ (Thêm vào cuối body) -->
-<div id="moneyInputModal" class="money-input-modal">
-    <div class="money-modal-content">
-        <div class="money-modal-title">Nhập Vốn Hiện Tại</div>
-        <div class="money-input-group">
-            <input type="text" id="userMoneyInput" class="money-input-field" placeholder="0" autocomplete="off">
-            <span class="money-currency">VNĐ</span>
-        </div>
-        <div id="moneyError" class="money-error-msg">⚠️ Vốn phải trên 50.000 VNĐ mới có thể HACK!</div>
-        <button id="confirmHackBtn" class="money-btn-confirm">BẮT ĐẦU QUÉT (10 TOKEN)</button>
-        <div style="margin-top: 15px; color: #666; font-size: 0.8em; cursor: pointer;" onclick="document.getElementById('moneyInputModal').style.display='none'">Đóng</div>
-    </div>
+
 </div>
 </body>
 </html>
