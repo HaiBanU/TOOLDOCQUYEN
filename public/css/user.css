@@ -168,20 +168,24 @@ body.analysis-page {
 }
 
 @keyframes shoot-rl {
-    0% { transform: translateX(100vw) rotate(225deg); opacity: 1; }
-    100% { transform: translateX(-50vw) rotate(225deg); opacity: 0; }
+    /* Thêm tham số 0 vào cuối để thành 3D */
+    0% { transform: translate3d(100vw, 0, 0) rotate(225deg); opacity: 1; }
+    100% { transform: translate3d(-50vw, 0, 0) rotate(225deg); opacity: 0; }
 }
-@keyframes shoot-lr {
-    0% { transform: translateX(-100vw) rotate(45deg); opacity: 1; }
-    100% { transform: translateX(50vw) rotate(45deg); opacity: 0; }
+@keyframes shoot-rl {
+    /* Thêm tham số 0 vào cuối để thành 3D */
+    0% { transform: translate3d(100vw, 0, 0) rotate(225deg); opacity: 1; }
+    100% { transform: translate3d(-50vw, 0, 0) rotate(225deg); opacity: 0; }
 }
-@keyframes shoot-tb {
-    0% { transform: translateY(-50vh) rotate(135deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(135deg); opacity: 0; }
+@keyframes shoot-rl {
+    /* Thêm tham số 0 vào cuối để thành 3D */
+    0% { transform: translate3d(100vw, 0, 0) rotate(225deg); opacity: 1; }
+    100% { transform: translate3d(-50vw, 0, 0) rotate(225deg); opacity: 0; }
 }
-@keyframes shoot-bt {
-    0% { transform: translateY(50vh) rotate(315deg); opacity: 1; }
-    100% { transform: translateY(-100vh) rotate(315deg); opacity: 0; }
+@keyframes shoot-rl {
+    /* Thêm tham số 0 vào cuối để thành 3D */
+    0% { transform: translate3d(100vw, 0, 0) rotate(225deg); opacity: 1; }
+    100% { transform: translate3d(-50vw, 0, 0) rotate(225deg); opacity: 0; }
 }
 
 .shooting-stars .star:nth-child(4n + 1) { animation-name: shoot-lr; }

@@ -9,10 +9,11 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+const compression = require('compression');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+app.use(compression());
 // === CẤU HÌNH ĐƯỜNG DẪN ẢNH (QUAN TRỌNG) ===
 // Đường dẫn Disk bạn đã cấu hình trên Render
 const RENDER_DISK_PATH = '/var/data/uploads';
