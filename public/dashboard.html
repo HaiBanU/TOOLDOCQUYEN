@@ -39,7 +39,6 @@
             <a href="/brand-selection.html" class="back-button-user" style="position: static; transform: none; text-decoration: none;">← Chọn Lại</a>
         </div>
         
-        <!-- === CẬP NHẬT HEADER CENTER === -->
         <div class="header-center">
             <div class="user-status-row">
                 <div id="welcome-message">Chào, ...</div>
@@ -58,7 +57,6 @@
             
             <div id="live-clock-container"></div>
         </div>
-        <!-- ============================== -->
 
         <div class="header-right">
             <div class="header-right-content">
@@ -110,6 +108,45 @@
         const username = localStorage.getItem('username');
         const coinDisplay = document.getElementById('coin-display');
 
+        // === 1. LOGIC TERMINAL (ĐÃ THÊM MỚI) ===
+        const terminalMessages = [
+            "Đang kết nối tới máy chủ dữ liệu...",
+            "Đang quét tín hiệu các Sảnh Nổ Hũ...",
+            "Phát hiện luồng tiền lớn tại sảnh JILI...",
+            "Đang giải mã thuật toán RTP thời gian thực...",
+            "Hệ thống Wukong đã sẵn sàng.",
+            "Đang đồng bộ dữ liệu người dùng...",
+            "Cảnh báo: Sảnh PG đang có biến động mạnh!"
+        ];
+        let lastMessageIndex = -1;
+        let typingInterval;
+
+        function typeMessage(element, message) {
+            if (typingInterval) clearInterval(typingInterval);
+            let i = 0;
+            element.innerHTML = '';
+            typingInterval = setInterval(() => {
+                if (i < message.length) {
+                    element.textContent += message.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 50);
+        }
+
+        function showNextTerminalMessage() {
+            const messageEl = document.getElementById('terminal-message');
+            if (!messageEl) return;
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * terminalMessages.length);
+            } while (randomIndex === lastMessageIndex && terminalMessages.length > 1);
+            lastMessageIndex = randomIndex;
+            typeMessage(messageEl, terminalMessages[randomIndex]);
+        }
+        // =======================================
+
         async function updateTokenDisplay() {
             if (!username) return;
             try {
@@ -140,9 +177,12 @@
         window.onload = async () => {
             updateClock(); setInterval(updateClock, 1000);
             
-            // === GỌI HÀM CẬP NHẬT VIP TỪ GLOBAL.JS ===
+            // Kích hoạt Terminal
+            showNextTerminalMessage();
+            setInterval(showNextTerminalMessage, 6000);
+
+            // Cập nhật VIP từ global.js
             if (username) updateVipDisplay(username);
-            // ==========================================
 
             const brandName = sessionStorage.getItem('selectedBrand');
             if (!brandName) { window.location.href = '/brand-selection.html'; return; }
@@ -187,5 +227,18 @@
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { overlay.style.setProperty('--mouse-x', `${e.clientX}px`); overlay.style.setProperty('--mouse-y', `${e.clientY}px`); }); }
     </script>
+    <!-- POPUP NHẬP SỐ DƯ (Thêm vào cuối body) -->
+<div id="moneyInputModal" class="money-input-modal">
+    <div class="money-modal-content">
+        <div class="money-modal-title">Nhập Vốn Hiện Tại</div>
+        <div class="money-input-group">
+            <input type="text" id="userMoneyInput" class="money-input-field" placeholder="0" autocomplete="off">
+            <span class="money-currency">VNĐ</span>
+        </div>
+        <div id="moneyError" class="money-error-msg">⚠️ Vốn phải trên 50.000 VNĐ mới có thể HACK!</div>
+        <button id="confirmHackBtn" class="money-btn-confirm">BẮT ĐẦU QUÉT (10 TOKEN)</button>
+        <div style="margin-top: 15px; color: #666; font-size: 0.8em; cursor: pointer;" onclick="document.getElementById('moneyInputModal').style.display='none'">Đóng</div>
+    </div>
+</div>
 </body>
 </html>

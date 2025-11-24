@@ -28,62 +28,101 @@
             opacity: 0.9;
         }
 
-        /* === FIX LỖI HEADER MOBILE (MỚI THÊM) === */
+        /* === FIX LỖI HEADER MOBILE === */
         @media (max-width: 768px) {
             body.games-page .header {
-                flex-wrap: wrap; /* Cho phép rớt dòng */
+                flex-wrap: wrap;
                 justify-content: space-between;
                 padding: 10px 15px !important;
                 gap: 5px;
             }
-
-            /* 1. Nút Quay Lại (Trái) - Lên hàng đầu, chiếm 50% */
-            body.games-page .header-left {
-                flex-basis: 45%;
-                order: 1;
-                display: flex;
-                align-items: center;
-            }
-
-            /* 2. Token/Logout (Phải) - Lên hàng đầu, chiếm 50% */
-            body.games-page .header-right {
-                flex-basis: 45%;
-                order: 2;
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-            }
-            
-            /* Thu nhỏ nút Token chút cho đỡ bị tràn */
-            .header-right-content {
-                transform: scale(0.9);
-                transform-origin: right center;
-            }
-
-            /* 3. User/VIP (Giữa) - Rớt xuống hàng dưới, chiếm 100% */
-            body.games-page .header-center {
-                flex-basis: 100%;
-                order: 3;
-                margin-top: 10px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            /* Thu nhỏ khung VIP chút cho vừa màn hình */
-            .user-status-row {
-                transform: scale(0.95);
-            }
+            body.games-page .header-left { flex-basis: 45%; order: 1; display: flex; align-items: center; }
+            body.games-page .header-right { flex-basis: 45%; order: 2; display: flex; justify-content: flex-end; align-items: center; }
+            .header-right-content { transform: scale(0.9); transform-origin: right center; }
+            body.games-page .header-center { flex-basis: 100%; order: 3; margin-top: 10px; display: flex; flex-direction: column; align-items: center; }
+            .user-status-row { transform: scale(0.95); }
         }
 
-        /* === CSS CHO BỘ LỌC === */
+        /* ============================================= */
+        /* === CSS MỚI: HIỆU ỨNG SỌC CHẠY CHO NÚT === */
+        /* ============================================= */
         #filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .filter-btn { border: 2px solid transparent; color: #fff; padding: 8px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: all 0.2s ease-in-out; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-        .filter-btn.filter-all, .filter-btn.filter-wait { background: linear-gradient(45deg, #a40606, #d90429); }
-        .filter-btn.filter-jackpot { background: linear-gradient(45deg, #00b894, #00ff8c); }
-        .filter-btn.filter-play { background: linear-gradient(45deg, #ff8e00, #ffc62b); }
-        .filter-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
-        .filter-btn.active { transform: translateY(-2px) scale(1.05); filter: brightness(1.2); box-shadow: 0 6px 20px rgba(0,0,0,0.5); border-color: #fff; }
+
+        /* 1. Style Cơ Bản Của Nút */
+        .filter-btn {
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 10px 25px; /* To hơn chút cho đẹp */
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800; /* Chữ đậm hơn */
+            text-transform: uppercase;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            overflow: hidden; /* Để giấu phần sọc chạy ra ngoài */
+            z-index: 1; /* Để nội dung nổi lên trên */
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* 2. Màu Nền Cho Từng Nút (Gradient Đậm) */
+        .filter-btn.filter-all { background: linear-gradient(180deg, #ff3333, #b30000); border-color: #ff6666; }
+        .filter-btn.filter-jackpot { background: linear-gradient(180deg, #00e676, #008040); border-color: #69f0ae; }
+        .filter-btn.filter-play { background: linear-gradient(180deg, #ffcc00, #ff8800); border-color: #ffe57f; }
+        .filter-btn.filter-wait { background: linear-gradient(180deg, #d50000, #8a0000); border-color: #ff5252; }
+
+        /* 3. Lớp Sọc Chéo Chạy (Giống thanh tiến trình) */
+        .filter-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            /* Tạo sọc chéo trắng mờ */
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.35) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.35) 50%,
+                rgba(255, 255, 255, 0.35) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 20px 20px; /* Kích thước sọc */
+            animation: move-stripes-btn 1s linear infinite; /* Tốc độ chạy */
+            z-index: -1; /* Nằm dưới chữ */
+            mix-blend-mode: overlay; /* Hòa trộn màu cho đẹp */
+        }
+
+        /* 4. Hiệu Ứng Bóng Kính (Glass) Ở Nửa Trên */
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 45%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+            border-radius: 50px 50px 100% 100% / 20px; /* Bo cong kiểu bóng kính */
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        /* 5. Animation Chạy Sọc */
+        @keyframes move-stripes-btn {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 0; }
+        }
+
+        /* 6. Hiệu Ứng Hover & Active */
+        .filter-btn:hover { 
+            transform: translateY(-3px); 
+            filter: brightness(1.2); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        .filter-btn.active { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), inset 0 0 10px rgba(255,255,255,0.3);
+            border: 2px solid #fff;
+        }
     </style>
 </head>
 <script>
@@ -138,6 +177,7 @@
         <!-- Tên Sảnh -->
         <h2 class="main-title" id="lobby-title-display">Đang tải tên sảnh...</h2>
 
+        <!-- BỘ LỌC GAME (ĐÃ CẬP NHẬT CSS) -->
         <div id="filter-container">
             <button class="filter-btn filter-all active" data-filter="all">Tất Cả</button>
             <button class="filter-btn filter-jackpot" data-filter="jackpot">Jackpot</button>

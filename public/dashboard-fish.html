@@ -37,7 +37,6 @@
             <a href="/brand-selection.html" class="back-button-user" style="position: static; transform: none; text-decoration: none;">← Chọn Lại</a>
         </div>
         
-        <!-- === CẬP NHẬT HEADER CENTER === -->
         <div class="header-center">
             <div class="user-status-row">
                 <div id="welcome-message">Chào, ...</div>
@@ -56,7 +55,6 @@
             
             <div id="live-clock-container"></div>
         </div>
-        <!-- ============================== -->
 
         <div class="header-right">
             <div class="header-right-content">
@@ -87,8 +85,50 @@
 
         function updateClock() { const clockContainer = document.getElementById('live-clock-container'); if (!clockContainer) return; const now = new Date(); clockContainer.innerHTML = `<span class="clock-time">${now.toLocaleTimeString('vi-VN')}</span><span class="clock-date">${now.toLocaleDateString('vi-VN')}</span>`; }
         
+        // === 1. LOGIC TERMINAL BẮN CÁ (ĐÃ THÊM MỚI) ===
+        const terminalMessages = [
+            "Đang kết nối tới Sảnh Bắn Cá...",
+            "Đang quét tọa độ Boss...",
+            "Phân tích quỹ đạo đạn...",
+            "Phát hiện Boss Rồng tại sảnh JILI...",
+            "Tối ưu hóa thuật toán khóa mục tiêu...",
+            "Hệ thống sẵn sàng: Chế độ Auto-Lock."
+        ];
+        let lastMessageIndex = -1;
+        let typingInterval;
+
+        function typeMessage(element, message) {
+            if (typingInterval) clearInterval(typingInterval);
+            let i = 0;
+            element.innerHTML = '';
+            typingInterval = setInterval(() => {
+                if (i < message.length) {
+                    element.textContent += message.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 50);
+        }
+
+        function showNextTerminalMessage() {
+            const messageEl = document.getElementById('terminal-message');
+            if (!messageEl) return;
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * terminalMessages.length);
+            } while (randomIndex === lastMessageIndex && terminalMessages.length > 1);
+            lastMessageIndex = randomIndex;
+            typeMessage(messageEl, terminalMessages[randomIndex]);
+        }
+        // ==============================================
+
         window.onload = async () => {
             updateClock(); setInterval(updateClock, 1000);
+
+            // Kích hoạt Terminal
+            showNextTerminalMessage();
+            setInterval(showNextTerminalMessage, 6000);
 
             const brandName = sessionStorage.getItem('selectedBrand');
             if (!brandName) { window.location.href = '/brand-selection.html'; return; }
@@ -97,9 +137,8 @@
             const username = localStorage.getItem('username');
             if (!username) { window.location.href = '/'; return; }
 
-            // === GỌI HÀM CẬP NHẬT VIP ===
+            // Cập nhật VIP
             if (username) updateVipDisplay(username);
-            // ===========================
 
             const [userRes, lobbyRes] = await Promise.all([
                 fetch(`/api/user-info?username=${username}`),
@@ -141,5 +180,18 @@
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { overlay.style.setProperty('--mouse-x', `${e.clientX}px`); overlay.style.setProperty('--mouse-y', `${e.clientY}px`); }); }
     </script>
+    <!-- POPUP NHẬP SỐ DƯ (Thêm vào cuối body) -->
+<div id="moneyInputModal" class="money-input-modal">
+    <div class="money-modal-content">
+        <div class="money-modal-title">Nhập Vốn Hiện Tại</div>
+        <div class="money-input-group">
+            <input type="text" id="userMoneyInput" class="money-input-field" placeholder="0" autocomplete="off">
+            <span class="money-currency">VNĐ</span>
+        </div>
+        <div id="moneyError" class="money-error-msg">⚠️ Vốn phải trên 50.000 VNĐ mới có thể HACK!</div>
+        <button id="confirmHackBtn" class="money-btn-confirm">BẮT ĐẦU QUÉT (10 TOKEN)</button>
+        <div style="margin-top: 15px; color: #666; font-size: 0.8em; cursor: pointer;" onclick="document.getElementById('moneyInputModal').style.display='none'">Đóng</div>
+    </div>
+</div>
 </body>
 </html>
