@@ -1,3 +1,4 @@
+<!-- --- START OF FILE admin_users.html --- -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -119,10 +120,20 @@
         let currentUsers = [];
         let adminAssignedBrand = null;
 
-        // Format tiền VNĐ
+        // === CẬP NHẬT: Format tiền VNĐ và giới hạn 15 số ===
         function formatCurrencyInput(input) {
+            // 1. Chỉ giữ lại số
             let value = input.value.replace(/\D/g, '');
+            
+            // 2. Cắt chuỗi nếu dài quá 15 ký tự
+            if (value.length > 15) {
+                value = value.slice(0, 15);
+            }
+
+            // 3. Thêm dấu chấm phân cách hàng nghìn
             value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            
+            // 4. Gán lại giá trị
             input.value = value;
         }
 
@@ -183,7 +194,7 @@
             fetchAdminInfo();
         }
         
-        // === CẬP NHẬT HÀM RENDER USERS ===
+        // === CẬP NHẬT: Render Users với Input giới hạn 15 số ===
         function renderUsers(users) {
             userListContainer.innerHTML = '';
              if (users.length === 0) {
@@ -207,11 +218,13 @@
                     <!-- CỘT 2: ĐIỀU KHIỂN TOKEN & VIP -->
                     <div class="user-token-info">
                         
-                        <!-- TOKEN (Đã chuyển nút Thu hồi vào đây) -->
+                        <!-- TOKEN (Đã giới hạn 15 ký tự) -->
                         <div class="control-group">
                             <span class="label-badge bg-token">Token: ${currentCoins}</span>
                             <div class="token-update-form">
-                                <input type="number" id="input-for-${user._id}" placeholder="+/- Token">
+                                <input type="number" id="input-for-${user._id}" placeholder="+/- Token"
+                                       oninput="if(this.value.length > 15) this.value = this.value.slice(0, 15);">
+                                
                                 <button class="btn-mini btn-token-add" onclick="updateUserCoins(event, '${user._id}')">Nạp</button>
                                 <button class="btn-mini btn-token-revoke" onclick="revokeAllCoins('${user._id}', '${user.username}')">Thu hết</button>
                             </div>
