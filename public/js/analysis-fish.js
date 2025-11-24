@@ -93,7 +93,7 @@ window.onload = () => {
     let analysisTimerId = null;
     let countdownIntervalId = null;
     let progressAnimationId = null; 
-    const ACTIVE_ANALYSIS_KEY = 'wukongActiveFishAnalysis';
+    const ACTIVE_ANALYSIS_KEY = 'IronxSlotActiveFishAnalysis';
 
     // === UTILS ===
     const createParticleBurstEffect = () => { const container = document.querySelector('.particle-burst'); if (!container) return; container.innerHTML = ''; const particleCount = 40; const radius = 200; for (let i = 0; i < particleCount; i++) { const particle = document.createElement('div'); particle.className = 'particle'; const angle = Math.random() * 360; const duration = Math.random() * 1.5 + 1; const delay = Math.random() * 2.5; particle.style.setProperty('--angle', `${angle}deg`); particle.style.setProperty('--duration', `${duration}s`); particle.style.setProperty('--delay', `${delay}s`); particle.style.setProperty('--radius', `${radius}px`); container.appendChild(particle); } };

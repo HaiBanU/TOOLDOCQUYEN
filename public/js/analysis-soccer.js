@@ -193,7 +193,7 @@ window.onload = async () => { // Thêm async vào đây
                         initialWinRate: initialWinRate,
                         selectedLeague: currentSelectedLeague
                     };
-                    sessionStorage.setItem('wukongSoccerState', JSON.stringify(stateToSave));
+                    sessionStorage.setItem('IronxSlotSoccerState', JSON.stringify(stateToSave));
                     displayResults(analysisResults, result.newCoinBalance, false);
                 } else {
                     alert(result.message || "Lỗi.");
@@ -224,7 +224,7 @@ window.onload = async () => { // Thêm async vào đây
     await fetchUserInfoFromServer(); 
 
     // 2. Sau khi đã biết VIP status, mới kiểm tra Saved State
-    const savedState = sessionStorage.getItem('wukongSoccerState');
+    const savedState = sessionStorage.getItem('IronxSlotSoccerState');
     if (savedState) {
         const parsedState = JSON.parse(savedState);
         if (parsedState.initialWinRate) {

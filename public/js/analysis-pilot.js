@@ -223,7 +223,7 @@ window.onload = () => {
                         freq: `~${Math.floor(Math.random() * 3) + 2} phiên`
                     };
 
-                    sessionStorage.setItem('wukongPilotState', JSON.stringify({
+                    sessionStorage.setItem('IronxSlotPilotState', JSON.stringify({
                         multiplier: randomMultiplier,
                         data: resultData,
                         initialWinRate: initialWinRate
@@ -307,7 +307,7 @@ window.onload = () => {
     (async () => {
         await fetchUserInfoFromServer();
         
-        const savedState = sessionStorage.getItem('wukongPilotState');
+        const savedState = sessionStorage.getItem('IronxSlotPilotState');
         if (savedState) {
             const parsed = JSON.parse(savedState);
             if(parsed.initialWinRate) progressValue.textContent = `${parsed.initialWinRate}%`;

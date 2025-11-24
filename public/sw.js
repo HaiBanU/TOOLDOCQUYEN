@@ -1,5 +1,5 @@
 // sw.js - Service Worker cơ bản
-const CACHE_NAME = 'wukong-slot-cache-v1';
+const CACHE_NAME = 'IronxSlot-slot-cache-v1';
 // Danh sách các file giao diện cốt lõi cần được lưu lại
 const urlsToCache = [
   '/',

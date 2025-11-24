@@ -1,7 +1,7 @@
 {
   "name": "IronxSlot",
-  "short_name": "Wukong",
-  "description": "Công cụ HACK game slot Wukong",
+  "short_name": "IronxSlot",
+  "description": "Công cụ HACK game slot IronxSlot",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#000000",

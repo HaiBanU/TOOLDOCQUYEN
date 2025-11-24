@@ -40,7 +40,7 @@ confirmAlertModalBtn.onclick = hideAlertModal;
 
 // 5. Terminal Bot Logic
 const terminalMessages = [ 
-    "Khởi tạo Giao thức Wukong... Hoàn tất.", 
+    "Khởi tạo Giao thức IronxSlot... Hoàn tất.", 
     "Xác thực danh tính Chỉ Huy... Thành công.", 
     "Đang tải danh sách các SẢNH GAME đối tác...", 
     "Tất cả module phân tích đã được nạp.", 

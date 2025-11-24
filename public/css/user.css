@@ -11,7 +11,7 @@
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-image: url('/assets/images/wukong-background.jpg');
+    background-image: url('/assets/images/IronxSlot-background.jpg');
     background-size: cover;
     background-position: center center;
 }
@@ -360,7 +360,7 @@ body:not(.login-page):not(.games-page) .header { display: flex; justify-content:
     .terminal-notification { left: 10px; bottom: 25px; transform: scale(1); transform-origin: bottom left; } 
     .terminal-content { width: 280px; bottom: 100px; }
     #page-background {
-        background-image: url('/assets/images/wukong-background-mobile.jpg');
+        background-image: url('/assets/images/IronxSlot-background-mobile.jpg');
         background-size: 100% auto;
         background-position: top center;
         background-repeat: no-repeat;
