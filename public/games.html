@@ -220,12 +220,44 @@
         let typingInterval;
 
         function generateGameMessages(games = []) {
-            const messageTemplates = [ "Giải mã dữ liệu trò chơi...", "Đang HACK chu kỳ và độ biến động.", "Hệ thống gợi ý Jackpot đã kích hoạt.", "Lọc các game có tín hiệu 'chuẩn bị nhả thưởng'...", "Chọn một trò chơi để tiến hành HACK sâu." ];
-            if (games.length > 0) {
-                const jackpotGames = games.filter(game => game.winRate > 85);
-                if (jackpotGames.length > 0) { const bestGame = jackpotGames.sort((a, b) => b.winRate - a.winRate)[0]; messageTemplates.push(`Cảnh báo Jackpot! Game "${bestGame.name}" tỷ lệ ${bestGame.winRate}%.`); }
+            // 1. Các tin nhắn hệ thống cơ bản (giữ lại vài câu để làm nền)
+            let messages = [
+                "Đang kết nối tới máy chủ dữ liệu...",
+                "Đang giải mã thuật toán RNG của nhà cái..."
+            ];
+
+            // 2. Lọc ra các game có tỷ lệ thắng cao (Ví dụ > 80%)
+            // Sắp xếp giảm dần theo winRate để ưu tiên game ngon nhất
+            const highRateGames = games.filter(game => game.winRate >= 80).sort((a, b) => b.winRate - a.winRate);
+            
+            // 3. Lọc ra các game trung bình (60% - 79%)
+            const mediumGames = games.filter(game => game.winRate >= 60 && game.winRate < 80);
+
+            // 4. Tạo tin nhắn cụ thể cho từng game ngon (JACKPOT)
+            if (highRateGames.length > 0) {
+                highRateGames.forEach(game => {
+                    // Mẫu câu bạn yêu cầu
+                    messages.push(`Hệ thống phát hiện thấy game "${game.name}" đang có tỉ lệ jackpot cao (${game.winRate}%)`);
+                    messages.push(`CẢNH BÁO: Game "${game.name}" đang vào cầu (Rate: ${game.winRate}%)`);
+                    messages.push(`Tín hiệu TỐT từ "${game.name}" - Khuyên dùng: Quay Mồi`);
+                });
             }
-            return messageTemplates;
+
+            // 5. Tạo tin nhắn cho game trung bình (để danh sách phong phú hơn)
+            if (mediumGames.length > 0) {
+                // Chỉ lấy ngẫu nhiên khoảng 3-5 game trung bình để không bị loãng
+                const selectedMedium = mediumGames.sort(() => 0.5 - Math.random()).slice(0, 5);
+                selectedMedium.forEach(game => {
+                    messages.push(`Ghi nhận biến động nhẹ tại game "${game.name}" (${game.winRate}%)`);
+                });
+            }
+
+            // 6. Trộn ngẫu nhiên danh sách tin nhắn để nó không hiện theo thứ tự cố định
+            // (Giữ lại tin nhắn đầu tiên là "Đang kết nối..." cho logic)
+            const firstMsg = messages[0];
+            const otherMsgs = messages.slice(1).sort(() => 0.5 - Math.random());
+            
+            return [firstMsg, ...otherMsgs];
         }
 
         function typeMessage(element, message) { if (typingInterval) clearInterval(typingInterval); let i = 0; element.innerHTML = ''; typingInterval = setInterval(() => { if (i < message.length) { element.textContent += message.charAt(i); i++; } else { clearInterval(typingInterval); } }, 50); }
@@ -319,7 +351,7 @@
                 renderGames(allGames);
                 terminalMessages = generateGameMessages(allGames);
                 showNextTerminalMessage();
-                setInterval(showNextTerminalMessage, 10000);
+                setInterval(showNextTerminalMessage, 3500);
             } else {
                 gameContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #fff;">Sảnh này chưa có game nào.</p>';
             }
