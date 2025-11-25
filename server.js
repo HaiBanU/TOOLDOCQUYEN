@@ -1,4 +1,4 @@
-// --- START OF FILE server.js (PHIÊN BẢN FINAL - UPDATE LOGIC KHỚP VỐN) ---
+// --- START OF FILE server.js (FINAL UPDATED - FIX TIME & SPINS) ---
 
 require('dotenv').config();
 
@@ -175,7 +175,7 @@ app.post('/api/revoke-coins-from-admin', async (req, res) => { try { const { adm
 app.post('/api/delete-sub-admin', async (req, res) => { try { const { adminId } = req.body; await User.deleteOne({ _id: adminId }); await User.updateMany({ managed_by_admin_ids: adminId }, { $pull: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Xóa thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
 // ============================================
-// === 7. LOGIC HACK - UPDATE THEO YÊU CẦU ===
+// === 7. LOGIC HACK - UPDATE (FIX TIME & SPIN) ===
 // ============================================
 app.post('/api/analyze-game', async (req, res) => { 
     try { 
@@ -205,8 +205,8 @@ app.post('/api/analyze-game', async (req, res) => {
         else if (balance < 30000000) betMoiVal = 16;
         else betMoiVal = 20; 
 
-        // YÊU CẦU 1: Số vòng quay mồi từ 10 - 20
-        const quayMoiVong = Math.floor(Math.random() * 11) + 10; // Random 10-20
+        // [UPDATE] YÊU CẦU 1: Tăng số vòng quay mồi lên 20 - 40
+        const quayMoiVong = Math.floor(Math.random() * 21) + 20; // Random từ 20 đến 40
         
         // Tính chi phí đã dùng cho Mồi (đơn vị K)
         const costMoiInK = quayMoiVong * betMoiVal;
@@ -218,13 +218,12 @@ app.post('/api/analyze-game', async (req, res) => {
         // YÊU CẦU 2: Danh sách mức cược Auto cố định
         const allowedAutoBets = [20, 24, 28, 32, 36, 40, 60, 100];
         
-        let bestAutoVong = 10;
+        let bestAutoVong = 20; // [UPDATE] Mặc định min là 20
         let bestAutoBet = 20;
         let minDifference = Infinity; // Biến lưu độ lệch nhỏ nhất
 
-        // Chạy vòng lặp để tìm cặp (Vòng, Cược) khớp với vốn nhất
-        // Duyệt số vòng từ 10 đến 20 (Yêu cầu 1)
-        for (let v = 10; v <= 20; v++) {
+        // [UPDATE] Chạy vòng lặp số vòng từ 20 đến 40
+        for (let v = 20; v <= 40; v++) {
             // Duyệt qua các mức cược cho phép
             for (let b of allowedAutoBets) {
                 let currentCost = v * b;
@@ -240,15 +239,15 @@ app.post('/api/analyze-game', async (req, res) => {
             }
         }
 
-        // Logic phụ: Nếu vốn quá lớn, ưu tiên chọn max cược (100k) và max vòng (20)
-        if (targetAutoCost > 2500) { 
+        // Logic phụ: Nếu vốn quá lớn, ưu tiên chọn max cược (100k) và max vòng (40)
+        if (targetAutoCost > 5000) { // Tăng ngưỡng lên vì vòng quay nhiều hơn
             bestAutoBet = 100;
-            bestAutoVong = 20;
+            bestAutoVong = 40;
         }
         // Logic phụ: Nếu vốn quá nhỏ, lấy min
         if (targetAutoCost < 100) {
             bestAutoBet = 20;
-            bestAutoVong = 10;
+            bestAutoVong = 20;
         }
 
         const formatK = (n) => n + 'K';
@@ -257,10 +256,23 @@ app.post('/api/analyze-game', async (req, res) => {
         const base = parseInt(winRate) || 80;
         const calculatedRate = Math.min(99, base + Math.floor(Math.random() * 5));
 
-        // 4. KHUNG GIỜ VÀNG
-        const now = new Date();
-        const future = new Date(now.getTime() + 5 * 60 * 1000); 
-        const formatTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        // 4. [UPDATE] KHUNG GIỜ VÀNG (FIX MÚI GIỜ VIỆT NAM)
+        // Tạo thời gian hiện tại theo múi giờ VN
+        const getVietnamTime = (offsetMinutes = 0) => {
+            const d = new Date();
+            // Cộng thêm phút nếu cần (để tạo giờ kết thúc)
+            d.setMinutes(d.getMinutes() + offsetMinutes);
+            
+            return d.toLocaleTimeString('en-GB', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        };
+
+        const startTime = getVietnamTime(0); // Giờ hiện tại VN
+        const endTime = getVietnamTime(5);   // Giờ hiện tại VN + 5 phút
 
         // Kết quả trả về
         const analysisResults = {
@@ -274,7 +286,8 @@ app.post('/api/analyze-game', async (req, res) => {
             quayAutoVong: bestAutoVong, 
             quayAutoMucCuoc: formatK(bestAutoBet), 
             
-            khungGio: `${formatTime(now)} - ${formatTime(future)}`
+            // [UPDATE] Khung giờ đã fix
+            khungGio: `${startTime} - ${endTime}`
         };
 
         res.json({ 
