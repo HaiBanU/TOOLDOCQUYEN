@@ -252,7 +252,6 @@ window.onload = () => {
     }
 
     function resumeAnalysis(savedState) {
-        // CẬP NHẬT: Tính toán thời gian còn lại chính xác dựa trên expiresAt
         const remainingTime = Math.floor((savedState.expiresAt - Date.now()) / 1000);
         if (remainingTime > 0) { 
             setupVisuals(); 
@@ -265,20 +264,30 @@ window.onload = () => {
         }
     }
 
-    // === MONEY INPUT LOGIC (FIX) ===
+    // === MONEY INPUT LOGIC (ĐÃ SỬA ĐỂ GIỚI HẠN 20 SỐ) ===
     userMoneyInput.addEventListener('input', function(e) {
+        // 1. Chỉ lấy số
         let value = e.target.value.replace(/\D/g, "");
+
+        // 2. GIỚI HẠN 20 SỐ
+        if (value.length > 20) {
+            value = value.slice(0, 20);
+        }
+
+        // 3. Lưu giá trị thô
         currentInputMoneyRaw = parseInt(value) || 0;
+
+        // 4. Format có dấu chấm
         e.target.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
         moneyError.style.display = 'none';
     });
 
     // SỰ KIỆN CLICK NÚT HACK (CHỈ MỞ MODAL)
     analyzeButton.onclick = (e) => {
-        e.preventDefault(); // Ngăn mọi hành động mặc định
+        e.preventDefault(); 
         if (isAnalyzing) return;
         
-        // Reset & Mở Modal
         userMoneyInput.value = '';
         currentInputMoneyRaw = 0;
         moneyError.style.display = 'none';
@@ -297,7 +306,6 @@ window.onload = () => {
         if (isAnalyzing) return;
         isAnalyzing = true;
         
-        // Bắt đầu UI Hack
         initializeUI(); 
         stopAllTimers(); 
         cleanupSession();
@@ -337,11 +345,7 @@ window.onload = () => {
                         khungGio: svResult.khungGio
                     };
                     
-                    // === CẬP NHẬT LOGIC THỜI GIAN TẠI ĐÂY ===
-                    // 1. Random từ 120s (2 phút) đến 180s (3 phút)
                     const randomTime = Math.floor(Math.random() * (180 - 120 + 1)) + 120;
-                    
-                    // 2. Tính thời gian hết hạn chính xác dựa trên randomTime
                     const expiresAt = Date.now() + (randomTime * 1000);
                     
                     const stateToSave = { gameName, expiresAt, results: analysisResults, initialWinRate: initialWinRate };
@@ -349,7 +353,6 @@ window.onload = () => {
                     
                     displayResults(analysisResults, false);
                     startResultCountdown(randomTime);
-                    // =========================================
 
                 } else if (result.outOfTokens) {
                     handleInsufficientTokens(result.message);
@@ -364,7 +367,6 @@ window.onload = () => {
         }, 5000);
     };
 
-    // Close modal when clicking outside
     window.addEventListener('click', (e) => { 
         if (e.target == moneyInputModal) moneyInputModal.style.display = 'none';
         if (e.target == confirmModal) confirmModal.style.display = 'none'; 
@@ -372,7 +374,6 @@ window.onload = () => {
         if (e.target == vipAlertModal) vipAlertModal.style.display = 'none';
     });
 
-    // === VIP CLICK LOGIC ===
     if (vipSlotBtn) {
         vipSlotBtn.addEventListener('click', () => {
             if (isAnalyzing) return;

@@ -1,4 +1,4 @@
-// --- START OF FILE server.js (PHIÊN BẢN FINAL - UPDATE LOGIC CƯỢC & GIỜ VÀNG) ---
+// --- START OF FILE server.js (PHIÊN BẢN FINAL - UPDATE LOGIC KHỚP VỐN) ---
 
 require('dotenv').config();
 
@@ -14,21 +14,17 @@ const compression = require('compression');
 const app = express();
 const port = process.env.PORT || 3000;
 app.use(compression());
+
 // === CẤU HÌNH ĐƯỜNG DẪN ẢNH (QUAN TRỌNG) ===
-// Đường dẫn Disk bạn đã cấu hình trên Render
 const RENDER_DISK_PATH = '/var/data/uploads';
-// Đường dẫn trên máy tính cá nhân
 const LOCAL_DISK_PATH = path.join(__dirname, 'public/uploads');
 
-// Logic: Nếu thư mục /var/data/uploads tồn tại (tức là đang trên Render) thì dùng nó
-// Nếu không thì dùng thư mục local
 let UPLOADS_DIR;
 if (fs.existsSync(RENDER_DISK_PATH)) {
     UPLOADS_DIR = RENDER_DISK_PATH;
     console.log('Running on Render. Using Disk Storage:', UPLOADS_DIR);
 } else {
     UPLOADS_DIR = LOCAL_DISK_PATH;
-    // Tạo thư mục local nếu chưa có
     if (!fs.existsSync(UPLOADS_DIR)){ fs.mkdirSync(UPLOADS_DIR, { recursive: true }); }
     console.log('Running on Localhost. Using Local Storage:', UPLOADS_DIR);
 }
@@ -53,13 +49,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // === CẤU HÌNH STATIC FILES ===
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
-
-// Quan trọng: Map đường dẫn /uploads vào đúng thư mục UPLOADS_DIR đã chọn ở trên
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // Đảm bảo thư mục tồn tại trước khi lưu
         if (!fs.existsSync(UPLOADS_DIR)){ fs.mkdirSync(UPLOADS_DIR, { recursive: true }); }
         cb(null, UPLOADS_DIR);
     },
@@ -85,7 +78,7 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, trim: true }, 
     password: { type: String, required: true }, 
     coins: { type: Number, default: 0 }, 
-    total_deposit: { type: Number, default: 0 }, // Trường mới cho VIP
+    total_deposit: { type: Number, default: 0 }, 
     is_admin: { type: Boolean, default: false }, 
     is_super_admin: { type: Boolean, default: false }, 
     managed_by_admin_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], 
@@ -114,14 +107,13 @@ async function migrateLobbyCategories() { try { await Lobby.updateMany({ categor
 app.post('/api/register', async (req, res) => { try { const { username, password } = req.body; if (!username || !password) return res.status(400).json({ success: false, message: 'Thiếu thông tin' }); if (username.length <= 4) return res.status(400).json({ success: false, message: 'Tên đăng nhập > 4 ký tự' }); if (password.length <= 6) return res.status(400).json({ success: false, message: 'Mật khẩu > 6 ký tự' }); const existingUser = await User.findOne({ username }); if (existingUser) return res.status(409).json({ success: false, message: 'Tên đã tồn tại' }); const hashedPassword = await bcrypt.hash(password, 10); await new User({ username, password: hashedPassword }).save(); res.json({ success: true, message: 'Đăng ký thành công!' }); } catch (error) { res.status(500).json({ success: false, message: 'Lỗi server' }); } });
 app.post('/api/login', async (req, res) => { try { const { username, password } = req.body; const user = await User.findOne({ username }); if (!user) return res.status(404).json({ success: false, message: 'Sai tên đăng nhập' }); const isMatch = await bcrypt.compare(password, user.password); if (isMatch) { res.json({ success: true, message: 'Thành công', isAdmin: user.is_admin, isSuperAdmin: user.is_super_admin, userId: user.is_admin ? user._id : null }); } else { res.status(401).json({ success: false, message: 'Sai mật khẩu' }); } } catch (error) { res.status(500).json({ success: false, message: 'Lỗi server' }); } });
 
-// 2. Lấy thông tin User (Kèm logic VIP)
+// 2. Lấy thông tin User
 app.get('/api/user-info', async (req, res) => { 
     try { 
         const { username } = req.query; 
         const user = await User.findOne({ username }).select('username coins coins_by_brand assigned_brand total_deposit'); 
         if (!user) return res.status(404).json({ success: false, message: "Không tìm thấy user" }); 
         
-        // Logic VIP
         const currentDeposit = user.total_deposit || 0;
         const isVip = currentDeposit >= VIP_THRESHOLD;
         const progressPercent = Math.min(100, (currentDeposit / VIP_THRESHOLD) * 100);
@@ -129,62 +121,35 @@ app.get('/api/user-info', async (req, res) => {
         res.json({ 
             success: true, 
             userInfo: user,
-            vipData: {
-                isVip,
-                currentDeposit,
-                threshold: VIP_THRESHOLD,
-                progressPercent
-            }
+            vipData: { isVip, currentDeposit, threshold: VIP_THRESHOLD, progressPercent }
         }); 
     } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } 
 });
 
-// 3. Admin lấy danh sách User
-app.get('/api/users', async (req, res) => { 
-    try { 
-        const { admin_id } = req.query; 
-        if (!admin_id) return res.status(400).json({ success: false, message: "Thiếu admin info" }); 
-        const users = await User.find({ managed_by_admin_ids: admin_id }).select('_id username coins_by_brand total_deposit'); 
-        res.json({ success: true, users }); 
-    } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } 
-});
-
-// 4. Admin Nạp tiền tích lũy (VIP)
+// 3. Admin APIs
+app.get('/api/users', async (req, res) => { try { const { admin_id } = req.query; if (!admin_id) return res.status(400).json({ success: false, message: "Thiếu admin info" }); const users = await User.find({ managed_by_admin_ids: admin_id }).select('_id username coins_by_brand total_deposit'); res.json({ success: true, users }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } });
 app.post('/api/add-deposit-amount', async (req, res) => {
     try {
         const { userId, amount, adminId } = req.body;
         const depositAmount = parseInt(amount, 10);
-        
-        if (!userId || !adminId || isNaN(depositAmount) || depositAmount === 0) {
-            return res.status(400).json({ success: false, message: "Số tiền không hợp lệ." });
-        }
+        if (!userId || !adminId || isNaN(depositAmount) || depositAmount === 0) return res.status(400).json({ success: false, message: "Số tiền không hợp lệ." });
         
         const admin = await User.findById(adminId);
-        if (!admin || (!admin.is_admin && !admin.is_super_admin)) {
-            return res.status(403).json({ success: false, message: "Không có quyền." });
-        }
+        if (!admin || (!admin.is_admin && !admin.is_super_admin)) return res.status(403).json({ success: false, message: "Không có quyền." });
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ success: false, message: "User không tồn tại." });
 
         let newTotal = (user.total_deposit || 0) + depositAmount;
         if (newTotal < 0) newTotal = 0;
-
         user.total_deposit = newTotal;
         await user.save();
-
         const actionText = depositAmount > 0 ? "Cộng" : "Thu hồi";
-        res.json({ 
-            success: true, 
-            message: `Đã ${actionText} ${Math.abs(depositAmount).toLocaleString()}đ tích lũy cho ${user.username}`, 
-            newTotal: user.total_deposit 
-        });
-    } catch (error) { 
-        res.status(500).json({ success: false, message: "Lỗi server." }); 
-    }
+        res.json({ success: true, message: `Đã ${actionText} ${Math.abs(depositAmount).toLocaleString()}đ tích lũy cho ${user.username}`, newTotal: user.total_deposit });
+    } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); }
 });
 
-// 5. Các API Quản lý Sảnh & Game
+// 4. Sảnh & Game APIs
 app.get('/api/brands', (req, res) => { res.json({ success: true, brands: gameBrands }); });
 app.get('/api/brands-with-rates', async (req, res) => { try { const { username } = req.query; if (!username) { return res.status(400).json({ success: false, message: "Thiếu tên người dùng." }); } const user = await User.findOne({ username }).populate('managed_by_admin_ids', 'assigned_brand'); if (!user) { return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); } const priorityBrand = user.managed_by_admin_ids.map(admin => admin.assigned_brand).find(brand => brand); let brandsWithRates; if (priorityBrand) { brandsWithRates = gameBrands.map(brand => (brand.name === priorityBrand ? { ...brand, percentage: Math.floor(Math.random() * 8) + 91 } : { ...brand, percentage: Math.floor(Math.random() * 20) + 50 })); brandsWithRates.sort((a, b) => { if (a.name === priorityBrand) return -1; if (b.name === priorityBrand) return 1; return 0; }); } else { brandsWithRates = gameBrands.map(brand => ({ ...brand, percentage: Math.floor(Math.random() * 20) + 70 })); } res.json({ success: true, brands: brandsWithRates, priorityBrand: priorityBrand || null }); } catch (error) { console.error("Lỗi khi lấy sảnh với tỷ lệ:", error); res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
@@ -198,7 +163,7 @@ app.post('/api/update-game', upload.single('image'), async (req, res) => { try {
 app.get('/api/games', async (req, res) => { try { const { lobby_id } = req.query; const games = await Game.find({ lobby_id }); res.json({ success: true, games }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.get('/api/games-with-rates', async (req, res) => { try { const { lobby_id } = req.query; const now = Date.now(); const cached = lobbyRatesCache[lobby_id]; if (cached && (now - cached.timestamp < ONE_HOUR_IN_MS)) return res.json({ success: true, games: cached.games }); const games = await Game.find({ lobby_id }).lean(); if (games.length) { let gRates = games.map(g => ({ ...g, winRate: Math.floor(Math.random() * 76) + 10 })); const boostCount = Math.min(games.length, Math.floor(Math.random() * 4) + 2); const indices = [...Array(games.length).keys()].sort(() => 0.5 - Math.random()); for (let i = 0; i < boostCount; i++) gRates[indices[i]].winRate = Math.floor(Math.random() * 10) + 86; lobbyRatesCache[lobby_id] = { timestamp: now, games: gRates }; res.json({ success: true, games: gRates }); } else { res.json({ success: true, games: [] }); } } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
-// 6. Các API Hỗ trợ Admin & Token
+// 5. Quản lý Token & User Admin
 app.post('/api/link-user', async (req, res) => { try { const { adminId, username } = req.body; if (!adminId || !username) return res.status(400).json({ success: false, message: "Nhập username." }); const user = await User.findOne({ username, is_admin: false }); if (!user) return res.status(404).json({ success: false, message: `User "${username}" không tồn tại.` }); if (user.managed_by_admin_ids.includes(adminId)) return res.status(409).json({ success: false, message: "Đã quản lý user này." }); await User.updateOne({ _id: user._id }, { $push: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Thêm thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/delete-user', async (req, res) => { try { const { userId, adminId } = req.body; await User.updateOne({ _id: userId }, { $pull: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Đã xóa user." }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/add-coins-to-user', async (req, res) => { try { const { userId, amount, adminId } = req.body; const nAmount = parseInt(amount, 10); if (!adminId || !userId || isNaN(nAmount) || nAmount === 0) return res.status(400).json({ success: false, message: "Lỗi dữ liệu." }); const admin = await User.findById(adminId); const user = await User.findById(userId); if (!admin || !user) return res.status(404).json({ success: false, message: "Không tìm thấy user/admin." }); const brand = admin.assigned_brand; if (!admin.is_super_admin && !brand) return res.status(403).json({ success: false, message: "Admin chưa gán sảnh." }); if (!admin.is_super_admin && nAmount > 0 && admin.coins < nAmount) return res.status(400).json({ success: false, message: `Admin không đủ token (Còn: ${admin.coins}).` }); const cur = user.coins_by_brand.get(brand) || 0; const next = cur + nAmount; if (next < 0) return res.status(400).json({ success: false, message: "Không thể trừ âm token." }); if (!admin.is_super_admin) { admin.coins -= nAmount; await admin.save(); } user.coins_by_brand.set(brand, next); await user.save(); res.json({ success: true, message: "Thành công!", newTotal: next }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
@@ -209,7 +174,9 @@ app.post('/api/grant-coins-to-admin', async (req, res) => { try { const { adminI
 app.post('/api/revoke-coins-from-admin', async (req, res) => { try { const { adminId, amount } = req.body; const u = await User.findById(adminId); u.coins = Math.max(0, u.coins - parseInt(amount)); await u.save(); res.json({ success: true, message: "Thu hồi thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/delete-sub-admin', async (req, res) => { try { const { adminId } = req.body; await User.deleteOne({ _id: adminId }); await User.updateMany({ managed_by_admin_ids: adminId }, { $pull: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Xóa thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
-// 7. Các API Logic Hack - ĐÃ UPDATE LOGIC MỚI
+// ============================================
+// === 7. LOGIC HACK - UPDATE THEO YÊU CẦU ===
+// ============================================
 app.post('/api/analyze-game', async (req, res) => { 
     try { 
         const { username, winRate, brandName, currentBalance } = req.body; 
@@ -223,65 +190,89 @@ app.post('/api/analyze-game', async (req, res) => {
         user.coins_by_brand.set(brandName, cur - 10); 
         await user.save(); 
 
-        // === LOGIC MỚI THEO YÊU CẦU (TIER CƯỢC + GIỜ VÀNG 5P) ===
-        const balance = parseInt(currentBalance) || 0;
+        // === LOGIC THUẬT TOÁN MỚI: KHỚP VỐN ===
+        const balance = parseInt(currentBalance) || 0; // Vốn khách nhập (VNĐ)
+        const balanceInK = balance / 1000; // Đổi ra đơn vị K
         
         // 1. LOGIC QUAY MỒI (Tier cố định)
         let betMoiVal = 0.8; 
+        if (balance < 150000) betMoiVal = 0.8;
+        else if (balance < 300000) betMoiVal = 1.2;
+        else if (balance < 600000) betMoiVal = 1.6;
+        else if (balance < 2000000) betMoiVal = 2;
+        else if (balance < 5000000) betMoiVal = 4;
+        else if (balance < 15000000) betMoiVal = 8;
+        else if (balance < 30000000) betMoiVal = 16;
+        else betMoiVal = 20; 
 
-        if (balance < 150000) {
-            betMoiVal = 0.8;
-        } else if (balance < 300000) {
-            betMoiVal = 1.2;
-        } else if (balance < 600000) {
-            betMoiVal = 1.6;
-        } else if (balance < 2000000) {
-            betMoiVal = 2;
-        } else if (balance < 5000000) {
-            betMoiVal = 4;
-        } else if (balance < 15000000) {
-            betMoiVal = 8;
-        } else if (balance < 30000000) {
-            betMoiVal = 16;
-        } else {
-            betMoiVal = 20; 
+        // YÊU CẦU 1: Số vòng quay mồi từ 10 - 20
+        const quayMoiVong = Math.floor(Math.random() * 11) + 10; // Random 10-20
+        
+        // Tính chi phí đã dùng cho Mồi (đơn vị K)
+        const costMoiInK = quayMoiVong * betMoiVal;
+
+        // 2. LOGIC QUAY AUTO (THUẬT TOÁN TÌM SỐ GẦN NHẤT)
+        // Mục tiêu: Tìm (Số Vòng * Mức Cược) sao cho gần bằng (Vốn - Chi phí Mồi)
+        const targetAutoCost = balanceInK - costMoiInK;
+
+        // YÊU CẦU 2: Danh sách mức cược Auto cố định
+        const allowedAutoBets = [20, 24, 28, 32, 36, 40, 60, 100];
+        
+        let bestAutoVong = 10;
+        let bestAutoBet = 20;
+        let minDifference = Infinity; // Biến lưu độ lệch nhỏ nhất
+
+        // Chạy vòng lặp để tìm cặp (Vòng, Cược) khớp với vốn nhất
+        // Duyệt số vòng từ 10 đến 20 (Yêu cầu 1)
+        for (let v = 10; v <= 20; v++) {
+            // Duyệt qua các mức cược cho phép
+            for (let b of allowedAutoBets) {
+                let currentCost = v * b;
+                // Tính độ lệch so với vốn còn lại (Trị tuyệt đối)
+                let diff = Math.abs(currentCost - targetAutoCost);
+
+                // Nếu tìm thấy phương án lệch ít hơn phương án cũ -> Cập nhật
+                if (diff < minDifference) {
+                    minDifference = diff;
+                    bestAutoVong = v;
+                    bestAutoBet = b;
+                }
+            }
         }
 
-        // 2. LOGIC QUAY AUTO
-        let rawAuto = Math.floor(balance * 0.025); // 2.5% vốn
-        
-        const roundAuto = (num) => {
-            if (num < 1000) return 1000;
-            if (num > 500000) return 500000; 
-            return Math.floor(num / 1000) * 1000;
-        };
-        
-        let betAutoVal = roundAuto(rawAuto);
-        // Auto luôn lớn hơn Mồi ít nhất gấp đôi
-        if (betAutoVal <= betMoiVal * 1000) {
-            betAutoVal = (betMoiVal * 1000) * 2;
+        // Logic phụ: Nếu vốn quá lớn, ưu tiên chọn max cược (100k) và max vòng (20)
+        if (targetAutoCost > 2500) { 
+            bestAutoBet = 100;
+            bestAutoVong = 20;
+        }
+        // Logic phụ: Nếu vốn quá nhỏ, lấy min
+        if (targetAutoCost < 100) {
+            bestAutoBet = 20;
+            bestAutoVong = 10;
         }
 
-        const formatK = (n) => (n >= 1000 ? (n/1000) + 'K' : n);
+        const formatK = (n) => n + 'K';
         
         // 3. TỶ LỆ THẮNG
         const base = parseInt(winRate) || 80;
         const calculatedRate = Math.min(99, base + Math.floor(Math.random() * 5));
 
-        // 4. KHUNG GIỜ VÀNG (Cách nhau 5 phút)
+        // 4. KHUNG GIỜ VÀNG
         const now = new Date();
-        const future = new Date(now.getTime() + 5 * 60 * 1000); // Cộng 5 phút
-        
+        const future = new Date(now.getTime() + 5 * 60 * 1000); 
         const formatTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
         // Kết quả trả về
         const analysisResults = {
             finalRate: calculatedRate,
-            quayMoiVong: Math.floor(Math.random() * 11) + 15, // Random từ 15 - 25 vòng
-            quayAutoVong: Math.floor(Math.random() * 21) + 30, // Random từ 30 - 50 vòng
             
+            // Kết quả Mồi
+            quayMoiVong: quayMoiVong, 
             quayMoiMucCuoc: betMoiVal + "K", 
-            quayAutoMucCuoc: formatK(betAutoVal), 
+            
+            // Kết quả Auto (Đã tính toán khớp vốn)
+            quayAutoVong: bestAutoVong, 
+            quayAutoMucCuoc: formatK(bestAutoBet), 
             
             khungGio: `${formatTime(now)} - ${formatTime(future)}`
         };
