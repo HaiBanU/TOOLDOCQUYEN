@@ -1,6 +1,6 @@
-// sw.js - Service Worker cơ bản
-const CACHE_NAME = 'IronxSlot-slot-cache-v1';
-// Danh sách các file giao diện cốt lõi cần được lưu lại
+/* --- START OF FILE sw.js --- */
+
+const CACHE_NAME = 'IronxSlot-slot-cache-v2'; // Đổi tên version để trình duyệt cập nhật mới
 const urlsToCache = [
   '/',
   '/index.html',
@@ -10,8 +10,9 @@ const urlsToCache = [
   '/assets/images/favicon.png'
 ];
 
-// Sự kiện 'install': được gọi khi service worker được cài đặt
+// 1. Cài đặt Service Worker và cache file tĩnh
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Kích hoạt ngay lập tức
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -21,17 +22,42 @@ self.addEventListener('install', event => {
   );
 });
 
-// Sự kiện 'fetch': được gọi mỗi khi có một yêu cầu mạng từ trang web
+// 2. Xóa cache cũ khi kích hoạt phiên bản mới
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// 3. Xử lý Fetch (Quan trọng: Bỏ qua API và POST request)
 self.addEventListener('fetch', event => {
+  const requestUrl = new URL(event.request.url);
+
+  // KHÔNG BAO GIỜ cache các API hoặc method POST/PUT/DELETE
+  if (requestUrl.pathname.startsWith('/api/') || event.request.method !== 'GET') {
+    return; // Để mặc định cho trình duyệt xử lý mạng bình thường
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Nếu tìm thấy yêu cầu trong cache, trả về nó ngay lập tức
+        // Nếu có trong cache thì trả về
         if (response) {
           return response;
         }
-        // Nếu không, thực hiện yêu cầu mạng thực sự
-        return fetch(event.request);
+        // Nếu không, tải từ mạng
+        return fetch(event.request).catch(() => {
+            // Nếu mất mạng hoàn toàn, có thể trả về trang offline (tùy chọn)
+            // return caches.match('/offline.html');
+        });
       }
     )
   );
