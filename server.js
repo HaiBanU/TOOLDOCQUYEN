@@ -34,13 +34,21 @@ const ONE_HOUR_IN_MS = 60 * 60 * 1000;
 const VIP_THRESHOLD = 3000000; 
 
 const gameBrands = [ 
-    { name: 'AU88', logo: 'au88.png' }, { name: 'MB66', logo: 'mb66.png' }, 
-    { name: 'MM88', logo: 'mm88.png' }, { name: 'RR88', logo: 'rr88.png' }, 
-    { name: 'XX88', logo: 'xx88.png' }, { name: 'QH88', logo: 'qh88.png' }, 
-    { name: 'F8BET', logo: 'f8bet.png' }, { name: 'SHBET', logo: 'shbet.png' }, 
-    { name: '188BET', logo: '188bet.png' }, { name: 'FLY88', logo: 'fly88.png' }, 
-    { name: 'QQ88', logo: 'qq88.png' }, { name: 'U888', logo: 'u888.png' }, 
-    { name: 'BL555', logo: 'bl555.png' }, { name: '8KBET', logo: '8kbet.png' } 
+    { name: '78WIN', logo: '78win.png' }, 
+    { name: 'AU88', logo: 'au88.png' }, 
+    { name: 'MB66', logo: 'mb66.png' }, 
+    { name: 'MM88', logo: 'mm88.png' }, 
+    { name: 'RR88', logo: 'rr88.png' }, 
+    { name: 'XX88', logo: 'xx88.png' }, 
+    { name: 'QH88', logo: 'qh88.png' }, 
+    { name: 'F8BET', logo: 'f8bet.png' }, 
+    { name: 'SHBET', logo: 'shbet.png' }, 
+    { name: '188BET', logo: '188bet.png' }, 
+    { name: 'FLY88', logo: 'fly88.png' }, 
+    { name: 'QQ88', logo: 'qq88.png' }, 
+    { name: 'U888', logo: 'u888.png' }, 
+    { name: 'BL555', logo: 'bl555.png' }, 
+    { name: '8KBET', logo: '8kbet.png' } 
 ];
 
 app.use(bodyParser.json());
