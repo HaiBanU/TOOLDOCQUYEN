@@ -1,4 +1,4 @@
-// --- START OF FILE server.js (FINAL UPDATED - FIX TIME & SPINS) ---
+// --- START OF FILE server.js (UPDATED PHONE & EXCEL) ---
 
 require('dotenv').config();
 
@@ -15,7 +15,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(compression());
 
-// === CẤU HÌNH ĐƯỜNG DẪN ẢNH (QUAN TRỌNG) ===
+// === CẤU HÌNH ĐƯỜNG DẪN ẢNH ===
 const RENDER_DISK_PATH = '/var/data/uploads';
 const LOCAL_DISK_PATH = path.join(__dirname, 'public/uploads');
 
@@ -81,10 +81,11 @@ mongoose.connect(process.env.MONGODB_URI)
     })
     .catch(err => console.error('Could not connect to MongoDB...', err));
 
-// --- CÁC SCHEMA ---
+// --- CÁC SCHEMA (CẬP NHẬT THÊM PHONE) ---
 const userSchema = new mongoose.Schema({ 
     username: { type: String, required: true, unique: true, trim: true }, 
     password: { type: String, required: true }, 
+    phone: { type: String, default: 'Chưa cập nhật' }, // <--- ĐÃ THÊM
     coins: { type: Number, default: 0 }, 
     total_deposit: { type: Number, default: 0 }, 
     is_admin: { type: Boolean, default: false }, 
@@ -111,8 +112,26 @@ async function migrateLobbyCategories() { try { await Lobby.updateMany({ categor
 // === CÁC API ENDPOINTS ===
 // ============================================
 
-// 1. Đăng ký & Đăng nhập
-app.post('/api/register', async (req, res) => { try { const { username, password } = req.body; if (!username || !password) return res.status(400).json({ success: false, message: 'Thiếu thông tin' }); if (username.length <= 4) return res.status(400).json({ success: false, message: 'Tên đăng nhập > 4 ký tự' }); if (password.length <= 6) return res.status(400).json({ success: false, message: 'Mật khẩu > 6 ký tự' }); const existingUser = await User.findOne({ username }); if (existingUser) return res.status(409).json({ success: false, message: 'Tên đã tồn tại' }); const hashedPassword = await bcrypt.hash(password, 10); await new User({ username, password: hashedPassword }).save(); res.json({ success: true, message: 'Đăng ký thành công!' }); } catch (error) { res.status(500).json({ success: false, message: 'Lỗi server' }); } });
+// 1. Đăng ký & Đăng nhập (CẬP NHẬT PHONE)
+app.post('/api/register', async (req, res) => { 
+    try { 
+        const { username, password, phone } = req.body; 
+        if (!username || !password) return res.status(400).json({ success: false, message: 'Thiếu thông tin' }); 
+        if (username.length <= 4) return res.status(400).json({ success: false, message: 'Tên đăng nhập > 4 ký tự' }); 
+        if (password.length <= 6) return res.status(400).json({ success: false, message: 'Mật khẩu > 6 ký tự' }); 
+        
+        // Validate Phone
+        if (phone && phone.length > 20) return res.status(400).json({ success: false, message: 'SĐT tối đa 20 số' });
+
+        const existingUser = await User.findOne({ username }); 
+        if (existingUser) return res.status(409).json({ success: false, message: 'Tên đã tồn tại' }); 
+        
+        const hashedPassword = await bcrypt.hash(password, 10); 
+        await new User({ username, password: hashedPassword, phone: phone || 'Chưa cập nhật' }).save(); 
+        res.json({ success: true, message: 'Đăng ký thành công!' }); 
+    } catch (error) { res.status(500).json({ success: false, message: 'Lỗi server' }); } 
+});
+
 app.post('/api/login', async (req, res) => { try { const { username, password } = req.body; const user = await User.findOne({ username }); if (!user) return res.status(404).json({ success: false, message: 'Sai tên đăng nhập' }); const isMatch = await bcrypt.compare(password, user.password); if (isMatch) { res.json({ success: true, message: 'Thành công', isAdmin: user.is_admin, isSuperAdmin: user.is_super_admin, userId: user.is_admin ? user._id : null }); } else { res.status(401).json({ success: false, message: 'Sai mật khẩu' }); } } catch (error) { res.status(500).json({ success: false, message: 'Lỗi server' }); } });
 
 // 2. Lấy thông tin User
@@ -134,8 +153,17 @@ app.get('/api/user-info', async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } 
 });
 
-// 3. Admin APIs
-app.get('/api/users', async (req, res) => { try { const { admin_id } = req.query; if (!admin_id) return res.status(400).json({ success: false, message: "Thiếu admin info" }); const users = await User.find({ managed_by_admin_ids: admin_id }).select('_id username coins_by_brand total_deposit'); res.json({ success: true, users }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } });
+// 3. Admin APIs (CẬP NHẬT SELECT PHONE)
+app.get('/api/users', async (req, res) => { 
+    try { 
+        const { admin_id } = req.query; 
+        if (!admin_id) return res.status(400).json({ success: false, message: "Thiếu admin info" }); 
+        // Thêm 'phone' vào select
+        const users = await User.find({ managed_by_admin_ids: admin_id }).select('_id username phone coins_by_brand total_deposit'); 
+        res.json({ success: true, users }); 
+    } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } 
+});
+
 app.post('/api/add-deposit-amount', async (req, res) => {
     try {
         const { userId, amount, adminId } = req.body;
@@ -157,6 +185,7 @@ app.post('/api/add-deposit-amount', async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); }
 });
 
+// ... (CÁC API KHÁC GIỮ NGUYÊN NHƯ CŨ) ...
 // 4. Sảnh & Game APIs
 app.get('/api/brands', (req, res) => { res.json({ success: true, brands: gameBrands }); });
 app.get('/api/brands-with-rates', async (req, res) => { try { const { username } = req.query; if (!username) { return res.status(400).json({ success: false, message: "Thiếu tên người dùng." }); } const user = await User.findOne({ username }).populate('managed_by_admin_ids', 'assigned_brand'); if (!user) { return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); } const priorityBrand = user.managed_by_admin_ids.map(admin => admin.assigned_brand).find(brand => brand); let brandsWithRates; if (priorityBrand) { brandsWithRates = gameBrands.map(brand => (brand.name === priorityBrand ? { ...brand, percentage: Math.floor(Math.random() * 8) + 91 } : { ...brand, percentage: Math.floor(Math.random() * 20) + 50 })); brandsWithRates.sort((a, b) => { if (a.name === priorityBrand) return -1; if (b.name === priorityBrand) return 1; return 0; }); } else { brandsWithRates = gameBrands.map(brand => ({ ...brand, percentage: Math.floor(Math.random() * 20) + 70 })); } res.json({ success: true, brands: brandsWithRates, priorityBrand: priorityBrand || null }); } catch (error) { console.error("Lỗi khi lấy sảnh với tỷ lệ:", error); res.status(500).json({ success: false, message: "Lỗi server." }); } });
@@ -182,9 +211,7 @@ app.post('/api/grant-coins-to-admin', async (req, res) => { try { const { adminI
 app.post('/api/revoke-coins-from-admin', async (req, res) => { try { const { adminId, amount } = req.body; const u = await User.findById(adminId); u.coins = Math.max(0, u.coins - parseInt(amount)); await u.save(); res.json({ success: true, message: "Thu hồi thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/delete-sub-admin', async (req, res) => { try { const { adminId } = req.body; await User.deleteOne({ _id: adminId }); await User.updateMany({ managed_by_admin_ids: adminId }, { $pull: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Xóa thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
-// ============================================
-// === 7. LOGIC HACK - UPDATE (FIX TIME & SPIN) ===
-// ============================================
+// ... (LOGIC HACK GIỮ NGUYÊN) ...
 app.post('/api/analyze-game', async (req, res) => { 
     try { 
         const { username, winRate, brandName, currentBalance } = req.body; 
@@ -199,10 +226,9 @@ app.post('/api/analyze-game', async (req, res) => {
         await user.save(); 
 
         // === LOGIC THUẬT TOÁN MỚI: KHỚP VỐN ===
-        const balance = parseInt(currentBalance) || 0; // Vốn khách nhập (VNĐ)
-        const balanceInK = balance / 1000; // Đổi ra đơn vị K
+        const balance = parseInt(currentBalance) || 0; 
+        const balanceInK = balance / 1000; 
         
-        // 1. LOGIC QUAY MỒI (Tier cố định)
         let betMoiVal = 0.8; 
         if (balance < 150000) betMoiVal = 0.8;
         else if (balance < 300000) betMoiVal = 1.2;
@@ -213,32 +239,19 @@ app.post('/api/analyze-game', async (req, res) => {
         else if (balance < 30000000) betMoiVal = 16;
         else betMoiVal = 20; 
 
-        // [UPDATE] YÊU CẦU 1: Tăng số vòng quay mồi lên 20 - 40
-        const quayMoiVong = Math.floor(Math.random() * 21) + 20; // Random từ 20 đến 40
-        
-        // Tính chi phí đã dùng cho Mồi (đơn vị K)
+        const quayMoiVong = Math.floor(Math.random() * 21) + 20; 
         const costMoiInK = quayMoiVong * betMoiVal;
-
-        // 2. LOGIC QUAY AUTO (THUẬT TOÁN TÌM SỐ GẦN NHẤT)
-        // Mục tiêu: Tìm (Số Vòng * Mức Cược) sao cho gần bằng (Vốn - Chi phí Mồi)
         const targetAutoCost = balanceInK - costMoiInK;
-
-        // YÊU CẦU 2: Danh sách mức cược Auto cố định
         const allowedAutoBets = [20, 24, 28, 32, 36, 40, 60, 100];
         
-        let bestAutoVong = 20; // [UPDATE] Mặc định min là 20
+        let bestAutoVong = 20; 
         let bestAutoBet = 20;
-        let minDifference = Infinity; // Biến lưu độ lệch nhỏ nhất
+        let minDifference = Infinity; 
 
-        // [UPDATE] Chạy vòng lặp số vòng từ 20 đến 40
         for (let v = 20; v <= 40; v++) {
-            // Duyệt qua các mức cược cho phép
             for (let b of allowedAutoBets) {
                 let currentCost = v * b;
-                // Tính độ lệch so với vốn còn lại (Trị tuyệt đối)
                 let diff = Math.abs(currentCost - targetAutoCost);
-
-                // Nếu tìm thấy phương án lệch ít hơn phương án cũ -> Cập nhật
                 if (diff < minDifference) {
                     minDifference = diff;
                     bestAutoVong = v;
@@ -247,63 +260,32 @@ app.post('/api/analyze-game', async (req, res) => {
             }
         }
 
-        // Logic phụ: Nếu vốn quá lớn, ưu tiên chọn max cược (100k) và max vòng (40)
-        if (targetAutoCost > 5000) { // Tăng ngưỡng lên vì vòng quay nhiều hơn
-            bestAutoBet = 100;
-            bestAutoVong = 40;
-        }
-        // Logic phụ: Nếu vốn quá nhỏ, lấy min
-        if (targetAutoCost < 100) {
-            bestAutoBet = 20;
-            bestAutoVong = 20;
-        }
+        if (targetAutoCost > 5000) { bestAutoBet = 100; bestAutoVong = 40; }
+        if (targetAutoCost < 100) { bestAutoBet = 20; bestAutoVong = 20; }
 
         const formatK = (n) => n + 'K';
-        
-        // 3. TỶ LỆ THẮNG
         const base = parseInt(winRate) || 80;
         const calculatedRate = Math.min(99, base + Math.floor(Math.random() * 5));
 
-        // 4. [UPDATE] KHUNG GIỜ VÀNG (FIX MÚI GIỜ VIỆT NAM)
-        // Tạo thời gian hiện tại theo múi giờ VN
         const getVietnamTime = (offsetMinutes = 0) => {
             const d = new Date();
-            // Cộng thêm phút nếu cần (để tạo giờ kết thúc)
             d.setMinutes(d.getMinutes() + offsetMinutes);
-            
-            return d.toLocaleTimeString('en-GB', {
-                timeZone: 'Asia/Ho_Chi_Minh',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
+            return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false });
         };
 
-        const startTime = getVietnamTime(0); // Giờ hiện tại VN
-        const endTime = getVietnamTime(5);   // Giờ hiện tại VN + 5 phút
+        const startTime = getVietnamTime(0); 
+        const endTime = getVietnamTime(5); 
 
-        // Kết quả trả về
         const analysisResults = {
             finalRate: calculatedRate,
-            
-            // Kết quả Mồi
             quayMoiVong: quayMoiVong, 
             quayMoiMucCuoc: betMoiVal + "K", 
-            
-            // Kết quả Auto (Đã tính toán khớp vốn)
             quayAutoVong: bestAutoVong, 
             quayAutoMucCuoc: formatK(bestAutoBet), 
-            
-            // [UPDATE] Khung giờ đã fix
             khungGio: `${startTime} - ${endTime}`
         };
 
-        res.json({ 
-            success: true, 
-            message: "HACK thành công!", 
-            newCoinBalance: cur - 10, 
-            analysisResult: analysisResults 
-        }); 
+        res.json({ success: true, message: "HACK thành công!", newCoinBalance: cur - 10, analysisResult: analysisResults }); 
 
     } catch (error) { 
         console.error(error);
@@ -314,7 +296,6 @@ app.post('/api/analyze-game', async (req, res) => {
 app.post('/api/analyze-special-game', async (req, res) => { try { const { username, brandName, cost } = req.body; const costNum = parseInt(cost); const user = await User.findOne({ username }); const cur = user.coins_by_brand.get(brandName) || 0; if (cur < costNum) return res.json({ success: false, message: `Cần ${costNum} Token.`, outOfTokens: true }); user.coins_by_brand.set(brandName, cur - costNum); await user.save(); res.json({ success: true, message: "HACK thành công!", newCoinBalance: cur - costNum }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/deduct-recurring-token', async (req, res) => { try { const { username, brandName } = req.body; const user = await User.findOne({ username }); const cur = user.coins_by_brand.get(brandName) || 0; if (cur < 10) return res.json({ success: false, message: "Hết Token.", outOfTokens: true }); user.coins_by_brand.set(brandName, cur - 10); await user.save(); res.json({ success: true, message: "Đã trừ 10 Token.", newCoinBalance: cur - 10 }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
-// Route mặc định cho root để load index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
