@@ -36,7 +36,7 @@ const VIP_THRESHOLD = 3000000;
 const gameBrands = [ 
     { name: '78WIN', logo: '78win.png' }, 
     { name: 'AU88', logo: 'au88.png' }, 
-    { name: 'MB66', logo: 'mb66.png' }, 
+    { name: 'OK8386', logo: 'OK8386.png' }, 
     { name: 'MM88', logo: 'mm88.png' }, 
     { name: 'RR88', logo: 'rr88.png' }, 
     { name: 'XX88', logo: 'xx88.png' }, 
