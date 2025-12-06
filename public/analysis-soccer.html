@@ -156,20 +156,21 @@
         const overlay = document.querySelector('.video-overlay');
         if (overlay) { window.addEventListener('mousemove', (e) => { const { clientX, clientY } = e; overlay.style.setProperty('--mouse-x', `${clientX}px`); overlay.style.setProperty('--mouse-y', `${clientY}px`); }); }
     </script>
-    <div id="vip-alert-modal" class="custom-modal-overlay">
-        <div class="vip-modal-content">
-            <div class="vip-modal-icon">
-                <div class="lock-ring"></div>
-                <span class="lock-body">🔒</span>
-            </div>
-            <h3 class="vip-modal-title">TÍNH NĂNG VIP</h3>
-            <p class="vip-modal-message">
-                Nội dung này dành riêng cho thành viên <b>VIP</b>.<br>
-                Vui lòng nạp tích lũy <b>> 3.000.000đ</b> để mở khóa toàn bộ 9 lượt sút.
-            </p>
-            <button id="close-vip-modal" class="btn-vip-action">ĐÃ HIỂU</button>
+   <!-- === MODAL CẢNH BÁO VIP === -->
+<div id="vip-alert-modal" class="custom-modal-overlay">
+    <div class="vip-modal-content">
+        <div class="vip-modal-icon">
+            <div class="lock-ring"></div>
+            <span class="lock-body">🔒</span>
         </div>
+        <h3 class="vip-modal-title">TÍNH NĂNG VIP</h3>
+        <p class="vip-modal-message">
+            Giải đấu này chỉ dành cho thành viên <b>VIP</b>.<br>
+            Vui lòng nạp tích lũy để mở khóa toàn bộ tính năng.
+        </p>
+        <button id="close-vip-modal" class="btn-vip-action">ĐÃ HIỂU</button>
     </div>
+</div>
     <!-- === MODAL CẢNH BÁO CHƯA CHỌN GIẢI (MỚI) === -->
     <div id="league-alert-modal" class="custom-modal-overlay">
         <div class="vip-modal-content">

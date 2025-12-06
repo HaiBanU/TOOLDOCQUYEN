@@ -16,6 +16,10 @@ window.onload = async () => { // Thêm async vào đây
     const closeVipModalBtn = document.getElementById('close-vip-modal');
     const leagueModal = document.getElementById('league-alert-modal');
     const closeLeagueModalBtn = document.getElementById('close-league-modal');
+    
+    // --- THÊM MỚI: BIẾN CHỌN NÚT CLUB VÀ PREMIER ---
+    const clubButton = document.querySelector('.league-club');
+    const premierButton = document.querySelector('.league-premier');
 
     // Lấy dữ liệu
     const params = new URLSearchParams(window.location.search);
@@ -40,10 +44,31 @@ window.onload = async () => { // Thêm async vào đây
     const createLightningField = (count = 6) => { const paths=["M15 0 L10 20 L18 20 L12 45 L22 45 L8 75 L16 75 L11 100","M18 0 L12 25 L20 25 L10 50 L25 50 L5 80 L15 80 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100","M12 0 L18 30 L10 30 L16 60 L8 60 L20 90 L14 90 L10 100"]; let html=''; for(let i=0; i < count; i++){const p=paths[Math.floor(Math.random()*paths.length)];html+=`<div class="lightning-container" style="--delay: -${Math.random()}s; --duration: ${Math.random() * 0.5 + 0.8}s;"><svg class="lightning-svg" viewBox="0 0 30 100"><path d="${p}" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`;} return html; };
     const createEnergyRain = (container) => { if (!container) return; container.innerHTML = ''; const count = 40; const colors = ['#ffd700', '#00ffff']; for (let i = 0; i < count; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.cssText = `height:${Math.random()*30+15}px;left:${Math.random()*100}%;animation-duration:${Math.random()*1.5+1}s;animation-delay:${Math.random()*3}s;color:${colors[Math.floor(Math.random()*colors.length)]};`; container.appendChild(p); } };
 
-    // Logic chọn giải đấu
+    // --- THÊM MỚI: HÀM KHÓA/MỞ KHÓA GIẢI ĐẤU ---
+    function applyVipLocks() {
+        if (isUserVip) {
+            // Nếu người dùng là VIP, đảm bảo các nút không bị khóa
+            clubButton.classList.remove('locked-league');
+            premierButton.classList.remove('locked-league');
+        } else {
+            // Nếu không phải VIP, thêm class 'locked-league' để khóa
+            clubButton.classList.add('locked-league');
+            premierButton.classList.add('locked-league');
+        }
+    }
+    
+    // --- CẬP NHẬT: LOGIC CHỌN GIẢI ĐẤU VỚI KIỂM TRA KHÓA ---
     leagueButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             if (isAnalyzing) return;
+
+            // KIỂM TRA NẾU NÚT BỊ KHÓA
+            if (this.classList.contains('locked-league')) {
+                if(vipModal) vipModal.style.display = 'flex'; // Hiển thị modal VIP
+                return; // Dừng thực thi
+            }
+
+            // Logic cũ: chọn giải đấu
             leagueButtons.forEach(b => b.classList.remove('selected-league'));
             this.classList.add('selected-league');
             currentSelectedLeague = this.textContent.trim();
@@ -150,8 +175,10 @@ window.onload = async () => { // Thêm async vào đây
         if (isAnalyzing) return;
         if (!currentSelectedLeague) {
             leagueButtons.forEach(btn => {
-                btn.style.borderColor = '#ff4757'; 
-                setTimeout(() => btn.style.borderColor = '', 500);
+                if(!btn.classList.contains('locked-league')) {
+                     btn.style.borderColor = '#ff4757'; 
+                     setTimeout(() => btn.style.borderColor = '', 500);
+                }
             });
             if (leagueModal) leagueModal.style.display = 'flex';
             else alert("⛔ Vui lòng CHỌN GIẢI ĐẤU trước khi Hack!");
@@ -219,11 +246,14 @@ window.onload = async () => { // Thêm async vào đây
         if (e.target === leagueModal) leagueModal.style.display = 'none';
     });
 
-    // === QUAN TRỌNG: CHỜ FETCH DỮ LIỆU XONG MỚI RENDER ===
+    // === CẬP NHẬT THỨ TỰ LOGIC ===
     // 1. Tải thông tin User (để biết VIP hay không)
     await fetchUserInfoFromServer(); 
 
-    // 2. Sau khi đã biết VIP status, mới kiểm tra Saved State
+    // 2. Áp dụng khóa/mở khóa các giải đấu dựa trên trạng thái VIP
+    applyVipLocks();
+
+    // 3. Sau khi đã biết VIP status, mới kiểm tra Saved State
     const savedState = sessionStorage.getItem('IronxSlotSoccerState');
     if (savedState) {
         const parsedState = JSON.parse(savedState);

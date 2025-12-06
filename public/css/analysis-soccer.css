@@ -265,3 +265,31 @@
     40% { transform: rotate(10deg); }
     50% { transform: rotate(0deg); }
 }
+/* === BẮT ĐẦU: CSS CHO GIẢI ĐẤU BỊ KHÓA === */
+.led-button.locked-league {
+    color: #777;
+    border-color: #444;
+    background: #222;
+    cursor: pointer; /* Giữ con trỏ để người dùng có thể bấm vào và nhận thông báo */
+    text-shadow: none;
+    transform: scale(1) !important; /* Ghi đè hiệu ứng scale khi được chọn */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Tắt hiệu ứng hover của nút bị khóa */
+.led-button.locked-league:hover {
+    border-color: #444;
+    background: #222;
+    color: #777;
+}
+
+/* Thêm icon ổ khóa vào nút */
+.led-button.locked-league::after {
+    content: '🔒';
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    font-size: 1.2em;
+    color: #888;
+}
