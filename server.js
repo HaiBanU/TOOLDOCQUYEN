@@ -1,4 +1,4 @@
-// --- START OF FILE server.js (UPDATED PHONE & EXCEL) ---
+// --- START OF FILE server.js (UPDATED PHONE & EXCEL & MANUAL WIN RATE) ---
 
 require('dotenv').config();
 
@@ -85,7 +85,7 @@ mongoose.connect(process.env.MONGODB_URI)
 const userSchema = new mongoose.Schema({ 
     username: { type: String, required: true, unique: true, trim: true }, 
     password: { type: String, required: true }, 
-    phone: { type: String, default: 'Chưa cập nhật' }, // <--- ĐÃ THÊM
+    phone: { type: String, default: 'Chưa cập nhật' },
     coins: { type: Number, default: 0 }, 
     total_deposit: { type: Number, default: 0 }, 
     is_admin: { type: Boolean, default: false }, 
@@ -97,7 +97,14 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const lobbySchema = new mongoose.Schema({ name: String, logo_url: String, position: { type: Number, default: 0 }, category: { type: String, enum: ['nohu', 'banca'], default: 'nohu' } });
-const gameSchema = new mongoose.Schema({ lobby_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Lobby', required: true }, name: String, image_url: String });
+
+// === CẬP NHẬT: Thêm manual_win_rate vào gameSchema ===
+const gameSchema = new mongoose.Schema({ 
+    lobby_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Lobby', required: true }, 
+    name: String, 
+    image_url: String,
+    manual_win_rate: { type: Number, default: null } // Tỷ lệ thắng do admin set, null là random
+});
 
 const User = mongoose.model('User', userSchema);
 const Lobby = mongoose.model('Lobby', lobbySchema);
@@ -120,7 +127,6 @@ app.post('/api/register', async (req, res) => {
         if (username.length <= 4) return res.status(400).json({ success: false, message: 'Tên đăng nhập > 4 ký tự' }); 
         if (password.length <= 6) return res.status(400).json({ success: false, message: 'Mật khẩu > 6 ký tự' }); 
         
-        // Validate Phone
         if (phone && phone.length > 20) return res.status(400).json({ success: false, message: 'SĐT tối đa 20 số' });
 
         const existingUser = await User.findOne({ username }); 
@@ -158,7 +164,6 @@ app.get('/api/users', async (req, res) => {
     try { 
         const { admin_id } = req.query; 
         if (!admin_id) return res.status(400).json({ success: false, message: "Thiếu admin info" }); 
-        // Thêm 'phone' vào select
         const users = await User.find({ managed_by_admin_ids: admin_id }).select('_id username phone coins_by_brand total_deposit'); 
         res.json({ success: true, users }); 
     } catch (error) { res.status(500).json({ success: false, message: "Lỗi server" }); } 
@@ -185,7 +190,6 @@ app.post('/api/add-deposit-amount', async (req, res) => {
     } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); }
 });
 
-// ... (CÁC API KHÁC GIỮ NGUYÊN NHƯ CŨ) ...
 // 4. Sảnh & Game APIs
 app.get('/api/brands', (req, res) => { res.json({ success: true, brands: gameBrands }); });
 app.get('/api/brands-with-rates', async (req, res) => { try { const { username } = req.query; if (!username) { return res.status(400).json({ success: false, message: "Thiếu tên người dùng." }); } const user = await User.findOne({ username }).populate('managed_by_admin_ids', 'assigned_brand'); if (!user) { return res.status(404).json({ success: false, message: "Không tìm thấy người dùng." }); } const priorityBrand = user.managed_by_admin_ids.map(admin => admin.assigned_brand).find(brand => brand); let brandsWithRates; if (priorityBrand) { brandsWithRates = gameBrands.map(brand => (brand.name === priorityBrand ? { ...brand, percentage: Math.floor(Math.random() * 8) + 91 } : { ...brand, percentage: Math.floor(Math.random() * 20) + 50 })); brandsWithRates.sort((a, b) => { if (a.name === priorityBrand) return -1; if (b.name === priorityBrand) return 1; return 0; }); } else { brandsWithRates = gameBrands.map(brand => ({ ...brand, percentage: Math.floor(Math.random() * 20) + 70 })); } res.json({ success: true, brands: brandsWithRates, priorityBrand: priorityBrand || null }); } catch (error) { console.error("Lỗi khi lấy sảnh với tỷ lệ:", error); res.status(500).json({ success: false, message: "Lỗi server." }); } });
@@ -197,8 +201,76 @@ app.get('/api/lobbies', async (req, res) => { try { const { category } = req.que
 
 app.post('/api/add-game', upload.single('image'), async (req, res) => { try { const { lobby_id, name } = req.body; await new Game({ lobby_id, name, image_url: `/uploads/${req.file.filename}` }).save(); delete lobbyRatesCache[lobby_id]; res.json({ success: true, message: "Thêm game thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/update-game', upload.single('image'), async (req, res) => { try { const { game_id } = req.body; const game = await Game.findById(game_id); await Game.updateOne({ _id: game_id }, { image_url: `/uploads/${req.file.filename}` }); delete lobbyRatesCache[game.lobby_id]; res.json({ success: true, message: "Sửa ảnh game thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
+
+// === CẬP NHẬT: API MỚI ĐỂ SET TỶ LỆ THỦ CÔNG ===
+app.post('/api/set-manual-win-rate', async (req, res) => {
+    try {
+        const { game_id, rate } = req.body;
+        const rateValue = (rate === '' || rate === null || isNaN(parseInt(rate))) ? null : parseInt(rate);
+
+        const game = await Game.findById(game_id);
+        if (!game) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy game." });
+        }
+
+        game.manual_win_rate = rateValue;
+        await game.save();
+
+        delete lobbyRatesCache[game.lobby_id];
+
+        res.json({ 
+            success: true, 
+            message: rateValue !== null ? `Đã đặt tỷ lệ cho game là ${rateValue}%` : 'Đã xóa tỷ lệ thủ công, game sẽ quay về chế độ ngẫu nhiên.' 
+        });
+
+    } catch (error) {
+        console.error("Lỗi khi đặt tỷ lệ game:", error);
+        res.status(500).json({ success: false, message: "Lỗi server." });
+    }
+});
+
 app.get('/api/games', async (req, res) => { try { const { lobby_id } = req.query; const games = await Game.find({ lobby_id }); res.json({ success: true, games }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
-app.get('/api/games-with-rates', async (req, res) => { try { const { lobby_id } = req.query; const now = Date.now(); const cached = lobbyRatesCache[lobby_id]; if (cached && (now - cached.timestamp < ONE_HOUR_IN_MS)) return res.json({ success: true, games: cached.games }); const games = await Game.find({ lobby_id }).lean(); if (games.length) { let gRates = games.map(g => ({ ...g, winRate: Math.floor(Math.random() * 76) + 10 })); const boostCount = Math.min(games.length, Math.floor(Math.random() * 4) + 2); const indices = [...Array(games.length).keys()].sort(() => 0.5 - Math.random()); for (let i = 0; i < boostCount; i++) gRates[indices[i]].winRate = Math.floor(Math.random() * 10) + 86; lobbyRatesCache[lobby_id] = { timestamp: now, games: gRates }; res.json({ success: true, games: gRates }); } else { res.json({ success: true, games: [] }); } } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
+
+// === CẬP NHẬT: Logic tạo tỷ lệ ưu tiên `manual_win_rate` ===
+app.get('/api/games-with-rates', async (req, res) => { 
+    try { 
+        const { lobby_id } = req.query; 
+        const now = Date.now(); 
+        const cached = lobbyRatesCache[lobby_id]; 
+        
+        if (cached && (now - cached.timestamp < ONE_HOUR_IN_MS)) {
+            return res.json({ success: true, games: cached.games }); 
+        }
+
+        const games = await Game.find({ lobby_id }).lean(); 
+        
+        if (games.length) {
+            let gRates = games.map(g => {
+                if (g.manual_win_rate !== null && g.manual_win_rate >= 0 && g.manual_win_rate <= 100) {
+                    return { ...g, winRate: g.manual_win_rate, isManual: true };
+                }
+                return { ...g, winRate: Math.floor(Math.random() * 76) + 10, isManual: false };
+            });
+
+            const randomGames = gRates.filter(g => !g.isManual);
+            if (randomGames.length > 0) {
+                const boostCount = Math.min(randomGames.length, Math.floor(Math.random() * 4) + 2);
+                const originalIndices = randomGames.map(rg => gRates.findIndex(g => g._id.equals(rg._id)));
+                const shuffledIndices = originalIndices.sort(() => 0.5 - Math.random());
+                for (let i = 0; i < boostCount; i++) { 
+                    gRates[shuffledIndices[i]].winRate = Math.floor(Math.random() * 10) + 86;
+                }
+            }
+            
+            lobbyRatesCache[lobby_id] = { timestamp: now, games: gRates }; 
+            res.json({ success: true, games: gRates }); 
+        } else { 
+            res.json({ success: true, games: [] }); 
+        } 
+    } catch (error) { 
+        res.status(500).json({ success: false, message: "Lỗi server." }); 
+    } 
+});
 
 // 5. Quản lý Token & User Admin
 app.post('/api/link-user', async (req, res) => { try { const { adminId, username } = req.body; if (!adminId || !username) return res.status(400).json({ success: false, message: "Nhập username." }); const user = await User.findOne({ username, is_admin: false }); if (!user) return res.status(404).json({ success: false, message: `User "${username}" không tồn tại.` }); if (user.managed_by_admin_ids.includes(adminId)) return res.status(409).json({ success: false, message: "Đã quản lý user này." }); await User.updateOne({ _id: user._id }, { $push: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Thêm thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
@@ -211,24 +283,17 @@ app.post('/api/grant-coins-to-admin', async (req, res) => { try { const { adminI
 app.post('/api/revoke-coins-from-admin', async (req, res) => { try { const { adminId, amount } = req.body; const u = await User.findById(adminId); u.coins = Math.max(0, u.coins - parseInt(amount)); await u.save(); res.json({ success: true, message: "Thu hồi thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 app.post('/api/delete-sub-admin', async (req, res) => { try { const { adminId } = req.body; await User.deleteOne({ _id: adminId }); await User.updateMany({ managed_by_admin_ids: adminId }, { $pull: { managed_by_admin_ids: adminId } }); res.json({ success: true, message: "Xóa thành công!" }); } catch (error) { res.status(500).json({ success: false, message: "Lỗi server." }); } });
 
-// ... (LOGIC HACK GIỮ NGUYÊN) ...
+// LOGIC HACK
 app.post('/api/analyze-game', async (req, res) => { 
     try { 
         const { username, winRate, brandName, currentBalance } = req.body; 
-        
         const user = await User.findOne({ username }); 
         const cur = user.coins_by_brand.get(brandName) || 0; 
-
         if (cur < 10) return res.json({ success: false, message: "Không đủ 10 Token.", outOfTokens: true }); 
-
-        // Trừ token
         user.coins_by_brand.set(brandName, cur - 10); 
         await user.save(); 
-
-        // === LOGIC THUẬT TOÁN MỚI: KHỚP VỐN ===
         const balance = parseInt(currentBalance) || 0; 
         const balanceInK = balance / 1000; 
-        
         let betMoiVal = 0.8; 
         if (balance < 150000) betMoiVal = 0.8;
         else if (balance < 300000) betMoiVal = 1.2;
@@ -238,16 +303,13 @@ app.post('/api/analyze-game', async (req, res) => {
         else if (balance < 15000000) betMoiVal = 8;
         else if (balance < 30000000) betMoiVal = 16;
         else betMoiVal = 20; 
-
         const quayMoiVong = Math.floor(Math.random() * 21) + 20; 
         const costMoiInK = quayMoiVong * betMoiVal;
         const targetAutoCost = balanceInK - costMoiInK;
         const allowedAutoBets = [20, 24, 28, 32, 36, 40, 60, 100];
-        
         let bestAutoVong = 20; 
         let bestAutoBet = 20;
         let minDifference = Infinity; 
-
         for (let v = 20; v <= 40; v++) {
             for (let b of allowedAutoBets) {
                 let currentCost = v * b;
@@ -259,34 +321,16 @@ app.post('/api/analyze-game', async (req, res) => {
                 }
             }
         }
-
         if (targetAutoCost > 5000) { bestAutoBet = 100; bestAutoVong = 40; }
         if (targetAutoCost < 100) { bestAutoBet = 20; bestAutoVong = 20; }
-
         const formatK = (n) => n + 'K';
         const base = parseInt(winRate) || 80;
         const calculatedRate = Math.min(99, base + Math.floor(Math.random() * 5));
-
-        const getVietnamTime = (offsetMinutes = 0) => {
-            const d = new Date();
-            d.setMinutes(d.getMinutes() + offsetMinutes);
-            return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false });
-        };
-
+        const getVietnamTime = (offsetMinutes = 0) => { const d = new Date(); d.setMinutes(d.getMinutes() + offsetMinutes); return d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false }); };
         const startTime = getVietnamTime(0); 
         const endTime = getVietnamTime(5); 
-
-        const analysisResults = {
-            finalRate: calculatedRate,
-            quayMoiVong: quayMoiVong, 
-            quayMoiMucCuoc: betMoiVal + "K", 
-            quayAutoVong: bestAutoVong, 
-            quayAutoMucCuoc: formatK(bestAutoBet), 
-            khungGio: `${startTime} - ${endTime}`
-        };
-
+        const analysisResults = { finalRate: calculatedRate, quayMoiVong: quayMoiVong, quayMoiMucCuoc: betMoiVal + "K", quayAutoVong: bestAutoVong, quayAutoMucCuoc: formatK(bestAutoBet), khungGio: `${startTime} - ${endTime}` };
         res.json({ success: true, message: "HACK thành công!", newCoinBalance: cur - 10, analysisResult: analysisResults }); 
-
     } catch (error) { 
         console.error(error);
         res.status(500).json({ success: false, message: "Lỗi server." }); 

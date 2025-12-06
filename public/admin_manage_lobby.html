@@ -8,9 +8,8 @@
     <link rel="manifest" href="/manifest.json">
 </head>
 <script>
-    // === BẮT BUỘC KIỂM TRA ĐĂNG NHẬP ===
     if (!localStorage.getItem('username')) {
-        window.location.href = '/'; // Chuyển về trang đăng nhập
+        window.location.href = '/';
     }
 </script>
 <body class="admin-page">
@@ -49,19 +48,16 @@
         </div>
     </div>
 
-    <!-- === BẮT ĐẦU: MODAL CHỈNH SỬA GAME MỚI === -->
     <div id="editGameModal" class="modal">
         <div class="modal-content fadeIn">
             <span class="close-btn" onclick="closeModals()">&times;</span>
             <h2 id="edit-game-title">Chỉnh Sửa Ảnh Game</h2>
             <form id="edit-game-form">
                 <input type="hidden" name="game_id" id="edit-game-id">
-                
                 <div class="form-group" style="text-align: center;">
                     <label>Ảnh Hiện Tại</label>
                     <img id="current-game-image" src="" style="width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd;">
                 </div>
-
                 <div class="form-group">
                     <label>Chọn Ảnh Mới</label>
                     <input type="file" name="image" accept="image/*" required>
@@ -71,7 +67,6 @@
             <div id="edit-game-modal-message" class="modal-alert"></div>
         </div>
     </div>
-    <!-- === KẾT THÚC: MODAL MỚI === -->
 
 
     <script>
@@ -80,8 +75,6 @@
         const addGameModal = document.getElementById('addGameModal');
         const addGameForm = document.getElementById('add-game-form');
         const modalMessageEl = document.getElementById('modal-message');
-        
-        // === THÊM MỚI: Lấy các phần tử của modal edit game ===
         const editGameModal = document.getElementById('editGameModal');
         const editGameForm = document.getElementById('edit-game-form');
         const editGameModalMessageEl = document.getElementById('edit-game-modal-message');
@@ -89,6 +82,9 @@
         const params = new URLSearchParams(window.location.search);
         const lobbyId = params.get('id');
         const lobbyName = decodeURIComponent(params.get('name'));
+        
+        // === CẬP NHẬT: Kiểm tra quyền Super Admin ===
+        const isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
 
         function showToast(message, isSuccess = true) {
             const container = document.getElementById('toast-container');
@@ -132,7 +128,8 @@
             addGameModal.style.display = 'none'; 
             editGameModal.style.display = 'none';
         }
-
+        
+        // === CẬP NHẬT: Render giao diện chỉnh sửa tỷ lệ ===
         async function fetchAndDisplayGames() {
             if (!lobbyId) {
                 gameContainer.innerHTML = '<p>Lỗi: Không tìm thấy ID của sảnh.</p>';
@@ -147,6 +144,27 @@
                     const card = document.createElement('div');
                     card.className = 'card';
                     
+                    const manualRateValue = game.manual_win_rate !== null ? game.manual_win_rate : '';
+                    
+                    const winRateEditorHTML = isSuperAdmin ? `
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <label style="font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 8px;">
+                                Tỷ Lệ Thắng (%)
+                            </label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" id="rate-input-${game._id}"
+                                       value="${manualRateValue}"
+                                       placeholder="Ngẫu nhiên"
+                                       min="0" max="100"
+                                       style="flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; text-align: center; font-weight: bold;">
+                                <button class="btn-primary" style="padding: 8px 12px; font-size: 0.8em; width: auto; background: #28a745;"
+                                        onclick="saveWinRate('${game._id}')">
+                                    Lưu
+                                </button>
+                            </div>
+                        </div>
+                    ` : '';
+
                     card.innerHTML = `
                         <h4>${game.name}</h4>
                         <img src="${game.image_url}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px;" loading="lazy">
@@ -154,11 +172,40 @@
                                 onclick="openEditGameModal('${game._id}', '${game.name}', '${game.image_url}')">
                             Sửa Ảnh
                         </button>
+                        ${winRateEditorHTML}
                     `;
                     gameContainer.appendChild(card);
                 });
             } else {
                 gameContainer.innerHTML = `<p style="text-align:center; color: #888; grid-column: 1 / -1;">Chưa có game nào trong sảnh này.</p>`;
+            }
+        }
+        
+        // === CẬP NHẬT: Hàm mới để lưu tỷ lệ ===
+        async function saveWinRate(gameId) {
+            const input = document.getElementById(`rate-input-${gameId}`);
+            const rate = input.value;
+
+            if (rate !== '' && (parseInt(rate) < 0 || parseInt(rate) > 100)) {
+                showToast("Tỷ lệ phải từ 0 đến 100, hoặc để trống để random.", false);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/set-manual-win-rate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ game_id: gameId, rate: rate })
+                });
+                const result = await response.json();
+                showToast(result.message, result.success);
+                
+                if (result.success && rate === '') {
+                     input.placeholder = "Ngẫu nhiên";
+                }
+
+            } catch (error) {
+                showToast('Lỗi kết nối máy chủ!', false);
             }
         }
 
